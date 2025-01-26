@@ -44,10 +44,11 @@ export async function POST(req) {
             'INSERT INTO trainer (trainer_username, trainer_password, trainer_firstname, trainer_lastname, trainer_nickname, trainer_email, trainer_phone, trainer_dob, trainer_gender, trainer_exp, trainer_startdate, trainer_enddate, trainer_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
             [
                 trainer_username, trainer_password,
-                trainer_firstname, trainer_lastname, trainer_nickname,
-                trainer_email, trainer_phone, trainer_dob,
-                trainer_gender, trainer_exp, trainer_startdate,
-                trainer_enddate, 0
+                trainer_firstname, trainer_lastname, 
+                trainer_nickname,trainer_email, 
+                trainer_phone, trainer_dob,
+                trainer_gender, trainer_exp, 
+                trainer_startdate,trainer_enddate, 0
             ]
         );
 
@@ -57,7 +58,7 @@ export async function POST(req) {
             { error: 'สร้างเทรนเนอร์ไม่สําเร็จ', details: error.message },
             { status: 500 }
         );
-    }
+    }   
 }
 
 
