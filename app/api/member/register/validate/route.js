@@ -22,7 +22,7 @@ export async function POST(req) {
 
     // ตรวจสอบว่ามี Registration ID อยู่หรือไม่
     const [registration] = await pool.query(
-      `SELECT * FROM registration_requests WHERE trainer_id = ? AND registration_id = ?`,
+      `SELECT * FROM registration WHERE trainer_id = ? AND registration_id = ?`,
       [trainer_id, registration_id]
     );
 
