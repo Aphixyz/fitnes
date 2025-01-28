@@ -16,21 +16,22 @@ export async function POST(req) {
   try {
     const body = await req.json();
     const { 
-        trainer_id, 
-        registration_id, 
-        hash, 
-        member_username, 
-        member_password, 
-        member_firstname, 
-        member_lastname, 
-        member_email, 
-        member_phone, 
-        member_gender, 
-        member_dob 
-      } = body;
+      trainer_id, 
+      registration_id, 
+      hash, 
+      member_username, 
+      member_password, 
+      member_firstname, 
+      member_lastname, 
+      member_email, 
+      member_phone, 
+      member_gender, 
+      member_dob 
+    } = body;
 
-    if (!trainer_id || !registration_id || !hash) {
-      return new Response(JSON.stringify({ error: "Trainer ID, Registration ID, and Hash are required" }), { status: 400 });
+    // ตรวจสอบว่าข้อมูลที่จำเป็นครบหรือไม่
+    if (!trainer_id || !registration_id || !hash || !member_username || !member_password) {
+      return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
     }
 
     // ตรวจสอบ Hash
@@ -38,22 +39,33 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: "Invalid or tampered link" }), { status: 400 });
     }
 
-    // เพิ่มข้อมูลสมาชิก
+    // เพิ่มข้อมูลสมาชิกในฐานข้อมูล
     const [resMember] = await pool.query(
-        `INSERT INTO member (member_username, member_password, member_firstname, member_lastname, member_email, member_phone, member_gender, member_dob) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [member_username, member_password, member_firstname, member_lastname, member_email, member_phone, member_gender, member_dob]
+      `INSERT INTO member (member_username, member_password, member_firstname, member_lastname, member_email, member_phone, member_gender, member_dob) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [member_username, member_password, member_firstname, member_lastname, member_email, member_phone, member_gender, member_dob]
     );
 
+    // ตรวจสอบการเพิ่มข้อมูลสมาชิก
+    if (!resMember.insertId) {
+      return new Response(JSON.stringify({ error: "Failed to create member" }), { status: 500 });
+    }
+
     // อัปเดตคำขอในฐานข้อมูล
-    await pool.query(
-      `UPDATE registration SET member_id = ?, registration_status = 'approved' WHERE registration_id = ?`,
-      [resMember.insertId, registration_id]
+    const result = await pool.query(
+      `UPDATE registration SET member_id = ?, registration_status = 'approved' WHERE registration_id = ? AND trainer_id = ?`,
+      [resMember.insertId, registration_id, trainer_id]
     );
+
+    if (result.affectedRows === 0) {
+      return new Response(JSON.stringify({ error: "Invalid registration or trainer ID" }), { status: 400 });
+    }
 
     return new Response(JSON.stringify({ message: "Registration successful" }), { status: 200 });
   } catch (error) {
+    console.error("Error during registration:", error);
     return new Response(
       JSON.stringify({ error: "Failed to register", details: error.message }),
-      { status: 500 });
+      { status: 500 }
+    );
   }
 }
