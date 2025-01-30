@@ -12,17 +12,23 @@ export default function AdminLayout({ children }) {
 
           {/* Navigation Links */}
           <div className="space-x-6">
+            {/* <Link
+              href="/admin/admin_addtrainer"
+              className="hover:bg-orange-400 text-black px-4 py-2 rounded-md"
+            >
+              เพิ่มเทรนเนอร์
+            </Link> */}
             <Link
               href="/admin/admin_trainerlist"
               className="hover:bg-orange-400 text-black px-4 py-2 rounded-md"
             >
-              Trainer List
+              รายชื่อเทรนเนอร์
             </Link>
             <Link
               href="/admin/admin_memberlist"
               className="hover:bg-orange-400 text-black px-4 py-2 rounded-md"
             >
-              Member List
+              รายชื่อลูกเทรน
             </Link>
           </div>
         </div>
@@ -32,4 +38,5 @@ export default function AdminLayout({ children }) {
       <main>{children}</main>
     </section>
   );
+  
 }
