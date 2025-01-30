@@ -75,6 +75,10 @@ function Page() {
     }
   };
 
+  const handleAddtrainer = (trainer) => {
+    
+  };
+
   const handleEdit = (trainer) => {
     const trainerData = encodeURIComponent(JSON.stringify(trainer));
     router.push(`/trainer?trainerData=${trainerData}`);
@@ -95,7 +99,9 @@ function Page() {
         setTrainers((prevTrainers) =>
           prevTrainers.filter((t) => t.trainer_id !== trainer.trainer_id)
         );
-        setAlertMessage(`Trainer ${trainer.trainer_name} has been deleted successfully.`);
+        setAlertMessage(
+          `Trainer ${trainer.trainer_name} has been deleted successfully.`
+        );
         setShowAlert(true);
       } else {
         console.error("Failed to delete trainer");
@@ -117,7 +123,18 @@ function Page() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-black">
-      <h1 className="text-2xl font-bold mb-4 flex justify-center">Trainer List</h1>
+      <h1 className="text-2xl font-bold mb-4 flex justify-center">
+        Trainer List
+      </h1>
+
+      <div className="flex justify-end mb-4">
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          onClick={() => handleAddtrainer(trainer)}
+        >
+          เพิ่มเทรนเนอร์
+        </button>
+      </div>
 
       {showAlert && (
         <AlertModal
@@ -137,7 +154,10 @@ function Page() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {trainers.length > 0 ? (
           trainers.map((trainer) => (
-            <div key={trainer.trainer_id} className="bg-white shadow rounded-lg p-4">
+            <div
+              key={trainer.trainer_id}
+              className="bg-white shadow rounded-lg p-4"
+            >
               <h2 className="text-lg font-semibold">{trainer.trainer_name}</h2>
               <p>Id: {trainer.trainer_id}</p>
               <p>Username: {trainer.trainer_username}</p>
@@ -145,6 +165,18 @@ function Page() {
               <p>First Name: {trainer.trainer_firstname}</p>
               <p>Last Name: {trainer.trainer_lastname}</p>
               <p>Email: {trainer.trainer_email}</p>
+              <p>
+                Start Date:{" "}
+                {trainer.trainer_status === 0
+                  ? "0000-00-00"
+                  : trainer.trainer_startdate}
+              </p>
+              <p>
+                End Date:{" "}
+                {trainer.trainer_status === 0
+                  ? "0000-00-00"
+                  : trainer.trainer_enddate}
+              </p>
               <p>
                 Status:{" "}
                 <span
