@@ -46,6 +46,42 @@ const ConfirmDeleteModal = ({ trainer, onConfirm, onCancel }) => {
   );
 };
 
+// Confirm Status Change Modal
+const ConfirmStatusModal = ({ trainer, onConfirm, onCancel }) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg p-6 shadow-lg text-center">
+        <p className="text-xl font-bold text-gray-800">
+          คุณต้องการเปลี่ยนสถานะของเทรนเนอร์ {trainer.trainer_firstname}{" "}
+          {trainer.trainer_lastname} เป็น{" "}
+          <span
+            className={
+              trainer.trainer_status === 1 ? "text-red-600" : "text-green-600"
+            }
+          >
+            {trainer.trainer_status === 1 ? "Inactive" : "Active"}
+          </span>
+          ใช่หรือไม่?
+        </p>
+        <div className="flex justify-center space-x-4 mt-4">
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+            onClick={onConfirm}
+          >
+            ยืนยัน
+          </button>
+          <button
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+            onClick={onCancel}
+          >
+            ยกเลิก
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Trainer Form Modal Component
 const TrainerFormModal = ({ isOpen, onClose, refreshTrainers, editData = null }) => {
   if (!isOpen) return null;
@@ -230,6 +266,7 @@ function Page() {
   const [trainers, setTrainers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [showConfirmStatus, setShowConfirmStatus] = useState(false);
   const [selectedTrainer, setSelectedTrainer] = useState(null);
   const [editTrainer, setEditTrainer] = useState(null);
   const router = useRouter();
@@ -283,6 +320,40 @@ function Page() {
   const handleModalClose = () => {
     setIsModalOpen(false);
     setEditTrainer(null);
+  };
+
+  // Handle Status Change Click (Show Confirmation Modal)
+  const handleStatusChangeClick = (trainer) => {
+    setSelectedTrainer(trainer);
+    setShowConfirmStatus(true);
+  };
+
+  // Handle Confirmed Status Change
+  const confirmStatusChange = async () => {
+    if (!selectedTrainer) return;
+    try {
+      const newStatus = selectedTrainer.trainer_status === 1 ? 0 : 1;
+      const response = await fetch(`/api/trainer/${selectedTrainer.trainer_id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trainer_status: newStatus }),
+      });
+
+      if (response.ok) {
+        setTrainers((prevTrainers) =>
+          prevTrainers.map((trainer) =>
+            trainer.trainer_id === selectedTrainer.trainer_id
+              ? { ...trainer, trainer_status: newStatus }
+              : trainer
+          )
+        );
+      } else {
+        alert("❌ เปลี่ยนสถานะไม่สำเร็จ");
+      }
+    } catch (error) {
+      console.error("Error changing trainer status:", error);
+    }
+    setShowConfirmStatus(false);
   };
 
   useEffect(() => {
@@ -340,7 +411,8 @@ function Page() {
                   : trainer.trainer_enddate}
               </p>
               <p>
-                Status:{" "}
+                
+              Status:{" "}
                 <span
                   className={
                     trainer.trainer_status === 1
@@ -348,9 +420,33 @@ function Page() {
                       : "text-red-600 font-bold"
                   }
                 >
-                  {trainer.trainer_status === 1 ? "Active" : "Inactive"}
+                  {trainer.trainer_status === 1 ? "Active" : "Inactive"} 
                 </span>
               </p>
+              {/* Toggle Switch for Status */}
+              <div className="flex justify-center mt-3">
+                <label className="inline-flex items-center cursor-pointer">
+                  <span className="mr-3 text-gray-700">Status</span>
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={trainer.trainer_status === 1}
+                    onChange={() => handleStatusChangeClick(trainer)}
+                  />
+                  <div
+                    className={`relative w-12 h-6 rounded-full transition ${
+                      trainer.trainer_status === 1 ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                  >
+                    <div
+                      className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition ${
+                        trainer.trainer_status === 1 ? "translate-x-6" : ""
+                      }`}
+                    ></div>
+                  </div>
+                </label>
+              </div>
+
               <div className="flex justify-center mt-3">
                 <button
                   onClick={() => handleEdit(trainer)}
@@ -381,6 +477,15 @@ function Page() {
           onCancel={cancelDelete}
         />
       )}
+
+      {showConfirmStatus && selectedTrainer && (
+        <ConfirmStatusModal
+          trainer={selectedTrainer}
+          onConfirm={confirmStatusChange}
+          onCancel={() => setShowConfirmStatus(false)}
+        />
+      )}
+      
     </div>
   );
 }
