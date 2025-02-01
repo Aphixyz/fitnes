@@ -19,7 +19,7 @@ export default function AdminLayout({ children }) {
               เพิ่มเทรนเนอร์
             </Link> */}
             <Link
-              href="/admin/admin_trainerlist"
+              href="/admin/admin_trainer"
               className="hover:bg-orange-400 text-black px-4 py-2 rounded-md"
             >
               Trainer List
