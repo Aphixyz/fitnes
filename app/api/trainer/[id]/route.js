@@ -75,7 +75,7 @@ export async function PUT(req, { params }) {
 // PATCH: Update specific trainer fields & status
 export async function PATCH(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json({ error: "Trainer ID is required" }, { status: 400 });
