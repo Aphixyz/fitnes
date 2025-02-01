@@ -1,18 +1,20 @@
 import pool from '../../../lib/db';
 import { NextResponse } from 'next/server';
 
+// GET: Fetch all trainers
 export async function GET() {
     try {
         const [trainers] = await pool.query('SELECT * FROM trainer');
         return NextResponse.json({ trainers }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { error: 'ดึงข้อมูลเทรนเนอร์ไม่สําเร็จ', details: error.message },
+            { error: 'Failed to fetch trainers', details: error.message },
             { status: 500 }
         );
     }
 }
 
+// POST: Create a new trainer
 export async function POST(req) {
     try {
         const body = await req.json();
@@ -24,79 +26,35 @@ export async function POST(req) {
             trainer_enddate 
         } = body;
 
-        console.log(
-            trainer_username, trainer_password,
-            trainer_firstname, trainer_lastname, trainer_nickname,
-            trainer_email, trainer_phone, trainer_dob,
-            trainer_gender, trainer_exp, trainer_startdate,
-            trainer_enddate
-        );
-
-        // Add input validation here
-        if (!trainer_username || !trainer_password) {
+        // Validate required fields
+        if (!trainer_username || !trainer_password || !trainer_email) {
             return NextResponse.json(
-                { error: 'ต้องระบุชื่อผู้ใช้งานและรหัสผ่าน' },
+                { error: 'Username, Password, and Email are required' },
                 { status: 400 }
             );
         }
 
-        const [res] = await pool.query(
-            'INSERT INTO trainer (trainer_username, trainer_password, trainer_firstname, trainer_lastname, trainer_nickname, trainer_email, trainer_phone, trainer_dob, trainer_gender, trainer_exp, trainer_startdate, trainer_enddate, trainer_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-            [
-                trainer_username, trainer_password,
-                trainer_firstname, trainer_lastname, trainer_nickname,
-                trainer_email, trainer_phone, trainer_dob,
-                trainer_gender, trainer_exp, trainer_startdate,
-                trainer_enddate, 0
-            ]
-        );
+        const sql = `
+            INSERT INTO trainer 
+            (trainer_username, trainer_password, trainer_firstname, trainer_lastname, trainer_nickname, 
+            trainer_email, trainer_phone, trainer_dob, trainer_gender, trainer_exp, trainer_startdate, trainer_enddate, trainer_status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-        return NextResponse.json({ res }, { status: 200 });
+        const values = [
+            trainer_username, trainer_password,
+            trainer_firstname, trainer_lastname, trainer_nickname,
+            trainer_email, trainer_phone, trainer_dob,
+            trainer_gender, trainer_exp, trainer_startdate,
+            trainer_enddate, 0
+        ];
+
+        const [res] = await pool.query(sql, values);
+
+        return NextResponse.json({ message: "Trainer created successfully", trainer_id: res.insertId }, { status: 201 });
     } catch (error) {
         return NextResponse.json(
-            { error: 'สร้างเทรนเนอร์ไม่สําเร็จ', details: error.message },
+            { error: 'Failed to create trainer', details: error.message },
             { status: 500 }
         );
     }
 }
-
-
-
-
-
-// export async function POST(req) {
-//     try {
-//         const body = await req.json();
-//         const { 
-//             member_id, member_name, member_pass,
-//             member_firstname, member_lastname, member_nickname,
-//             member_email, member_phone, member_dob,
-//             member_gender, member_exp, member_startdate,
-//             member_enddate, member_status 
-//         } = body;
-
-//         // Add input validation here
-//         if (!member_id || !member_name || !member_pass) {
-//             return NextResponse.json(
-//                 { error: 'Missing required fields' },
-//                 { status: 400 }
-//             );
-//         }
-
-//         const [res] = await pool.query(
-//             'INSERT INTO member VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-//             [member_id, member_name, member_pass,
-//              member_firstname, member_lastname, member_nickname,
-//              member_email, member_phone, member_dob,
-//              member_gender, member_exp, member_startdate,
-//              member_enddate, member_status]
-//         );
-
-//         return NextResponse.json({ res }, { status: 200 });
-//     } catch (error) {
-//         return NextResponse.json(
-//             { error: 'Failed to create member', details: error.message },
-//             { status: 500 }
-//         );
-//     }
-// }
