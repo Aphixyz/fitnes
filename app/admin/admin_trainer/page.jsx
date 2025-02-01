@@ -203,14 +203,14 @@ const TrainerFormModal = ({ isOpen, onClose, refreshTrainers, editData = null })
             required
             className="w-full p-2 border rounded-lg"
           />
-          <input
+          {/* <input
             type="date"
             name="trainer_dob"
             value={formData.trainer_dob}
             onChange={handleChange}
             required
             className="w-full p-2 border rounded-lg"
-          />
+          /> */}
           <select
             name="trainer_gender"
             value={formData.trainer_gender}

@@ -1,54 +1,48 @@
 import pool from "../../../../lib/db";
 import { NextResponse } from "next/server";
 
-
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
-      const { id } = params;  // ดึงค่า id จาก params
-
-      // ใช้ pool.query เพื่อดึงข้อมูลจากฐานข้อมูล
-      const [trainer] = await pool.query('SELECT * FROM trainer WHERE trainer_id = ?', [id]);
-
-      if (trainer.length === 0) {
-          return Response.json(
-              { error: 'ไม่พบเทรนเนอร์ที่มี ID นี้' },
-              { status: 404 }
-          );
-      }
-
-      return Response.json({ trainer }, { status: 200 });
-  } catch (error) {
-      return Response.json(
-          { error: 'ดึงข้อมูลเทรนเนอร์ไม่สำเร็จ', details: error.message },
-          { status: 500 }
-      );
-  }
-}
-
-
-
-export async function PUT(req, { params }) {
-  try {
-    const { id } = params;
-
+    const { id } = context.params; //ใช้ context.params
     if (!id) {
       return NextResponse.json({ error: "Trainer ID is required" }, { status: 400 });
     }
 
+    // ดึงข้อมูลจากฐานข้อมูล
     const [trainer] = await pool.query("SELECT * FROM trainer WHERE trainer_id = ?", [id]);
 
-    if (trainer.length === 0) {
-      return NextResponse.json({ error: `No trainer found with id ${id}` }, { status: 404 });
+    if (!trainer.length) {
+      return NextResponse.json({ error: `No trainer found with ID ${id}` }, { status: 404 });
     }
 
     return NextResponse.json({ trainer: trainer[0] }, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch trainer", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch trainer", details: error.message }, { status: 500 });
   }
 }
+
+// export async function PUT(req, { params }) {
+//   try {
+//     const { id } = params;
+
+//     if (!id) {
+//       return NextResponse.json({ error: "Trainer ID is required" }, { status: 400 });
+//     }
+
+//     const [trainer] = await pool.query("SELECT * FROM trainer WHERE trainer_id = ?", [id]);
+
+//     if (trainer.length === 0) {
+//       return NextResponse.json({ error: `No trainer found with id ${id}` }, { status: 404 });
+//     }
+
+//     return NextResponse.json({ trainer: trainer[0] }, { status: 200 });
+//   } catch (error) {
+//     return NextResponse.json(
+//       { error: "Failed to fetch trainer", details: error.message },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 // PUT: Update an entire trainer record
 export async function PUT(req, { params }) {
