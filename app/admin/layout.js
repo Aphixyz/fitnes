@@ -22,13 +22,13 @@ export default function AdminLayout({ children }) {
               href="/admin/admin_trainerlist"
               className="hover:bg-orange-400 text-black px-4 py-2 rounded-md"
             >
-              รายชื่อเทรนเนอร์
+              Trainer List
             </Link>
             <Link
               href="/admin/admin_memberlist"
               className="hover:bg-orange-400 text-black px-4 py-2 rounded-md"
             >
-              รายชื่อลูกเทรน
+              Member List
             </Link>
           </div>
         </div>
