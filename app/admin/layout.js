@@ -25,7 +25,7 @@ export default function AdminLayout({ children }) {
               Trainer List
             </Link>
             <Link
-              href="/admin/admin_memberlist"
+              href="/admin/admin_member"
               className="hover:bg-orange-400 text-black px-4 py-2 rounded-md"
             >
               Member List
