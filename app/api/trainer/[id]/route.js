@@ -5,19 +5,31 @@ export async function GET(req, context) {
   try {
     const { id } = context.params; //ใช้ context.params
     if (!id) {
-      return NextResponse.json({ error: "Trainer ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Trainer ID is required" },
+        { status: 400 }
+      );
     }
 
     // ดึงข้อมูลจากฐานข้อมูล
-    const [trainer] = await pool.query("SELECT * FROM trainer WHERE trainer_id = ?", [id]);
+    const [trainer] = await pool.query(
+      "SELECT * FROM trainer WHERE trainer_id = ?",
+      [id]
+    );
 
     if (!trainer.length) {
-      return NextResponse.json({ error: `No trainer found with ID ${id}` }, { status: 404 });
+      return NextResponse.json(
+        { error: `No trainer found with ID ${id}` },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({ trainer: trainer[0] }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch trainer", details: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch trainer", details: error.message },
+      { status: 500 }
+    );
   }
 }
 
@@ -49,16 +61,27 @@ export async function PUT(req, { params }) {
   try {
     const { id } = params;
     if (!id) {
-      return NextResponse.json({ error: "Trainer ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Trainer ID is required" },
+        { status: 400 }
+      );
     }
 
     const body = await req.json();
     const {
-      trainer_username, trainer_password, trainer_firstname,
-      trainer_lastname, trainer_nickname, trainer_email,
-      trainer_phone, trainer_dob, trainer_gender,
-      trainer_exp, trainer_startdate, trainer_enddate,
-      trainer_status
+      trainer_username,
+      trainer_password,
+      trainer_firstname,
+      trainer_lastname,
+      trainer_nickname,
+      trainer_email,
+      trainer_phone,
+      trainer_dob,
+      trainer_gender,
+      trainer_exp,
+      trainer_startdate,
+      trainer_enddate,
+      trainer_status,
     } = body;
 
     const sql = `
@@ -69,20 +92,35 @@ export async function PUT(req, { params }) {
       WHERE trainer_id=?`;
 
     const values = [
-      trainer_username, trainer_password, trainer_firstname,
-      trainer_lastname, trainer_nickname, trainer_email,
-      trainer_phone, trainer_dob, trainer_gender,
-      trainer_exp, trainer_startdate, trainer_enddate,
-      trainer_status, id
+      trainer_username,
+      trainer_password,
+      trainer_firstname,
+      trainer_lastname,
+      trainer_nickname,
+      trainer_email,
+      trainer_phone,
+      trainer_dob,
+      trainer_gender,
+      trainer_exp,
+      trainer_startdate,
+      trainer_enddate,
+      trainer_status,
+      id,
     ];
 
     const [res] = await pool.query(sql, values);
 
     if (res.affectedRows === 0) {
-      return NextResponse.json({ error: `No trainer found with id ${id}` }, { status: 404 });
+      return NextResponse.json(
+        { error: `No trainer found with id ${id}` },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ message: "Trainer updated successfully" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Trainer updated successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to update trainer", details: error.message },
@@ -97,7 +135,10 @@ export async function PATCH(req, { params }) {
     const { id } = await params;
 
     if (!id) {
-      return NextResponse.json({ error: "Trainer ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Trainer ID is required" },
+        { status: 400 }
+      );
     }
 
     const body = await req.json();
@@ -106,11 +147,19 @@ export async function PATCH(req, { params }) {
 
     // Allowed fields for update
     const allowedFields = [
-      "trainer_username", "trainer_password", "trainer_firstname",
-      "trainer_lastname", "trainer_nickname", "trainer_email",
-      "trainer_phone", "trainer_dob", "trainer_gender",
-      "trainer_exp", "trainer_startdate", "trainer_enddate",
-      "trainer_status"  // รวม trainer_status ไว้ด้วย
+      "trainer_username",
+      "trainer_password",
+      "trainer_firstname",
+      "trainer_lastname",
+      "trainer_nickname",
+      "trainer_email",
+      "trainer_phone",
+      "trainer_dob",
+      "trainer_gender",
+      "trainer_exp",
+      "trainer_startdate",
+      "trainer_enddate",
+      "trainer_status", // รวม trainer_status ไว้ด้วย
     ];
 
     for (const key of allowedFields) {
@@ -122,7 +171,10 @@ export async function PATCH(req, { params }) {
 
     // ถ้าไม่มีอะไรต้องอัปเดต
     if (updateFields.length === 0) {
-      return NextResponse.json({ error: "No fields provided for update" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No fields provided for update" },
+        { status: 400 }
+      );
     }
 
     // ตรวจสอบ trainer_status (ถ้ามี)
@@ -139,16 +191,23 @@ export async function PATCH(req, { params }) {
     values.push(id);
 
     // สร้าง SQL สำหรับอัปเดต
-    const sql = `UPDATE trainer SET ${updateFields.join(", ")} WHERE trainer_id = ?`;
+    const sql = `UPDATE trainer SET ${updateFields.join(
+      ", "
+    )} WHERE trainer_id = ?`;
 
     const [res] = await pool.query(sql, values);
 
     if (res.affectedRows === 0) {
-      return NextResponse.json({ error: `No trainer found with id ${id}` }, { status: 404 });
+      return NextResponse.json(
+        { error: `No trainer found with id ${id}` },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ message: "Trainer updated successfully" }, { status: 200 });
-
+    return NextResponse.json(
+      { message: "Trainer updated successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to update trainer", details: error.message },
@@ -163,16 +222,27 @@ export async function DELETE(req, { params }) {
     const { id } = params;
 
     if (!id) {
-      return NextResponse.json({ error: "Trainer ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Trainer ID is required" },
+        { status: 400 }
+      );
     }
 
-    const [res] = await pool.query("DELETE FROM trainer WHERE trainer_id=?", [id]);
+    const [res] = await pool.query("DELETE FROM trainer WHERE trainer_id=?", [
+      id,
+    ]);
 
     if (res.affectedRows === 0) {
-      return NextResponse.json({ error: `No trainer found with id ${id}` }, { status: 404 });
+      return NextResponse.json(
+        { error: `No trainer found with id ${id}` },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ message: "Trainer deleted successfully" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Trainer deleted successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to delete trainer", details: error.message },
