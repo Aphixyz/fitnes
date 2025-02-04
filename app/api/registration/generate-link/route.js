@@ -14,7 +14,7 @@ export async function POST(req) {
   try {
     const body = await req.json();
     const { trainer_id } = body;
-
+    
     if (!trainer_id) {
       return new Response(JSON.stringify({ error: "Trainer ID is required" }), { status: 400 });
     }

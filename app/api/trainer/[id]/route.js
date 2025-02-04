@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 
 export async function GET(req, context) {
   try {
-    const { id } = context.params; //ใช้ context.params
+    const params = await context.params;
+    const { id } = params;
     if (!id) {
       return NextResponse.json(
         { error: "Trainer ID is required" },

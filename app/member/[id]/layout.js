@@ -7,7 +7,7 @@ export default function AdminLayout({ children }) {
         <div className="flex items-center justify-between py-4 px-6">
           {/* Logo Section */}
           <div className="text-2xl font-bold text-black pl-0">
-            <Link href="/admin">Member Dashboard</Link>
+            <Link href="/member/${id}">Member Dashboard</Link>
           </div>
 
         </div>
