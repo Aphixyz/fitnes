@@ -12,23 +12,29 @@ export default function AdminLayout({ children }) {
 
           {/* Navigation Links */}
           <div className="space-x-6">
-            {/* <Link
-              href="/admin/admin_addtrainer"
-              className="hover:bg-orange-400 text-black px-4 py-2 rounded-md"
+            <Link
+              href="/admin"
+              className="hover:bg-orange-400 hover:text-white text-black px-4 py-2 rounded-md transition-colors duration-300"
             >
-              เพิ่มเทรนเนอร์
-            </Link> */}
+              หน้าหลัก
+            </Link>
             <Link
               href="/admin/admin_trainer"
-              className="hover:bg-orange-400 text-black px-4 py-2 rounded-md"
+              className="hover:bg-orange-400 hover:text-white text-black px-4 py-2 rounded-md transition-colors duration-300"
             >
-              Trainer List
+              รายชื่อผู้ฝึกสอน
             </Link>
             <Link
               href="/admin/admin_member"
-              className="hover:bg-orange-400 text-black px-4 py-2 rounded-md"
+              className="hover:bg-orange-400 hover:text-white text-black px-4 py-2 rounded-md transition-colors duration-300"
             >
-              Member List
+              รายชื่อลูกค้า
+            </Link>
+            <Link
+              href="/admin/admin_managetrainer"
+              className="hover:bg-orange-400 hover:text-white text-black px-4 py-2 rounded-md transition-colors duration-300"
+            >
+              การจัดการผู้ฝึกสอน
             </Link>
           </div>
         </div>
@@ -38,5 +44,4 @@ export default function AdminLayout({ children }) {
       <main>{children}</main>
     </section>
   );
-  
 }

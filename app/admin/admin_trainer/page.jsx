@@ -1,99 +1,14 @@
 "use client";
+
+import Swal from "sweetalert2";
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-
-// Success Modal Component
-const SuccessModal = ({ message, onClose }) => {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg p-6 shadow-lg text-center">
-        <p className="text-xl font-bold text-gray-800 mb-4">{message}</p>
-        <button
-          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
-          onClick={onClose}
-        >
-          ตกลง
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Confirm Delete Modal Component
-const ConfirmDeleteModal = ({ trainer, onConfirm, onCancel }) => {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg p-6 shadow-lg text-center">
-        <p className="text-xl font-bold text-gray-800">
-          คุณแน่ใจใช่ไหมที่จะลบเทรนเนอร์คนนี้ {trainer.trainer_name}?
-        </p>
-        <div className="flex justify-center space-x-4 mt-4">
-          <button
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-            onClick={() => onConfirm(trainer)}
-          >
-            ใช่
-          </button>
-          <button
-            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-            onClick={onCancel}
-          >
-            ไม่
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Confirm Status Change Modal
-const ConfirmStatusModal = ({ trainer, onConfirm, onCancel }) => {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg p-6 shadow-lg text-center">
-        <p className="text-xl font-bold text-gray-800">
-          คุณต้องการเปลี่ยนสถานะของเทรนเนอร์ {trainer.trainer_firstname}{" "}
-          {trainer.trainer_lastname} เป็น{" "}
-          <span
-            className={
-              trainer.trainer_status === 1 ? "text-red-600" : "text-green-600"
-            }
-          >
-            {trainer.trainer_status === 1 ? "Inactive" : "Active"}
-          </span>
-          ใช่หรือไม่?
-        </p>
-        <div className="flex justify-center space-x-4 mt-4">
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-            onClick={onConfirm}
-          >
-            ยืนยัน
-          </button>
-          <button
-            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-            onClick={onCancel}
-          >
-            ยกเลิก
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // Trainer Form Modal Component
-const TrainerFormModal = ({ isOpen, onClose, refreshTrainers, editData = null }) => {
+const TrainerFormModal = ({ isOpen, onClose, refreshTrainers }) => {
   if (!isOpen) return null;
 
-  const today = new Date().toISOString().slice(0, 10);
-  const defaultEndDate = new Date();
-  defaultEndDate.setDate(defaultEndDate.getDate() + 30);
-  const formattedEndDate = defaultEndDate.toISOString().slice(0, 10);
-
-  const [formData, setFormData] = useState(
-    editData || {
-      trainer_username: "",
+  const [formData, setFormData] = useState({
+    trainer_username: "",
       trainer_password: "",
       trainer_firstname: "",
       trainer_lastname: "",
@@ -104,11 +19,8 @@ const TrainerFormModal = ({ isOpen, onClose, refreshTrainers, editData = null })
       trainer_gender: "male",
       trainer_exp: 0,
       trainer_startdate: today,
-      trainer_enddate: formattedEndDate,
-    }
-  );
-
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+      trainer_enddate: formattedEndDate
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -118,27 +30,19 @@ const TrainerFormModal = ({ isOpen, onClose, refreshTrainers, editData = null })
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = editData 
-        ? `/api/trainer/${editData.trainer_id}`
-        : "/api/trainer";
-      
-      const method = editData ? "PUT" : "POST";
-      
-      const response = await fetch(url, {
-        method: method,
+      const response = await fetch("/api/trainer", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        setShowSuccessModal(true);
-        refreshTrainers();
-      } else {
-        const errorMessage = await response.text();
-        alert(`❌ ${editData ? 'แก้ไข' : 'เพิ่ม'} Trainer ไม่สำเร็จ: ${errorMessage}`);
-      }
+      if (!response.ok) throw new Error("เกิดข้อผิดพลาดในการเพิ่มข้อมูล");
+
+      Swal.fire("สำเร็จ!", "เพิ่มผู้ฝึกสอนเรียบร้อยแล้ว", "success");
+      refreshTrainers();
+      onClose();
     } catch (error) {
-      alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล: " + error.message);
+      Swal.fire("ผิดพลาด!", error.message, "error");
     }
   };
 
@@ -265,229 +169,78 @@ const TrainerFormModal = ({ isOpen, onClose, refreshTrainers, editData = null })
 function Page() {
   const [trainers, setTrainers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-  const [showConfirmStatus, setShowConfirmStatus] = useState(false);
-  const [selectedTrainer, setSelectedTrainer] = useState(null);
-  const [editTrainer, setEditTrainer] = useState(null);
-  const router = useRouter();
 
-  const fetchTrainer = async () => {
+  const fetchTrainers = async () => {
     try {
       const response = await fetch("/api/trainer");
+      if (!response.ok) throw new Error("เกิดข้อผิดพลาดในการโหลดข้อมูล");
       const data = await response.json();
       setTrainers(data.trainers);
     } catch (error) {
-      console.error("Error fetching trainer:", error);
+      Swal.fire("ผิดพลาด!", error.message, "error");
     }
-  };
-
-  const handleEdit = (trainer) => {
-    setEditTrainer(trainer);
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = async (trainer) => {
-    try {
-      const response = await fetch(`/api/trainer/${trainer.trainer_id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        alert("✅ ลบ Trainer สำเร็จ!");
-        fetchTrainer();
-      } else {
-        alert("❌ ลบ Trainer ไม่สำเร็จ");
-      }
-    } catch (error) {
-      alert("❌ เกิดข้อผิดพลาดในการลบ: " + error.message);
-    }
-  };
-
-  const handleDeleteClick = (trainer) => {
-    setSelectedTrainer(trainer);
-    setShowConfirmDelete(true);
-  };
-
-  const confirmDelete = () => {
-    handleDelete(selectedTrainer);
-    setShowConfirmDelete(false);
-  };
-
-  const cancelDelete = () => {
-    setShowConfirmDelete(false);
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setEditTrainer(null);
-  };
-
-  // Handle Status Change Click (Show Confirmation Modal)
-  const handleStatusChangeClick = (trainer) => {
-    setSelectedTrainer(trainer);
-    setShowConfirmStatus(true);
-  };
-
-  // Handle Confirmed Status Change
-  const confirmStatusChange = async () => {
-    if (!selectedTrainer) return;
-    try {
-      const newStatus = selectedTrainer.trainer_status === 1 ? 0 : 1;
-      const response = await fetch(`/api/trainer/${selectedTrainer.trainer_id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ trainer_status: newStatus }),
-      });
-
-      if (response.ok) {
-        setTrainers((prevTrainers) =>
-          prevTrainers.map((trainer) =>
-            trainer.trainer_id === selectedTrainer.trainer_id
-              ? { ...trainer, trainer_status: newStatus }
-              : trainer
-          )
-        );
-      } else {
-        alert("❌ เปลี่ยนสถานะไม่สำเร็จ");
-      }
-    } catch (error) {
-      console.error("Error changing trainer status:", error);
-    }
-    setShowConfirmStatus(false);
   };
 
   useEffect(() => {
-    fetchTrainer();
+    fetchTrainers();
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-black">
-      <h1 className="text-2xl font-bold mb-4 flex justify-center">
-        Trainer List
-      </h1>
-
       <div className="flex justify-end mb-4">
         <button
           className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
           onClick={() => setIsModalOpen(true)}
         >
-          Add Trainer
+          เพิ่มผู้ฝึกสอน
         </button>
       </div>
-
       {isModalOpen && (
         <TrainerFormModal
           isOpen={isModalOpen}
-          onClose={handleModalClose}
-          refreshTrainers={fetchTrainer}
-          editData={editTrainer}
+          onClose={() => setIsModalOpen(false)}
+          refreshTrainers={fetchTrainers}
         />
       )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {trainers.length > 0 ? (
-          trainers.map((trainer) => (
-            <div
-              key={trainer.trainer_id}
-              className="bg-white shadow rounded-lg p-4"
-            >
-              <h2 className="text-lg font-semibold">{trainer.trainer_name}</h2>
-              <p>Id: {trainer.trainer_id}</p>
-              <p>Username: {trainer.trainer_username}</p>
-              <p>Password: {trainer.trainer_password}</p>
-              <p>First Name: {trainer.trainer_firstname}</p>
-              <p>Last Name: {trainer.trainer_lastname}</p>
-              <p>Email: {trainer.trainer_email}</p>
-              <p>
-                Start Date:{" "}
-                {trainer.trainer_status === 0
-                  ? "0000-00-00"
-                  : trainer.trainer_startdate}
-              </p>
-              <p>
-                End Date:{" "}
-                {trainer.trainer_status === 0
-                  ? "0000-00-00"
-                  : trainer.trainer_enddate}
-              </p>
-              <p>
-                
-              Status:{" "}
-                <span
-                  className={
-                    trainer.trainer_status === 1
-                      ? "text-green-600 font-bold"
-                      : "text-red-600 font-bold"
-                  }
-                >
-                  {trainer.trainer_status === 1 ? "Active" : "Inactive"} 
-                </span>
-              </p>
-              {/* Toggle Switch for Status */}
-              <div className="flex justify-center mt-3">
-                <label className="inline-flex items-center cursor-pointer">
-                  <span className="mr-3 text-gray-700">Status</span>
-                  <input
-                    type="checkbox"
-                    className="hidden"
-                    checked={trainer.trainer_status === 1}
-                    onChange={() => handleStatusChangeClick(trainer)}
-                  />
-                  <div
-                    className={`relative w-12 h-6 rounded-full transition ${
-                      trainer.trainer_status === 1 ? "bg-green-500" : "bg-gray-400"
-                    }`}
-                  >
-                    <div
-                      className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition ${
-                        trainer.trainer_status === 1 ? "translate-x-6" : ""
-                      }`}
-                    ></div>
-                  </div>
-                </label>
-              </div>
-
-              <div className="flex justify-center mt-3">
-                <button
-                  onClick={() => handleEdit(trainer)}
-                  className="bg-yellow-500 hover:bg-yellow-600 mr-4 text-white py-2 px-4 rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(trainer)}
-                  className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="fixed inset-0 flex items-center justify-center font-bold text-2xl">
-            <p>Loading . . .</p>
-          </div>
-        )}
-      </div>
-
-      {showConfirmDelete && selectedTrainer && (
-        <ConfirmDeleteModal
-          trainer={selectedTrainer}
-          onConfirm={confirmDelete}
-          onCancel={cancelDelete}
-        />
-      )}
-
-      {showConfirmStatus && selectedTrainer && (
-        <ConfirmStatusModal
-          trainer={selectedTrainer}
-          onConfirm={confirmStatusChange}
-          onCancel={() => setShowConfirmStatus(false)}
-        />
-      )}
-      
+      <h1 className="text-2xl font-bold mb-4 text-center">รายชื่อผู้ฝึกสอน</h1>
+      <table className="min-w-full border border-gray-300 bg-white shadow-md">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="border px-4 py-2 text-center">รหัส</th>
+            <th className="border px-4 py-2 text-center">ชื่อ-นามสกุล</th>
+            <th className="border px-4 py-2 text-center">อีเมล</th>
+            <th className="border px-4 py-2 text-center">เบอร์โทร</th>
+            <th className="border px-4 py-2 text-center">ประสบการณ์ (ปี)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trainers.length > 0 ? (
+            trainers.map((trainer) => (
+              <tr key={trainer.trainer_id} className="border-b">
+                <td className="border px-4 py-2">{trainer.trainer_id}</td>
+                <td className="border px-4 py-2">
+                  {trainer.trainer_firstname} {trainer.trainer_lastname}
+                </td>
+                <td className="border px-4 py-2">{trainer.trainer_email}</td>
+                <td className="border px-4 py-2">{trainer.trainer_phone}</td>
+                <td className="border px-4 py-2">{trainer.trainer_exp} ปี</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5" className="text-center py-4">
+                ไม่มีข้อมูล
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
 
 export default Page;
+
+
+
+
