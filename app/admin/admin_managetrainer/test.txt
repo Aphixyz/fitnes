@@ -1,0 +1,638 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import Switch from "react-switch";
+import Swal from "sweetalert2";
+
+// Modal สำหรับยืนยันการลบเทรนเนอร์
+const ConfirmDeleteModal = ({ trainer, onConfirm, onCancel }) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg p-6 shadow-lg text-center">
+        <p className="text-xl font-bold text-gray-800">
+          คุณแน่ใจหรือไม่ที่จะลบเทรนเนอร์ {trainer.trainer_firstname} {trainer.trainer_lastname}?
+        </p>
+        <div className="flex justify-center space-x-4 mt-4">
+          <button
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+            onClick={() => onConfirm(trainer)}
+          >
+            ใช่
+          </button>
+          <button
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+            onClick={onCancel}
+          >
+            ไม่
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modal สำหรับแก้ไขข้อมูลเทรนเนอร์
+const EditTrainerModal = ({ trainer, onSave, onCancel }) => {
+  const [updatedTrainer, setUpdatedTrainer] = useState({ ...trainer });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedTrainer((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg p-6 shadow-lg">
+        <h2 className="text-xl font-bold mb-4">แก้ไขข้อมูลเทรนเนอร์</h2>
+        <div className="mb-4">
+          <label className="block text-sm font-medium">ชื่อ</label>
+          <input
+            type="text"
+            name="trainer_firstname"
+            value={updatedTrainer.trainer_firstname}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium">นามสกุล</label>
+          <input
+            type="text"
+            name="trainer_lastname"
+            value={updatedTrainer.trainer_lastname}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium">อีเมล</label>
+          <input
+            type="email"
+            name="trainer_email"
+            value={updatedTrainer.trainer_email}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-2 rounded"
+          />
+        </div>
+        <div className="flex justify-center space-x-4 mt-4">
+          <button
+            onClick={() => onSave(updatedTrainer)}
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+          >
+            บันทึก
+          </button>
+          <button
+            onClick={onCancel}
+            className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+          >
+            ยกเลิก
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function Page() {
+  const [trainers, setTrainers] = useState([]);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [selectedTrainer, setSelectedTrainer] = useState(null);
+  const [editTrainer, setEditTrainer] = useState(null);
+
+  useEffect(() => {
+    fetchTrainer();
+  }, []);
+
+  const fetchTrainer = async () => {
+    try {
+      const response = await fetch("/api/trainer");
+      const data = await response.json();
+      setTrainers(data.trainers);
+    } catch (error) {
+      console.error("Error fetching trainers:", error);
+    }
+  };
+
+  const handleDelete = async (trainer) => {
+    try {
+      const response = await fetch(`/api/trainer/${trainer.trainer_id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        Swal.fire("สำเร็จ!", "ลบเทรนเนอร์สำเร็จ!", "success");
+        fetchTrainer();
+      } else {
+        Swal.fire("ผิดพลาด!", "ลบเทรนเนอร์ไม่สำเร็จ", "error");
+      }
+    } catch (error) {
+      Swal.fire("ผิดพลาด!", error.message, "error");
+    }
+  };
+
+  const handleDeleteClick = (trainer) => {
+    setSelectedTrainer(trainer);
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDelete = () => {
+    handleDelete(selectedTrainer);
+    setShowConfirmDelete(false);
+  };
+
+  const toggleStatus = async (trainer) => {
+    const newStatus = trainer.trainer_status === 1 ? 0 : 1;
+
+    try {
+      const response = await fetch(`/api/trainer/${trainer.trainer_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trainer_status: newStatus }),
+      });
+
+      if (response.ok) {
+        Swal.fire("สำเร็จ!", "เปลี่ยนสถานะเทรนเนอร์สำเร็จ!", "success");
+        fetchTrainer();
+      } else {
+        Swal.fire("ผิดพลาด!", "เปลี่ยนสถานะเทรนเนอร์ไม่สำเร็จ", "error");
+      }
+    } catch (error) {
+      Swal.fire("ผิดพลาด!", error.message, "error");
+    }
+  };
+
+  const handleEdit = (trainer) => {
+    setEditTrainer(trainer);
+  };
+
+  const handleSaveEdit = async (trainer) => {
+    try {
+      const response = await fetch(`/api/trainer/${trainer.trainer_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(trainer),
+      });
+
+      if (response.ok) {
+        Swal.fire("สำเร็จ!", "แก้ไขเทรนเนอร์สำเร็จ!", "success");
+        fetchTrainer();
+        setEditTrainer(null); // ปิดโมดัลหลังจากบันทึก
+      } else {
+        Swal.fire("ผิดพลาด!", "แก้ไขเทรนเนอร์ไม่สำเร็จ", "error");
+      }
+    } catch (error) {
+      Swal.fire("ผิดพลาด!", error.message, "error");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-6 text-black">
+      <h1 className="text-2xl font-bold mb-4 flex justify-center">
+        รายชื่อเทรนเนอร์
+      </h1>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white shadow rounded-lg border-separate border-spacing-0">
+          <thead>
+            <tr className="bg-gray-200 border-b border-gray-400">
+              <th className="py-3 px-4 text-left">ชื่อ-นามสกุล</th>
+              <th className="py-3 px-4 text-left">รหัส</th>
+              <th className="py-3 px-4 text-left">อีเมล</th>
+              <th className="py-3 px-4 text-left">สถานะ</th>
+              <th className="py-3 px-4 text-left">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {trainers.length > 0 ? (
+              trainers.map((trainer) => (
+                <tr key={trainer.trainer_id} className="border-b border-gray-400">
+                  <td className="py-3 px-4">{trainer.trainer_firstname} {trainer.trainer_lastname}</td>
+                  <td className="py-3 px-4">{trainer.trainer_id}</td>
+                  <td className="py-3 px-4">{trainer.trainer_email}</td>
+                  <td className="py-3 px-4">
+                    <Switch
+                      checked={trainer.trainer_status === 1}
+                      onChange={() => toggleStatus(trainer)}
+                      onColor="#22c55e"
+                      offColor="#d1d5db"
+                      checkedIcon={false}
+                      uncheckedIcon={false}
+                    />
+                  </td>
+                  <td className="py-3 px-4">
+                    <button
+                      onClick={() => handleEdit(trainer)}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded"
+                    >
+                      แก้ไข
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(trainer)}
+                      className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded ml-2"
+                    >
+                      ลบ
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="py-3 px-4 text-center">กำลังโหลด...</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* แสดงโมดัลการลบ */}
+      {showConfirmDelete && selectedTrainer && (
+        <ConfirmDeleteModal
+          trainer={selectedTrainer}
+          onConfirm={confirmDelete}
+          onCancel={() => setShowConfirmDelete(false)}
+        />
+      )}
+
+      {/* แสดงโมดัลแก้ไข */}
+      {editTrainer && (
+        <EditTrainerModal
+          trainer={editTrainer}
+          onSave={handleSaveEdit}
+          onCancel={() => setEditTrainer(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+export default Page;
+
+
+
+
+
+
+
+
+
+
+"use client";
+import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import Switch from "react-switch";
+
+// Modal สำหรับยืนยันการลบเทรนเนอร์
+const ConfirmDeleteModal = ({ trainer, onConfirm, onCancel }) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg p-6 shadow-lg text-center">
+        <p className="text-xl font-bold text-gray-800">
+          คุณแน่ใจหรือไม่ที่จะลบเทรนเนอร์ {trainer.trainer_firstname}{" "}
+          {trainer.trainer_lastname}?
+        </p>
+        <div className="flex justify-center space-x-4 mt-4">
+          <button
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+            onClick={() => onConfirm(trainer)}
+          >
+            ใช่
+          </button>
+          <button
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+            onClick={onCancel}
+          >
+            ไม่
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modal สำหรับแก้ไขข้อมูลเทรนเนอร์
+const EditTrainerModal = ({ trainer, onSave, onCancel }) => {
+  const [formData, setFormData] = useState({
+    trainer_username: trainer.trainer_username,
+    trainer_password: "",
+    trainer_firstname: trainer.trainer_firstname,
+    trainer_lastname: trainer.trainer_lastname,
+    trainer_email: trainer.trainer_email,
+    trainer_phone: trainer.trainer_phone,
+    trainer_dob: trainer.trainer_dob,
+    trainer_gender: trainer.trainer_gender,
+    trainer_exp: trainer.trainer_exp,
+    trainer_id: trainer.trainer_id, // เพิ่มการเก็บ trainer_id ใน formData
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(formData); // ส่ง formData ที่มี trainer_id ไป
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-2xl">
+        <h2 className="text-xl font-bold mb-4">แก้ไขข้อมูลเทรนเนอร์</h2>
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <input
+            type="text"
+            name="trainer_username"
+            placeholder="ชื่อผู้ใช้"
+            value={formData.trainer_username}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="password"
+            name="trainer_password"
+            placeholder="รหัสผ่าน"
+            value={formData.trainer_password|| ""}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="text"
+            name="trainer_firstname"
+            placeholder="ชื่อ"
+            value={formData.trainer_firstname}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="text"
+            name="trainer_lastname"
+            placeholder="นามสกุล"
+            value={formData.trainer_lastname}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="email"
+            name="trainer_email"
+            placeholder="อีเมลล์"
+            value={formData.trainer_email}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="tel"
+            name="trainer_phone"
+            placeholder="เบอร์โทรศัพท์"
+            value={formData.trainer_phone}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="date"
+            name="trainer_dob"
+            placeholder="วันเกิด"
+            value={formData.trainer_dob}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded-lg"
+          />
+          <select
+            name="trainer_gender"
+            value={formData.trainer_gender}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded-lg"
+          >
+            <option value="male">ผู้ชาย</option>
+            <option value="female">ผู้หญิง</option>
+          </select>
+          <input
+            type="number"
+            name="trainer_exp"
+            placeholder="ประสบการณ์(ปี)"
+            value={formData.trainer_exp}
+            onChange={handleChange}
+            required
+            min="0"
+            className="w-full p-2 border rounded-lg"
+          />
+          <div className="flex justify-end mt-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600 mr-2"
+            >
+              ยกเลิก
+            </button>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600"
+            >
+              ยืนยัน
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+function Page() {
+  const [trainers, setTrainers] = useState([]);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [selectedTrainer, setSelectedTrainer] = useState(null);
+  const [editTrainer, setEditTrainer] = useState(null);
+
+  useEffect(() => {
+    fetchTrainer();
+  }, []);
+
+  const fetchTrainer = async () => {
+    try {
+      const response = await fetch("/api/trainer");
+      const data = await response.json();
+      console.log(data); // ตรวจสอบข้อมูลที่ได้รับจาก API
+      setTrainers(data.trainers);
+    } catch (error) {
+      console.error("Error fetching trainers:", error);
+    }
+  };
+  
+
+  const handleDelete = async (trainer) => {
+    try {
+      const response = await fetch(`/api/trainer/${trainer.trainer_id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        Swal.fire("สำเร็จ!", "ลบเทรนเนอร์สำเร็จ!", "success");
+        fetchTrainer();
+      } else {
+        Swal.fire("ผิดพลาด!", "ลบเทรนเนอร์ไม่สำเร็จ", "error");
+      }
+    } catch (error) {
+      Swal.fire("ผิดพลาด!", error.message, "error");
+    }
+  };
+
+  const handleDeleteClick = (trainer) => {
+    setSelectedTrainer(trainer);
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDelete = () => {
+    handleDelete(selectedTrainer);
+    setShowConfirmDelete(false);
+  };
+
+  const toggleStatus = async (trainer) => {
+    const newStatus = trainer.trainer_status === 1 ? 0 : 1;
+    
+    // เช็คข้อมูลที่จะส่งไป
+    console.log("Sending new status:", { trainer_status: newStatus });
+  
+    try {
+      const response = await fetch(`/api/trainer/${trainer.trainer_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trainer_status: newStatus }),
+      });
+  
+      if (response.ok) {
+        Swal.fire("สำเร็จ!", "เปลี่ยนสถานะเทรนเนอร์สำเร็จ!", "success");
+        fetchTrainer(); // โหลดข้อมูลใหม่หลังจากการเปลี่ยนสถานะ
+      } else {
+        Swal.fire("ผิดพลาด!", "เปลี่ยนสถานะเทรนเนอร์ไม่สำเร็จ", "error");
+      }
+    } catch (error) {
+      Swal.fire("ผิดพลาด!", error.message, "error");
+    }
+  };
+  
+
+  const handleEdit = (trainer) => {
+    setEditTrainer({
+      ...trainer,
+      trainer_id: trainer.trainer_id, // ส่ง id ไปด้วย
+    });
+  };
+
+  const handleSaveEdit = async (trainer) => {
+    try {
+      const response = await fetch(`/api/trainer/${trainer.trainer_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(trainer),
+      });
+
+      if (response.ok) {
+        Swal.fire("สำเร็จ!", "แก้ไขเทรนเนอร์สำเร็จ!", "success");
+        fetchTrainer();
+        setEditTrainer(null); // ปิดโมดัลหลังจากบันทึก
+      } else {
+        Swal.fire("ผิดพลาด!", "แก้ไขเทรนเนอร์ไม่สำเร็จ", "error");
+      }
+    } catch (error) {
+      Swal.fire("ผิดพลาด!", error.message, "error");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-6 text-black">
+      <h1 className="text-2xl font-bold mb-4 flex justify-center">
+        รายชื่อเทรนเนอร์
+      </h1>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white shadow rounded-lg border-separate border-spacing-0">
+          <thead>
+            <tr className="bg-gray-200 border-b border-gray-400">
+              <th className="py-3 px-4 text-left">รหัส</th>
+              <th className="py-3 px-4 text-left">ชื่อ-นามสกุล</th>
+              <th className="py-3 px-4 text-left">อีเมล</th>
+              <th className="py-3 px-4 text-left">สถานะ</th>
+              <th className="py-3 px-4 text-left">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {trainers.length > 0 ? (
+              trainers.map((trainer) => (
+                <tr
+                  key={trainer.trainer_id}
+                  className="border-b border-gray-400"
+                >
+                  <td className="py-3 px-4">{trainer.trainer_id}</td>
+                  <td className="py-3 px-4">
+                    {trainer.trainer_firstname} {trainer.trainer_lastname}
+                  </td>
+                  <td className="py-3 px-4">{trainer.trainer_email}</td>
+                  <td className="py-3 px-4">
+                    <Switch
+                      checked={trainer.trainer_status === 1}
+                      onChange={() => toggleStatus(trainer)}
+                      onColor="#22c55e"
+                      offColor="#d1d5db"
+                      checkedIcon={false}
+                      uncheckedIcon={false}
+                    />
+                  </td>
+                  <td className="py-3 px-4">
+                    <button
+                      onClick={() => handleEdit(trainer)}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded"
+                    >
+                      แก้ไข
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(trainer)}
+                      className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded ml-2"
+                    >
+                      ลบ
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="py-3 px-4 text-center">
+                  กำลังโหลด...
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* แสดงโมดัลการลบ */}
+      {showConfirmDelete && selectedTrainer && (
+        <ConfirmDeleteModal
+          trainer={selectedTrainer}
+          onConfirm={confirmDelete}
+          onCancel={() => setShowConfirmDelete(false)}
+        />
+      )}
+
+      {/* แสดงโมดัลแก้ไข */}
+      {editTrainer && (
+        <EditTrainerModal
+          trainer={editTrainer}
+          onSave={handleSaveEdit}
+          onCancel={() => setEditTrainer(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+export default Page;

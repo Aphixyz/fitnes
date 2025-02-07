@@ -1,174 +1,182 @@
 "use client";
 
-import Swal from "sweetalert2";
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
 // Trainer Form Modal Component
-const TrainerFormModal = ({ isOpen, onClose, refreshTrainers }) => {
-  if (!isOpen) return null;
+// const TrainerFormModal = ({ isOpen, onClose, refreshTrainers }) => {
+//   if (!isOpen) return null;
 
-  const [formData, setFormData] = useState({
-    trainer_username: "",
-      trainer_password: "",
-      trainer_firstname: "",
-      trainer_lastname: "",
-      trainer_nickname: "",
-      trainer_email: "",
-      trainer_phone: "",
-      trainer_dob: "",
-      trainer_gender: "male",
-      trainer_exp: 0,
-      trainer_startdate: today,
-      trainer_enddate: formattedEndDate
-  });
+//   const today = new Date().toISOString().split("T")[0];
+//   const formattedEndDate = new Date(
+//     new Date().setDate(new Date().getDate() + 30)
+//   )
+//     .toISOString()
+//     .split("T")[0]; // วันที่สิ้นสุด 30 วันหลังจากวันนี้
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+//   const [formData, setFormData] = useState({
+//     trainer_username: "",
+//     trainer_password: "",
+//     trainer_firstname: "",
+//     trainer_lastname: "",
+//     trainer_nickname: "",
+//     trainer_email: "",
+//     trainer_phone: "",
+//     trainer_dob: "",
+//     trainer_gender: "male",
+//     trainer_exp: 0,
+//     trainer_startdate: today,
+//     trainer_enddate: formattedEndDate,
+//   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("/api/trainer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setFormData({ ...formData, [name]: value });
+//   };
 
-      if (!response.ok) throw new Error("เกิดข้อผิดพลาดในการเพิ่มข้อมูล");
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const response = await fetch("/api/trainer", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(formData),
+//       });
 
-      Swal.fire("สำเร็จ!", "เพิ่มผู้ฝึกสอนเรียบร้อยแล้ว", "success");
-      refreshTrainers();
-      onClose();
-    } catch (error) {
-      Swal.fire("ผิดพลาด!", error.message, "error");
-    }
-  };
+//       if (!response.ok) throw new Error("เกิดข้อผิดพลาดในการเพิ่มข้อมูล");
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
-      <div className="bg-white text-black p-6 rounded-lg shadow-md w-full max-w-lg">
-        <h1 className="text-2xl font-bold mb-4">
-          {editData ? "Edit Trainer" : "Add Trainer"}
-        </h1>
-        <form onSubmit={handleSubmit} className="grid gap-4">
-          <input
-            type="text"
-            name="trainer_username"
-            placeholder="Username"
-            value={formData.trainer_username}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-          />
-          <input
-            type="password"
-            name="trainer_password"
-            placeholder="Password"
-            value={formData.trainer_password}
-            onChange={handleChange}
-            required={!editData}
-            className="w-full p-2 border rounded-lg"
-          />
-          <input
-            type="text"
-            name="trainer_firstname"
-            placeholder="First Name"
-            value={formData.trainer_firstname}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-          />
-          <input
-            type="text"
-            name="trainer_lastname"
-            placeholder="Last Name"
-            value={formData.trainer_lastname}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-          />
-          <input
-            type="email"
-            name="trainer_email"
-            placeholder="Email"
-            value={formData.trainer_email}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-          />
-          <input
-            type="tel"
-            name="trainer_phone"
-            placeholder="Phone"
-            value={formData.trainer_phone}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-          />
-          {/* <input
-            type="date"
-            name="trainer_dob"
-            value={formData.trainer_dob}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-          /> */}
-          <select
-            name="trainer_gender"
-            value={formData.trainer_gender}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-          >
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-          <input
-            type="number"
-            name="trainer_exp"
-            placeholder="Experience (Years)"
-            value={formData.trainer_exp}
-            onChange={handleChange}
-            required
-            min="0"
-            className="w-full p-2 border rounded-lg"
-          />
-          <div className="flex justify-end mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600 mr-2"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600"
-            >
-              {editData ? "Update" : "Submit"}
-            </button>
-          </div>
-        </form>
-      </div>
-      {showSuccessModal && (
-        <SuccessModal
-          message={`✅ ${editData ? 'แก้ไข' : 'เพิ่ม'} Trainer สำเร็จ!`}
-          onClose={() => {
-            setShowSuccessModal(false);
-            onClose();
-          }}
-        />
-      )}
-    </div>
-  );
-};
+//       Swal.fire("สำเร็จ!", "เพิ่มผู้ฝึกสอนเรียบร้อยแล้ว", "success");
+//       refreshTrainers();
+//       onClose();
+//     } catch (error) {
+//       Swal.fire("ผิดพลาด!", error.message, "error");
+//     }
+//   };
+
+//   return (
+//     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
+//       <div className="bg-white text-black p-6 rounded-lg shadow-md w-full max-w-lg">
+//         <h1 className="text-2xl font-bold mb-4">เพิ่มผู้ฝึกสอน</h1>
+//         <form onSubmit={handleSubmit} className="grid gap-4">
+//           <input
+//             type="text"
+//             name="trainer_username"
+//             placeholder="ชื่อผู้ใช้"
+//             value={formData.trainer_username}
+//             onChange={handleChange}
+//             required
+//             className="w-full p-2 border rounded-lg"
+//           />
+//           <input
+//             type="password"
+//             name="trainer_password"
+//             placeholder="รหัสผ่าน"
+//             value={formData.trainer_password}
+//             onChange={handleChange}
+//             required
+//             className="w-full p-2 border rounded-lg"
+//           />
+//           <input
+//             type="text"
+//             name="trainer_firstname"
+//             placeholder="ชื่อ"
+//             value={formData.trainer_firstname}
+//             onChange={handleChange}
+//             required
+//             className="w-full p-2 border rounded-lg"
+//           />
+//           <input
+//             type="text"
+//             name="trainer_lastname"
+//             placeholder="นามสกุล"
+//             value={formData.trainer_lastname}
+//             onChange={handleChange}
+//             required
+//             className="w-full p-2 border rounded-lg"
+//           />
+//           <input
+//             type="text"
+//             name="trainer_nickname"
+//             placeholder="ชื่อเล่น"
+//             value={formData.trainer_nickame}
+//             onChange={handleChange}
+//             required
+//             className="w-full p-2 border rounded-lg"
+//           />
+//           <input
+//             type="email"
+//             name="trainer_email"
+//             placeholder="อีเมลล์"
+//             value={formData.trainer_email}
+//             onChange={handleChange}
+//             required
+//             className="w-full p-2 border rounded-lg"
+//           />
+//           <input
+//             type="tel"
+//             name="trainer_phone"
+//             placeholder="เบอร์โทรศัพท์"
+//             value={formData.trainer_phone}
+//             onChange={handleChange}
+//             required
+//             className="w-full p-2 border rounded-lg"
+//           />
+//           <input
+//             type="date"
+//             name="trainer_dob"
+//             placeholder="วันเกิด"
+//             value={formData.trainer_dob}
+//             onChange={handleChange}
+//             required
+//             className="w-full p-2 border rounded-lg"
+//           />
+//           <select
+//             name="trainer_gender"
+//             value={formData.trainer_gender}
+//             onChange={handleChange}
+//             required
+//             className="w-full p-2 border rounded-lg"
+//           >
+//             <option value="male">ผู้ชาย</option>
+//             <option value="female">ผู้หญิง</option>
+//           </select>
+//           <input
+//             type="number"
+//             name="trainer_exp"
+//             placeholder="ประสบการณ์(ปี)"
+//             value={formData.trainer_exp}
+//             onChange={handleChange}
+//             required
+//             min="0"
+//             className="w-full p-2 border rounded-lg"
+//           />
+//           <div className="flex justify-end mt-4">
+//             <button
+//               type="button"
+//               onClick={onClose}
+//               className="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600 mr-2"
+//             >
+//               ยกเลิก
+//             </button>
+//             <button
+//               type="submit"
+//               className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600"
+//             >
+//               ยืนยัน
+//             </button>
+//           </div>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// };
 
 // Main Page Component
 function Page() {
   const [trainers, setTrainers] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filteredTrainers, setFilteredTrainers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  // const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchTrainers = async () => {
     try {
@@ -176,6 +184,7 @@ function Page() {
       if (!response.ok) throw new Error("เกิดข้อผิดพลาดในการโหลดข้อมูล");
       const data = await response.json();
       setTrainers(data.trainers);
+      setFilteredTrainers(data.trainers); // Set filtered list initially
     } catch (error) {
       Swal.fire("ผิดพลาด!", error.message, "error");
     }
@@ -185,9 +194,27 @@ function Page() {
     fetchTrainers();
   }, []);
 
+  // Handle search
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    if (query === "") {
+      setFilteredTrainers(trainers); // Show all if query is empty
+    } else {
+      setFilteredTrainers(
+        trainers.filter(
+          (trainer) =>
+            trainer.trainer_firstname.toLowerCase().includes(query) ||
+            trainer.trainer_lastname.toLowerCase().includes(query) ||
+            trainer.trainer_email.toLowerCase().includes(query)
+        )
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-black">
-      <div className="flex justify-end mb-4">
+      {/* <div className="flex justify-end mb-4">
         <button
           className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
           onClick={() => setIsModalOpen(true)}
@@ -201,7 +228,19 @@ function Page() {
           onClose={() => setIsModalOpen(false)}
           refreshTrainers={fetchTrainers}
         />
-      )}
+      )} */}
+
+      {/* Search Bar (Right, below the button) */}
+      <div className="flex justify-end mb-4">
+        <input
+          type="text"
+          placeholder="ค้นหาผู้ฝึกสอน (ชื่อ-สกุล หรือ อีเมลล์)"
+          value={searchQuery}
+          onChange={handleSearch}
+          className="w-1/4 p-2 border rounded-lg"
+        />
+      </div>
+
       <h1 className="text-2xl font-bold mb-4 text-center">รายชื่อผู้ฝึกสอน</h1>
       <table className="min-w-full border border-gray-300 bg-white shadow-md">
         <thead>
@@ -214,8 +253,8 @@ function Page() {
           </tr>
         </thead>
         <tbody>
-          {trainers.length > 0 ? (
-            trainers.map((trainer) => (
+          {filteredTrainers.length > 0 ? (
+            filteredTrainers.map((trainer) => (
               <tr key={trainer.trainer_id} className="border-b">
                 <td className="border px-4 py-2">{trainer.trainer_id}</td>
                 <td className="border px-4 py-2">
@@ -240,7 +279,3 @@ function Page() {
 }
 
 export default Page;
-
-
-
-
