@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-// import Swal from "sweetalert2";
+import Swal from "sweetalert2";
 import Link from "next/link";
 
 export default function TrainerDashboard() {
