@@ -15,11 +15,11 @@ export async function GET(req, { params }) {
     const [members] = await pool.query(
       `SELECT 
         m.member_id,
-        r.registration_id, 
         m.member_firstname AS firstname, 
         m.member_lastname AS lastname, 
         m.member_email AS email, 
         m.member_phone AS phone,
+        r.registration_id,
         r.registration_status AS status,
         r.registration_startdate AS start,
         r.registration_enddate AS end
