@@ -251,7 +251,7 @@ function Page() {
         />
       </div>
       <p className="flex justify-end text-lg font-medium text-center mb-4 text-orange-500">
-        จำนวนผู้ฝึกทั้งหมดทั้งหมด: {trainers.length}
+        จำนวนผู้ฝึกทั้งหมด: {trainers.length}
       </p>
 
       <h1 className="text-2xl font-bold mb-4 text-center">รายชื่อผู้ฝึกสอน</h1>

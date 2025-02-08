@@ -357,7 +357,7 @@ function Page() {
                     {trainer.trainer_firstname} {trainer.trainer_lastname}
                   </td>
                   <td className="border px-4 py-2">{trainer.trainer_email}</td>
-                  <td className="border px-4 py-2">
+                  <td className="border px-4 py-2 flex justify-center">
                     <button
                       onClick={() => handleEdit(trainer)}
                       className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded"
