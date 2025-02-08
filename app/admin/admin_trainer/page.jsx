@@ -3,6 +3,53 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 
+const TrainerDetailModal = ({ trainer, onClose }) => {
+  if (!trainer) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white text-black p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-4">รายละเอียดผู้ฝึกสอน</h2>
+        <p>
+          <strong>รหัส:</strong> {trainer.trainer_id}
+        </p>
+        <p>
+          <strong>ชื่อ-นามสกุล:</strong> {trainer.trainer_firstname}{" "}
+          {trainer.trainer_lastname}
+        </p>
+        <p>
+          <strong>ชื่อเล่น:</strong> {trainer.trainer_nickname}
+        </p>
+        <p>
+          <strong>อีเมลล์:</strong> {trainer.trainer_email}
+        </p>
+        <p>
+          <strong>เบอร์โทร:</strong> {trainer.trainer_phone}
+        </p>
+        <p>
+          <strong>วันเกิด:</strong> {trainer.trainer_dob}
+        </p>
+        <p>
+          <strong>เพศ:</strong>{" "}
+          {trainer.trainer_gender === "male" ? "ชาย" : "หญิง"}
+        </p>
+        <p>
+          <strong>ประสบการณ์:</strong> {trainer.trainer_exp} ปี
+        </p>
+
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={onClose}
+            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+          >
+            ปิด
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Trainer Form Modal Component
 // const TrainerFormModal = ({ isOpen, onClose, refreshTrainers }) => {
 //   if (!isOpen) return null;
@@ -176,6 +223,7 @@ function Page() {
   const [trainers, setTrainers] = useState([]);
   const [filteredTrainers, setFilteredTrainers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTrainer, setSelectedTrainer] = useState(null);
   // const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchTrainers = async () => {
@@ -222,6 +270,10 @@ function Page() {
     }
   };
 
+  const handleRowClick = (trainer) => {
+    setSelectedTrainer(trainer);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-black">
       {/* <div className="flex justify-end mb-4">
@@ -251,7 +303,7 @@ function Page() {
         />
       </div>
       <p className="flex justify-end text-lg font-medium text-center mb-4 text-orange-500">
-        จำนวนผู้ฝึกทั้งหมดทั้งหมด: {trainers.length}
+        จำนวนผู้ฝึกทั้งหมด: {trainers.length}
       </p>
 
       <h1 className="text-2xl font-bold mb-4 text-center">รายชื่อผู้ฝึกสอน</h1>
@@ -268,7 +320,11 @@ function Page() {
         <tbody>
           {filteredTrainers.length > 0 ? (
             filteredTrainers.map((trainer) => (
-              <tr key={trainer.trainer_id} className="border-b">
+              <tr
+                key={trainer.trainer_id}
+                className="border-b hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleRowClick(trainer)}
+              >
                 <td className="border px-4 py-2">{trainer.trainer_id}</td>
                 <td className="border px-4 py-2">
                   {trainer.trainer_firstname} {trainer.trainer_lastname}
@@ -287,6 +343,12 @@ function Page() {
           )}
         </tbody>
       </table>
+      {selectedTrainer && (
+        <TrainerDetailModal
+          trainer={selectedTrainer}
+          onClose={() => setSelectedTrainer(null)}
+        />
+      )}
     </div>
   );
 }

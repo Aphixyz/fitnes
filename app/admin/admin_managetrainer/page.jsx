@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import Switch from "react-switch";
 
 // Modal สำหรับยืนยันการลบเทรนเนอร์
 const ConfirmDeleteModal = ({ trainer, onConfirm, onCancel }) => {
@@ -314,6 +315,30 @@ function Page() {
     }
   };
 
+  const toggleStatus = async (trainer) => {
+    const newStatus = trainer.trainer_status === 1 ? 0 : 1;
+
+    // เช็คข้อมูลที่จะส่งไป
+    console.log("Sending new status:", { trainer_status: newStatus });
+
+    try {
+      const response = await fetch(`/api/trainer/${trainer.trainer_id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trainer_status: newStatus }),
+      });
+
+      if (response.ok) {
+        Swal.fire("สำเร็จ!", "เปลี่ยนสถานะเทรนเนอร์สำเร็จ!", "success");
+        fetchTrainer(); // โหลดข้อมูลใหม่หลังจากการเปลี่ยนสถานะ
+      } else {
+        Swal.fire("ผิดพลาด!", "เปลี่ยนสถานะเทรนเนอร์ไม่สำเร็จ", "error");
+      }
+    } catch (error) {
+      Swal.fire("ผิดพลาด!", error.message, "error");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-black">
       <div className="flex justify-end mb-4">
@@ -342,6 +367,7 @@ function Page() {
               <th className="pborder px-4 py-2 text-center">รหัส</th>
               <th className="pborder px-4 py-2 text-center">ชื่อ-นามสกุล</th>
               <th className="pborder px-4 py-2 text-center">อีเมล</th>
+              <th className="pborder px-4 py-2 text-center">สถานะ</th>
               <th className="pborder px-4 py-2 text-center">การจัดการ</th>
             </tr>
           </thead>
@@ -353,11 +379,30 @@ function Page() {
                   className="border-b border-gray-400"
                 >
                   <td className="border px-4 py-2">{trainer.trainer_id}</td>
-                  <td className="border px-4 py-2">
+                  <td className="border px-4 py-2 relative">
                     {trainer.trainer_firstname} {trainer.trainer_lastname}
+                    <span
+                      className={`absolute  ml-1 text-xs px-2 py-0.5 rounded ${
+                        trainer.trainer_status === 1
+                          ? "text-green-600 bg-green-100"
+                          : "text-red-600 bg-red-100"
+                      }`}
+                    >
+                      {trainer.trainer_status === 1 ? "ใช้งาน" : "ไม่ใช้งาน"}
+                    </span>
                   </td>
                   <td className="border px-4 py-2">{trainer.trainer_email}</td>
-                  <td className="border px-4 py-2">
+                  <td className="border py-3 px-4 text-center">
+                    <Switch
+                      checked={trainer.trainer_status === 1}
+                      onChange={() => toggleStatus(trainer)}
+                      onColor="#22c55e"
+                      offColor="#d1d5db"
+                      checkedIcon={false}
+                      uncheckedIcon={false}
+                    />
+                  </td>
+                  <td className="border px-4 py-2 flex justify-center">
                     <button
                       onClick={() => handleEdit(trainer)}
                       className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded"

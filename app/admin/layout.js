@@ -1,6 +1,18 @@
+"use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function AdminLayout({ children }) {
+  const pathname = usePathname(); // ดึง path ของหน้าปัจจุบัน
+
+  const linkClass = (path) =>
+    `relative px-6 py-3 transition-all duration-300 
+    ${
+      pathname === path
+        ? "text-orange-500 font-semibold border-b-2 border-orange-500" // Active: มีเส้นใต้
+        : "text-gray-700 hover:text-orange-500 hover:bg-orange-100"
+    }`;
+
   return (
     <section>
       <nav className="bg-white shadow">
@@ -12,28 +24,16 @@ export default function AdminLayout({ children }) {
 
           {/* Navigation Links */}
           <div className="space-x-6">
-            <Link
-              href="/admin"
-              className="hover:bg-orange-400 hover:text-white text-black px-4 py-2 rounded-md transition-colors duration-300"
-            >
+            <Link href="/admin" className={linkClass("/admin")}>
               หน้าหลัก
             </Link>
-            <Link
-              href="/admin/admin_trainer"
-              className="hover:bg-orange-400 hover:text-white text-black px-4 py-2 rounded-md transition-colors duration-300"
-            >
+            <Link href="/admin/admin_trainer" className={linkClass("/admin/admin_trainer")}>
               รายชื่อผู้ฝึกสอน
             </Link>
-            <Link
-              href="/admin/admin_member"
-              className="hover:bg-orange-400 hover:text-white text-black px-4 py-2 rounded-md transition-colors duration-300"
-            >
+            <Link href="/admin/admin_member" className={linkClass("/admin/admin_member")}>
               รายชื่อลูกค้า
             </Link>
-            <Link
-              href="/admin/admin_managetrainer"
-              className="hover:bg-orange-400 hover:text-white text-black px-4 py-2 rounded-md transition-colors duration-300"
-            >
+            <Link href="/admin/admin_managetrainer" className={linkClass("/admin/admin_managetrainer")}>
               การจัดการผู้ฝึกสอน
             </Link>
           </div>
