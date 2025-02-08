@@ -133,7 +133,7 @@ export async function PUT(req, { params }) {
 // PATCH: Update specific trainer fields & status
 export async function PATCH(req, { params }) {
   try {
-    const { id } = await params;
+    const id = params.id; // รับค่า ID จาก URL
 
     if (!id) {
       return NextResponse.json(
@@ -146,7 +146,7 @@ export async function PATCH(req, { params }) {
     let updateFields = [];
     let values = [];
 
-    // Allowed fields for update
+    // กำหนดเฉพาะฟิลด์ที่อนุญาตให้อัปเดต
     const allowedFields = [
       "trainer_username",
       "trainer_password",
@@ -160,7 +160,7 @@ export async function PATCH(req, { params }) {
       "trainer_exp",
       "trainer_startdate",
       "trainer_enddate",
-      "trainer_status", // รวม trainer_status ไว้ด้วย
+      "trainer_status",
     ];
 
     for (const key of allowedFields) {
@@ -170,7 +170,7 @@ export async function PATCH(req, { params }) {
       }
     }
 
-    // ถ้าไม่มีอะไรต้องอัปเดต
+    // ถ้าไม่มีข้อมูลให้อัปเดต
     if (updateFields.length === 0) {
       return NextResponse.json(
         { error: "No fields provided for update" },
@@ -178,9 +178,9 @@ export async function PATCH(req, { params }) {
       );
     }
 
-    // ตรวจสอบ trainer_status (ถ้ามี)
+    // ตรวจสอบค่า `trainer_status` (ต้องเป็น 0 หรือ 1)
     if ("trainer_status" in body) {
-      if (body.trainer_status !== 0 && body.trainer_status !== 1) {
+      if (![0, 1].includes(body.trainer_status)) {
         return NextResponse.json(
           { error: "Invalid status. Allowed values: 0 (Inactive), 1 (Active)" },
           { status: 400 }
@@ -188,7 +188,7 @@ export async function PATCH(req, { params }) {
       }
     }
 
-    // เพิ่ม ID เข้าไปเป็นค่าล่าสุดใน values
+    // เพิ่ม ID เข้าไปใน values
     values.push(id);
 
     // สร้าง SQL สำหรับอัปเดต
@@ -210,6 +210,7 @@ export async function PATCH(req, { params }) {
       { status: 200 }
     );
   } catch (error) {
+    console.error("Update Trainer Error:", error);
     return NextResponse.json(
       { error: "Failed to update trainer", details: error.message },
       { status: 500 }
