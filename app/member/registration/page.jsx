@@ -77,8 +77,7 @@ export default function MemberRegister() {
         throw new Error(errorData.error || "Failed to register");
       }
 
-      alert("Registration successful!");
-      router.push("/member/success"); // เปลี่ยนเส้นทางไปยังหน้าสำเร็จ
+      router.push("/member/${member.id}/dashboard"); // เปลี่ยนเส้นทางไปยังหน้าสำเร็จ *********
     } catch (error) {
       console.error("Error:", error.message);
       alert(`Error: ${error.message}`);

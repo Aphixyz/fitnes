@@ -2,45 +2,45 @@ import pool from "../../../../lib/db";
 import { NextResponse } from "next/server";
 
 // ดึงข้อมูลสมาชิกตาม ID
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
-    const { id } = params; // ✅ ใช้ { params } ให้ถูกต้อง
+    const { id } = context.params;
+
     if (!id) {
-      return NextResponse.json(
-        { error: "Member ID is required" },
+      return new Response(
+        JSON.stringify({ error: "Member ID is required" }),
         { status: 400 }
       );
     }
 
-    // ดึงข้อมูลจากฐานข้อมูล
-    const [member] = await pool.query(
-      "SELECT * FROM member WHERE member_id = ?",
-      [id]
-    );
+    // Fetch member details from database
+    const [member] = await pool.query("SELECT * FROM member WHERE member_id = ?", [id]);
 
-    if (!member.length) {
-      return NextResponse.json(
-        { error: `No member found with ID ${id}` },
+    if (member.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Member not found" }),
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ member: member[0] }, { status: 200 });
+    return new Response(JSON.stringify(member[0]), { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch member", details: error.message },
+    return new Response(
+      JSON.stringify({ error: "Failed to fetch member", details: error.message }),
       { status: 500 }
     );
   }
 }
 
 // อัปเดตข้อมูลสมาชิก
-export async function PATCH(req, { params }) {
+export async function PATCH(req, context) {
   try {
-    const { id } = params; // ✅ ใช้ params ตรง ๆ
+    const { params } = context; // Extract params properly
+    const { id } = params; // Get `id` from params
+
     if (!id) {
-      return NextResponse.json(
-        { error: "Member ID is required" },
+      return new Response(
+        JSON.stringify({ error: "Member ID is required" }),
         { status: 400 }
       );
     }
@@ -49,7 +49,7 @@ export async function PATCH(req, { params }) {
     let updateFields = [];
     let values = [];
 
-    // ฟิลด์ที่อนุญาตให้อัปเดต
+    // ✅ Allowed fields that can be updated
     const allowedFields = [
       "member_username",
       "member_password",
@@ -68,38 +68,36 @@ export async function PATCH(req, { params }) {
       }
     }
 
-    // ถ้าไม่มีฟิลด์ให้อัปเดต
+    // ✅ If no fields are provided for update
     if (updateFields.length === 0) {
-      return NextResponse.json(
-        { error: "No fields provided for update" },
+      return new Response(
+        JSON.stringify({ error: "No fields provided for update" }),
         { status: 400 }
       );
     }
 
-    // เพิ่ม ID เข้าไปเป็นค่าล่าสุด
+    // ✅ Add `id` as the last parameter
     values.push(id);
 
-    // สร้าง SQL สำหรับอัปเดต
-    const sql = `UPDATE member SET ${updateFields.join(
-      ", "
-    )} WHERE member_id = ?`;
+    // ✅ Construct dynamic SQL query for update
+    const sql = `UPDATE member SET ${updateFields.join(", ")} WHERE member_id = ?`;
 
     const [res] = await pool.query(sql, values);
 
     if (res.affectedRows === 0) {
-      return NextResponse.json(
-        { error: `No member found with ID ${id}` },
+      return new Response(
+        JSON.stringify({ error: `No member found with ID ${id}` }),
         { status: 404 }
       );
     }
 
-    return NextResponse.json(
-      { message: "Member updated successfully" },
+    return new Response(
+      JSON.stringify({ message: "Member updated successfully" }),
       { status: 200 }
     );
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to update member", details: error.message },
+    return new Response(
+      JSON.stringify({ error: "Failed to update member", details: error.message }),
       { status: 500 }
     );
   }
