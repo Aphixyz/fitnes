@@ -198,16 +198,26 @@ function Page() {
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
+
     if (query === "") {
       setFilteredTrainers(trainers); // Show all if query is empty
     } else {
       setFilteredTrainers(
-        trainers.filter(
-          (trainer) =>
-            trainer.trainer_firstname.toLowerCase().includes(query) ||
-            trainer.trainer_lastname.toLowerCase().includes(query) ||
-            trainer.trainer_email.toLowerCase().includes(query)
-        )
+        trainers.filter((trainer) => {
+          const id = trainer.trainer_id
+            ? String(trainer.trainer_id).toLowerCase()
+            : "";
+          const firstname = trainer.trainer_firstname?.toLowerCase() || "";
+          const lastname = trainer.trainer_lastname?.toLowerCase() || "";
+          const email = trainer.trainer_email?.toLowerCase() || "";
+
+          return (
+            id.includes(query) ||
+            firstname.includes(query) ||
+            lastname.includes(query) ||
+            email.includes(query)
+          );
+        })
       );
     }
   };
@@ -234,12 +244,15 @@ function Page() {
       <div className="flex justify-end mb-4">
         <input
           type="text"
-          placeholder="ค้นหาผู้ฝึกสอน (ชื่อ-สกุล หรือ อีเมลล์)"
+          placeholder="ค้นหาผู้ฝึกสอน"
           value={searchQuery}
           onChange={handleSearch}
           className="w-1/4 p-2 border rounded-lg"
         />
       </div>
+      <p className="flex justify-end text-lg font-medium text-center mb-4 text-orange-500">
+        จำนวนผู้ฝึกทั้งหมดทั้งหมด: {trainers.length}
+      </p>
 
       <h1 className="text-2xl font-bold mb-4 text-center">รายชื่อผู้ฝึกสอน</h1>
       <table className="min-w-full border border-gray-300 bg-white shadow-md">
@@ -247,7 +260,7 @@ function Page() {
           <tr className="bg-gray-200">
             <th className="border px-4 py-2 text-center">รหัส</th>
             <th className="border px-4 py-2 text-center">ชื่อ-นามสกุล</th>
-            <th className="border px-4 py-2 text-center">อีเมล</th>
+            <th className="border px-4 py-2 text-center">อีเมลล์</th>
             <th className="border px-4 py-2 text-center">เบอร์โทร</th>
             <th className="border px-4 py-2 text-center">ประสบการณ์ (ปี)</th>
           </tr>
