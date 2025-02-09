@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-// import Swal from "sweetalert2";
+import Swal from "sweetalert2";
 import Link from "next/link";
 
 export default function TrainerDashboard() {
@@ -139,7 +139,7 @@ export default function TrainerDashboard() {
   if (loading) return <p className="text-center text-lg">Loading...</p>;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-100 text-black">
+    <div className="min-h-screen flex flex-col items-center p-6 bg-gray-100 text-black">
       <h1 className="text-3xl font-bold mb-4">Trainer Dashboard</h1>
 
       {trainer ? (
@@ -166,8 +166,7 @@ export default function TrainerDashboard() {
               </a>
             </div>
           )}
-
-          {/* ตารางสมาชิก */}
+          
           {/* ตารางสมาชิก */}
           {members.length === 0 ? (
             <p className="text-center text-gray-500">
@@ -244,29 +243,6 @@ export default function TrainerDashboard() {
               </table>
             </div>
           )}
-
-          {/* ข้อมูล Trainer */}
-          <div className="mt-6 text-center">
-            <p>
-              <strong>Trainer ID:</strong> {trainer.trainer_id}
-            </p>
-            <p>
-              <strong>Username:</strong> {trainer.trainer_username}
-            </p>
-            <p>
-              <strong>Email:</strong> {trainer.trainer_email}
-            </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              {trainer.trainer_status === 1 ? "Active" : "Inactive"}
-            </p>
-            <Link
-              href={`/trainer/${id}/profile`}
-              className="bg-blue-500 text-white px-4 py-2 rounded mt-4 block"
-            >
-              View Profile
-            </Link>
-          </div>
         </div>
       ) : (
         <p className="text-red-500">Trainer not found</p>

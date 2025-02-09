@@ -184,7 +184,7 @@ export default function TrainerProfile() {
     return <p className="text-center text-lg font-semibold">Loading...</p>;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-black p-6">
+    <div className="min-h-screen flex flex-col items-center bg-gray-100 text-black p-6">
       <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-xl">
         <h1 className="text-2xl font-bold text-center mb-4">Trainer Profile</h1>
         {trainer ? (
@@ -228,7 +228,7 @@ export default function TrainerProfile() {
             </div>
             <div className="mt-4 flex justify-between">
               <Link
-                href={`/trainer/${id}/dashboard`}
+                href={`/trainer/${id}`}
                 className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
               >
                 Back to Dashboard
