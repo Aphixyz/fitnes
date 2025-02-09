@@ -1,21 +1,15 @@
-import Link from "next/link";
+"use client";
 
-export default function AdminLayout({ children }) {
+import { useParams } from "next/navigation";
+import MemberNavbar from "../../components/MemberNavbar";
+
+export default function MemberLayout({ children }) {
+  const { id } = useParams();
+
   return (
     <section>
-      <nav className="bg-white shadow">
-        <div className="flex items-center justify-between py-4 px-6">
-          {/* Logo Section */}
-          <div className="text-2xl font-bold text-black pl-0">
-            <Link href="/member/${id}">Member Dashboard</Link>
-          </div>
-
-        </div>
-      </nav>
-
-      {/* Children Content */}
-      <main>{children}</main>
+      <MemberNavbar />
+      <main className="p-6">{children}</main>
     </section>
   );
-  
 }
