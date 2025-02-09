@@ -60,8 +60,6 @@ export default function TrainerMemberPage() {
     setSelectedMember(member);
   };
 
-  if (!members.length) return <p className="text-center">ไม่มีสมาชิกในระบบ</p>;
-
   return (
     <div className="min-h-screen p-6 bg-gray-100 text-black">
       {/* Search Box */}
