@@ -4,7 +4,8 @@ import { NextResponse } from "next/server";
 // ดึงข้อมูลสมาชิกตาม ID
 export async function GET(req, context) {
   try {
-    const { id } = context.params;
+    const params = await context.params;
+    const { id } = params; // Get the member ID
 
     if (!id) {
       return new Response(
