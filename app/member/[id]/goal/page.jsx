@@ -8,34 +8,62 @@ import MemberGoalCard from "../../../components/MemberGoalCard";
 
 export default function MemberGoalPage() {
   const { id } = useParams();
+  console.log("Debug: id =", id);
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchGoals() {
+      if (!id) {
+        console.error("Error: Member ID is undefined");
+        setGoals([]);
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch(`/api/member/${id}/goal`);
-        if (!res.ok) throw new Error("Failed to fetch goals");
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch goals: ${res.statusText}`);
+        }
+
         const data = await res.json();
-        setGoals(data.goals || []);
+
+        if (!data.goals || data.goals.length === 0) {
+          console.warn("No goals found for this member.");
+          setGoals([]);
+        } else {
+          setGoals(data.goals);
+        }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error fetching goals:", error.message);
+        setGoals([]);
       } finally {
         setLoading(false);
       }
     }
+
     fetchGoals();
   }, [id]);
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-center mb-6 text-black">เป้าหมายการออกกำลังกาย</h1>
+      <h1 className="text-3xl font-bold text-center mb-6 text-black">
+        เป้าหมายการออกกำลังกาย
+      </h1>
 
       {/* Show Latest Goal */}
-      <MemberGoalCard latestGoal={goals[0]} />
+      {loading ? (
+        <p className="text-center text-gray-600">กำลังโหลดข้อมูล...</p>
+      ) : goals.length > 0 ? (
+        <MemberGoalCard latestGoal={goals[0]} memberId={id} />
+      ) : (
+        <p className="text-center text-red ">ยังไม่มีเป้าหมาย</p>
+      )}
 
       {/* Goal List */}
-      <MemberGoalList goals={goals} />
+      <MemberGoalList goals={goals}  memberId={id}/>
 
       {/* Add New Goal */}
       <MemberGoalForm memberId={id} />

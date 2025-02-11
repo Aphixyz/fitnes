@@ -1,10 +1,31 @@
 import { NextResponse } from "next/server";
 import pool from "../../../../lib/db";
 
-// ✅ POST - เพิ่มเป้าหมายการออกกำลังกาย
-export async function POST(req, context) {
+export async function GET(req, { params }) {
   try {
-    const { id } = context.params; // ✅ ใช้ context.params ดึงค่า id
+
+    const { id } = await params
+    
+    // ✅ ใช้ query ดึงข้อมูลจาก database
+    const [goals] = await pool.query("SELECT * FROM fitness_goal WHERE member_id = ? ORDER BY fitness_goal_startdate DESC", [id]);
+
+    if (!goals || goals.length === 0) {
+      return NextResponse.json({ error: "No goals found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ goals }, { status: 200 });
+  } catch (error) {
+    console.error("GET API Error:", error.message);
+    return NextResponse.json({ error: "Internal Server Error", details: error.message }, { status: 500 });
+  }
+}
+
+export async function POST(req, { params }) {
+  try {
+    // ✅ ตรวจสอบว่า params.id มีค่าหรือไม่
+
+    const { id } = await params;
+    
     const {
       fitness_goal_type,
       fitness_goal_description,
@@ -12,12 +33,19 @@ export async function POST(req, context) {
       fitness_goal_enddate,
     } = await req.json();
 
+    // ✅ ตรวจสอบค่าที่ต้องมี
     if (!fitness_goal_type || !fitness_goal_startdate) {
-      return NextResponse.json(
-        { error: "Goal type and start date are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Goal type and start date are required" }, { status: 400 });
     }
+
+    // ✅ LOG เพื่อ Debugging
+    console.log("Adding goal for member:", id);
+    console.log("Received data:", {
+      fitness_goal_type,
+      fitness_goal_description,
+      fitness_goal_startdate,
+      fitness_goal_enddate,
+    });
 
     const sql = `
       INSERT INTO fitness_goal (member_id, fitness_goal_type, fitness_goal_description, fitness_goal_startdate, fitness_goal_enddate, fitness_goal_status)
@@ -31,7 +59,8 @@ export async function POST(req, context) {
       fitness_goal_startdate,
       fitness_goal_enddate || null,
     ];
-    
+
+    // ✅ Execute SQL Query
     const [result] = await pool.query(sql, values);
 
     return NextResponse.json(
@@ -39,38 +68,9 @@ export async function POST(req, context) {
       { status: 201 }
     );
   } catch (error) {
+    console.error("POST API Error:", error.message);
     return NextResponse.json(
       { error: "Failed to add goal", details: error.message },
-      { status: 500 }
-    );
-  }
-}
-
-// ✅ GET - ดึงเป้าหมายการออกกำลังกายทั้งหมดของสมาชิก
-export async function GET(req, context) {
-  try {
-    const { id } = context.params; // ✅ ใช้ context.params ดึงค่า id
-    if (!id) {
-      return NextResponse.json(
-        { error: "Member ID is required" },
-        { status: 400 }
-      );
-    }
-
-    const sql = `SELECT * FROM fitness_goal WHERE member_id = ? ORDER BY fitness_goal_startdate DESC`;
-    const [goals] = await pool.query(sql, [id]);
-
-    if (goals.length === 0) {
-      return NextResponse.json(
-        { message: "No fitness goals found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({ goals }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch fitness goals", details: error.message },
       { status: 500 }
     );
   }
