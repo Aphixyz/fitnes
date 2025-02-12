@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import MemberGoalCard from "../../components/MemberGoalCard";
-import MemberHealthCard from "../../components/MemberHealthCard";
 
 export default function MemberDashboard() {
   const { id } = useParams();
@@ -12,28 +10,18 @@ export default function MemberDashboard() {
 
   useEffect(() => {
     async function fetchMember() {
-      if (!id) {
-        console.error("❌ Error: Member ID is undefined");
-        setLoading(false);
-        return;
-      }
-
       try {
-        console.log(`📡 Fetching member data for ID: ${id}`);
         const res = await fetch(`/api/member/${id}`);
+        if (!res.ok) throw new Error("Member not found");
+
         const data = await res.json();
+        console.log("✅ API Response:", data);
 
-        console.log("✅ API Response:", data); // Debugging Log
-
-        if (!data || !data.member) {
-          console.warn("⚠️ No member data found in response");
-        }
-
-        setMember(data.member || null);
+        setMember(data); // ✅ ตรวจสอบโครงสร้างข้อมูล
       } catch (error) {
-        console.error("❌ Fetching member failed:", error.message);
+        console.error("❌ Fetching member failed:", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // ✅ ต้อง setLoading เป็น false
       }
     }
 
@@ -46,18 +34,39 @@ export default function MemberDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        👋 ยินดีต้อนรับ, {member?.member_firstname} {member?.member_lastname}
-      </h1>
-  
-      {/* Debugging */}
-      <pre className="bg-black text-white p-4 rounded-lg">
-        {JSON.stringify(member, null, 2)}
-      </pre>
-  
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <MemberGoalCard memberId={id} />
-        <MemberHealthCard memberId={id} />
+      {/* Header */}
+      <div className="bg-orange-500 text-white py-6 px-8 rounded-lg shadow-md text-center">
+        <h1 className="text-3xl font-bold">Member Dashboard</h1>
+        {member ? (
+          <p>ยินดีต้อนรับ {member.member_firstname}!</p>
+        ) : (
+          <p>กำลังโหลด...</p>
+        )}
+      </div>
+
+      {/* Member Info Card */}
+      <div className="mt-6 max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6 text-black">
+        <h2 className="text-2xl font-bold mb-4">ข้อมูลลูกค้า</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <p>
+            <strong>รหัส:</strong> {member?.member_id}
+          </p>
+          <p>
+            <strong>ชื่อผู้ใช้:</strong> {member?.member_username}
+          </p>
+          <p>
+            <strong>อีเมล:</strong> {member?.member_email}
+          </p>
+          <p>
+            <strong>เบอร์โทร:</strong> {member?.member_phone}
+          </p>
+          <p>
+            <strong>วันเกิด:</strong> {member?.member_dob}
+          </p>
+          <p>
+            <strong>เพศ:</strong> {member?.member_gender}
+          </p>
+        </div>
       </div>
     </div>
   );

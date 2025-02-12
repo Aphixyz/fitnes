@@ -2,32 +2,36 @@ import pool from "../../../../lib/db";
 import { NextResponse } from "next/server";
 
 // ดึงข้อมูลสมาชิกตาม ID
-export async function GET(req, context) {
+export async function GET(req, { params }) {
   try {
-    const params = await context.params;
-    const { id } = params; // Get the member ID
+    const { id } = await params 
 
     if (!id) {
-      return new Response(
-        JSON.stringify({ error: "Member ID is required" }),
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: "Member ID is required" }), {
+        status: 400,
+      });
     }
 
-    // Fetch member details from database
-    const [member] = await pool.query("SELECT * FROM member WHERE member_id = ?", [id]);
+    // ดึงข้อมูลจากฐานข้อมูล
+    const [members] = await pool.query(
+      "SELECT * FROM member WHERE member_id = ?",
+      [id]
+    );
 
-    if (member.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "Member not found" }),
-        { status: 404 }
-      );
+    // ✅ ตรวจสอบให้แน่ใจว่าได้ข้อมูลมา
+    if (!members || members.length === 0) {
+      return new Response(JSON.stringify({ error: "Member not found" }), {
+        status: 404,
+      });
     }
 
-    return new Response(JSON.stringify(member[0]), { status: 200 });
+    return new Response(JSON.stringify(members[0]), { status: 200 });
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: "Failed to fetch member", details: error.message }),
+      JSON.stringify({
+        error: "Failed to fetch member",
+        details: error.message,
+      }),
       { status: 500 }
     );
   }
@@ -40,10 +44,9 @@ export async function PATCH(req, context) {
     const { id } = params; // Get `id` from params
 
     if (!id) {
-      return new Response(
-        JSON.stringify({ error: "Member ID is required" }),
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: "Member ID is required" }), {
+        status: 400,
+      });
     }
 
     const body = await req.json();
@@ -59,7 +62,7 @@ export async function PATCH(req, context) {
       "member_email",
       "member_phone",
       "member_gender",
-      "member_dob"
+      "member_dob",
     ];
 
     for (const key of allowedFields) {
@@ -81,7 +84,9 @@ export async function PATCH(req, context) {
     values.push(id);
 
     // ✅ Construct dynamic SQL query for update
-    const sql = `UPDATE member SET ${updateFields.join(", ")} WHERE member_id = ?`;
+    const sql = `UPDATE member SET ${updateFields.join(
+      ", "
+    )} WHERE member_id = ?`;
 
     const [res] = await pool.query(sql, values);
 
@@ -98,7 +103,10 @@ export async function PATCH(req, context) {
     );
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: "Failed to update member", details: error.message }),
+      JSON.stringify({
+        error: "Failed to update member",
+        details: error.message,
+      }),
       { status: 500 }
     );
   }

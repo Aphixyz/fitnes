@@ -3,8 +3,7 @@ import pool from "../../../../lib/db";
 
 export async function GET(req, context) {
   try {
-    const params = await context.params;
-    const id = params.id; 
+    const { id } = context.params;
     if (!id) {
       return NextResponse.json(
         { error: "Member ID is required" },
@@ -12,20 +11,20 @@ export async function GET(req, context) {
       );
     }
 
-    // Fetch the latest health record for the member
+    // Fetch all health records for the member
     const [result] = await pool.query(
-      `SELECT * FROM member_health WHERE member_id = ? ORDER BY member_health_record_date DESC LIMIT 1`,
+      `SELECT * FROM member_health WHERE member_id = ? ORDER BY member_health_record_date DESC`,
       [id]
     );
 
     if (!result || result.length === 0) {
       return NextResponse.json(
-        { message: "No health records found", data: null },
+        { message: "No health records found", healthRecords: [] },
         { status: 200 }
       );
     }
 
-    return NextResponse.json({ data: result[0] }, { status: 200 });
+    return NextResponse.json({ healthRecords: result }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch health data", details: error.message },

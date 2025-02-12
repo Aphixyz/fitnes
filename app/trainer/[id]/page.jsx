@@ -33,7 +33,7 @@ export default function TrainerDashboard() {
       {/* Header */}
       <div className="bg-orange-500 text-white py-6 px-8 rounded-lg shadow-md text-center">
         <h1 className="text-3xl font-bold">Trainer Dashboard</h1>
-        <p>Welcome, {trainer.trainer_firstname}!</p>
+        <p>Welcome {trainer.trainer_firstname}!</p>
       </div>
 
       {/* Trainer Info Card */}
