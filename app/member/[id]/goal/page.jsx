@@ -15,7 +15,7 @@ export default function MemberGoalPage() {
   useEffect(() => {
     async function fetchGoals() {
       if (!id) {
-        console.error("Error: Member ID is undefined");
+        console.warn("Warning: Member ID is undefined");
         setGoals([]);
         setLoading(false);
         return;
@@ -25,20 +25,22 @@ export default function MemberGoalPage() {
         const res = await fetch(`/api/member/${id}/goal`);
 
         if (!res.ok) {
-          throw new Error(`Failed to fetch goals: ${res.statusText}`);
+          console.warn("No goals found or API request failed.");
+          setGoals([]);
+          return;
         }
 
         const data = await res.json();
 
         if (!data.goals || data.goals.length === 0) {
-          console.warn("No goals found for this member.");
+          console.log("No goals found for this member.");
           setGoals([]);
         } else {
           setGoals(data.goals);
         }
       } catch (error) {
         console.error("Error fetching goals:", error.message);
-        setGoals([]);
+        setGoals([]); 
       } finally {
         setLoading(false);
       }
@@ -53,19 +55,21 @@ export default function MemberGoalPage() {
         เป้าหมายการออกกำลังกาย
       </h1>
 
-      {/* Show Latest Goal */}
+      {/* Show Latest Goal if Available */}
       {loading ? (
         <p className="text-center text-gray-600">กำลังโหลดข้อมูล...</p>
       ) : goals.length > 0 ? (
-        <MemberGoalCard latestGoal={goals[0]} memberId={id} />
+        <>
+          <MemberGoalCard latestGoal={goals[0]} memberId={id} />
+          <MemberGoalList goals={goals} memberId={id} />
+        </>
       ) : (
-        <p className="text-center text-red ">ยังไม่มีเป้าหมาย</p>
+        <p className="text-center text-gray-500 mb-4">
+          ยังไม่มีเป้าหมาย กรุณาเพิ่มเป้าหมายใหม่
+        </p>
       )}
 
-      {/* Goal List */}
-      <MemberGoalList goals={goals}  memberId={id}/>
-
-      {/* Add New Goal */}
+      {/* Always Show Add New Goal Form */}
       <MemberGoalForm memberId={id} />
     </div>
   );

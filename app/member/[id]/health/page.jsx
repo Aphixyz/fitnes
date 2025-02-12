@@ -5,8 +5,8 @@ import { useParams } from "next/navigation";
 import Swal from "sweetalert2";
 
 export default function MemberHealth() {
-  const { id } = useParams(); // รับ `member_id` จาก URL
-  const [healthRecords, setHealthRecords] = useState(null);
+  const { id } = useParams();
+  const [healthRecords, setHealthRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     member_health_weight: "",
@@ -16,35 +16,38 @@ export default function MemberHealth() {
     member_health_injury: "",
   });
 
-  // ✅ ดึงข้อมูล Health Data ถ้ามี
-  useEffect(() => {
-    async function fetchHealthData() {
-      try {
-        const res = await fetch(`/api/member/${id}/health`);
-        const data = await res.json();
+  // ✅ Fetch Health Data
+  const fetchHealthData = async () => {
+    try {
+      console.log("Fetching health data for ID:", id);
+      const res = await fetch(`/api/member/${id}/health`);
+      const data = await res.json();
 
-        if (!res.ok) {
-          console.warn("No health records found or error:", data.error);
-          setHealthRecords(null); // ไม่มีข้อมูล
-        } else {
-          setHealthRecords(data.healthRecords);
-        }
-      } catch (error) {
-        console.error("Failed to fetch health data:", error);
-        setHealthRecords(null);
-      } finally {
-        setLoading(false);
+      if (!res.ok || !data.healthRecords || data.healthRecords.length === 0) {
+        console.warn("⚠️ No health records found");
+        setHealthRecords([]);
+      } else {
+        setHealthRecords(data.healthRecords);
+        console.log("✅ Fetched Health Records:", data.healthRecords);
       }
+    } catch (error) {
+      console.error("❌ Failed to fetch health data:", error);
+      setHealthRecords([]);
+    } finally {
+      setLoading(false);
     }
-    fetchHealthData();
+  };
+
+  useEffect(() => {
+    if (id) fetchHealthData();
   }, [id]);
 
-  // ✅ จัดการค่าที่ผู้ใช้กรอก
+  // ✅ Handle Input Change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ คำนวณ BMI อัตโนมัติ
+  // ✅ Calculate BMI
   useEffect(() => {
     if (formData.member_health_weight && formData.member_health_height) {
       const heightM = formData.member_health_height / 100;
@@ -53,7 +56,7 @@ export default function MemberHealth() {
     }
   }, [formData.member_health_weight, formData.member_health_height]);
 
-  // ✅ ส่งข้อมูลสุขภาพ
+  // ✅ Submit Health Data
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -67,7 +70,9 @@ export default function MemberHealth() {
       if (!res.ok) throw new Error(data.error || "Failed to save health data");
 
       Swal.fire("✅ Success!", "Health data saved successfully", "success");
-      setHealthRecords((prev) => [...(prev || []), formData]); // อัปเดต UI
+
+      // Refresh health records after adding new data
+      fetchHealthData();
     } catch (error) {
       Swal.fire("❌ Error", error.message, "error");
     }
@@ -77,16 +82,29 @@ export default function MemberHealth() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-100 text-black">
-      <h1 className="text-3xl font-bold mb-4">Health {id} Information</h1>
+      <h1 className="text-3xl font-bold mb-4">Health Information</h1>
 
       <div className="bg-white shadow-lg p-8 rounded-lg w-full max-w-2xl">
-        {/* ✅ แสดงข้อมูลสุขภาพถ้ามี */}
+        {/* ✅ Show Latest Health Record */}
+        {healthRecords.length > 0 ? (
+          <div className="bg-green-100 p-4 rounded-lg shadow-md mb-4">
+            <h2 className="text-lg font-semibold">📌 ข้อมูลสุขภาพล่าสุด</h2>
+            <p><strong>วันที่บันทึก:</strong> {new Date(healthRecords[0].member_health_record_date).toLocaleDateString()}</p>
+            <p><strong>น้ำหนัก:</strong> {healthRecords[0].member_health_weight} kg</p>
+            <p><strong>ส่วนสูง:</strong> {healthRecords[0].member_health_height} cm</p>
+            <p><strong>BMI:</strong> {healthRecords[0].member_health_bmi}</p>
+            <p><strong>เงื่อนไขทางการแพทย์:</strong> {healthRecords[0].member_health_medical_condition || "None"}</p>
+            <p><strong>การบาดเจ็บ:</strong> {healthRecords[0].member_health_injury || "None"}</p>
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">ยังไม่มีข้อมูลสุขภาพ กรุณาเพิ่มข้อมูล</p>
+        )}
 
-        {/* ✅ แบบฟอร์มกรอกข้อมูลสุขภาพ */}
-        <h2 className="text-xl font-semibold mt-6 mb-4">Enter Health Data</h2>
+        {/* ✅ Health Information Form */}
+        <h2 className="text-xl font-semibold mt-6 mb-4">➕ เพิ่มข้อมูลสุขภาพ</h2>
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium">Weight (kg)</label>
+            <label className="block text-sm font-medium">น้ำหนัก (kg)</label>
             <input
               type="number"
               name="member_health_weight"
@@ -94,11 +112,12 @@ export default function MemberHealth() {
               onChange={handleChange}
               className="w-full border p-2 rounded"
               required
+              min="0"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium">Height (cm)</label>
+            <label className="block text-sm font-medium">ส่วนสูง (cm)</label>
             <input
               type="number"
               name="member_health_height"
@@ -106,6 +125,7 @@ export default function MemberHealth() {
               onChange={handleChange}
               className="w-full border p-2 rounded"
               required
+              min="0"
             />
           </div>
 
@@ -121,7 +141,7 @@ export default function MemberHealth() {
           </div>
 
           <div className="col-span-2">
-            <label className="block text-sm font-medium">Medical Condition</label>
+            <label className="block text-sm font-medium">เงื่อนไขทางการแพทย์</label>
             <input
               type="text"
               name="member_health_medical_condition"
@@ -132,7 +152,7 @@ export default function MemberHealth() {
           </div>
 
           <div className="col-span-2">
-            <label className="block text-sm font-medium">Injury</label>
+            <label className="block text-sm font-medium">การบาดเจ็บ</label>
             <input
               type="text"
               name="member_health_injury"
@@ -146,30 +166,28 @@ export default function MemberHealth() {
             type="submit"
             className="col-span-2 mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
           >
-            Save Health Data
+            บันทึกข้อมูลสุขภาพ
           </button>
         </form>
 
-        {healthRecords ? (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Your Health Records</h2>
+        {/* ✅ Show Health History */}
+        {healthRecords.length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold">📜 ประวัติข้อมูลสุขภาพ</h2>
             <ul className="list-disc ml-6">
               {healthRecords.map((record, index) => (
                 <li key={index} className="mb-2">
-                  <strong>Date:</strong> {record.member_health_record_date} <br />
-                  <strong>Weight:</strong> {record.member_health_weight} kg <br />
-                  <strong>Height:</strong> {record.member_health_height} cm <br />
+                  <strong>วันที่:</strong> {new Date(record.member_health_record_date).toLocaleDateString()} <br />
+                  <strong>น้ำหนัก:</strong> {record.member_health_weight} kg <br />
+                  <strong>ส่วนสูง:</strong> {record.member_health_height} cm <br />
                   <strong>BMI:</strong> {record.member_health_bmi} <br />
-                  <strong>Medical Condition:</strong> {record.member_health_medical_condition || "None"} <br />
-                  <strong>Injury:</strong> {record.member_health_injury || "None"}
+                  <strong>เงื่อนไขทางการแพทย์:</strong> {record.member_health_medical_condition || "None"} <br />
+                  <strong>การบาดเจ็บ:</strong> {record.member_health_injury || "None"}
                 </li>
               ))}
             </ul>
           </div>
-        ) : (
-          <p className="text-center text-gray-500">ยังไม่มีข้อมูลสุขภาพ กรุณาเพิ่มข้อมูล</p>
         )}
-        
       </div>
     </div>
   );
