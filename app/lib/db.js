@@ -10,4 +10,14 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+export async function query(sql, params) {
+  try {
+    const [results] = await pool.execute(sql, params);
+    return results;
+  } catch (error) {
+    console.error('Database query error:', error);
+    throw error;
+  }
+}
+
 export default pool;
