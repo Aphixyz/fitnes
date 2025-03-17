@@ -11,22 +11,41 @@ export function cn(...inputs) {
 }
 
 /**
- * Format a date to a readable string
- * @param {Date|string} date - Date to format
- * @param {Object} options - Intl.DateTimeFormat options
- * @returns {string} - Formatted date string
+ * คำนวณอายุจากวันเกิด
+ * @param {string} dateOfBirth - วันเกิดในรูปแบบ ISO หรือรูปแบบที่ JavaScript รองรับ
+ * @returns {number} อายุเป็นปี
  */
-export function formatDate(date, options = {}) {
-  const defaultOptions = {
-    day: "numeric",
-    month: "short", 
-    year: "numeric"
-  };
-  
-  const mergedOptions = { ...defaultOptions, ...options };
-  
-  return new Date(date).toLocaleDateString("th-TH", mergedOptions);
-}
+export const calculateAge = (dateOfBirth) => {
+  if (!dateOfBirth) return null;
+
+  const dob = new Date(dateOfBirth);
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+
+  return age;
+};
+
+/**
+ * จัดรูปแบบวันที่เป็นภาษาไทย
+ * @param {string} dateString - วันที่ในรูปแบบ ISO หรือรูปแบบที่ JavaScript รองรับ
+ * @returns {string} วันที่ในรูปแบบ วัน เดือน ปี (ภาษาไทย)
+ */
+export const formatDate = (dateString) => {
+  if (!dateString) return "";
+
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  try {
+    return new Date(dateString).toLocaleDateString("th-TH", options);
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return dateString; // คืนค่าเดิมหากแปลงไม่สำเร็จ
+  }
+};
 
 /**
  * Format a number as Thai Baht
@@ -39,6 +58,18 @@ export function formatCurrency(amount) {
     currency: "THB",
   }).format(amount);
 }
+
+/**
+ * สร้างตัวอักษรย่อชื่อจากชื่อและนามสกุล
+ * @param {string} firstName - ชื่อ
+ * @param {string} lastName - นามสกุล
+ * @returns {string} ตัวอักษรย่อชื่อ
+ */
+export const getInitials = (firstName, lastName) => {
+  const firstInitial = firstName?.charAt(0) || "";
+  const lastInitial = lastName?.charAt(0) || "";
+  return `${firstInitial}${lastInitial}`;
+};
 
 /**
  * Truncate text with ellipsis if it exceeds maxLength
@@ -60,7 +91,7 @@ export function truncateText(text, maxLength = 100) {
 export function calculateBMI(weight, height) {
   // Convert height from cm to m
   const heightInMeters = height / 100;
-  
+
   // Calculate BMI: weight(kg) / height(m)^2
   return (weight / (heightInMeters * heightInMeters)).toFixed(2);
 }
@@ -88,10 +119,10 @@ export function getBMICategory(bmi) {
  * @returns {number} - Daily calorie needs
  */
 export function calculateDailyCalories(
-  weight, 
-  height, 
-  age, 
-  gender, 
+  weight,
+  height,
+  age,
+  gender,
   activityLevel = "moderate"
 ) {
   // Calculate BMR using Mifflin-St Jeor Equation
@@ -101,7 +132,7 @@ export function calculateDailyCalories(
   } else {
     bmr = 10 * weight + 6.25 * height - 5 * age - 161;
   }
-  
+
   // Apply activity multiplier
   const activityMultipliers = {
     sedentary: 1.2, // Little or no exercise
@@ -110,6 +141,6 @@ export function calculateDailyCalories(
     active: 1.725, // Hard exercise 6-7 days/week
     veryActive: 1.9, // Very hard exercise & physical job or 2x training
   };
-  
+
   return Math.round(bmr * (activityMultipliers[activityLevel] || 1.55));
 }

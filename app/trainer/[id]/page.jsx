@@ -1,55 +1,171 @@
-// "use client";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { getTrainerById } from "@/actions/trainer/getTrainerData";
+import { formatDate, calculateAge, getInitials } from "@/utils/utils";
 
-// import React, { useEffect, useState } from "react";
-// import { useParams } from "next/navigation";
+export default async function TrainerDashboard({ params }) {
+  // ต้องใช้ await ก่อนเข้าถึง params ใน Next.js 15
+  const { id } = await params;
+  
+  // ดึงข้อมูลผู้ฝึกสอนโดยใช้ ID
+  const trainer = await getTrainerById(id);
 
-// export default function TrainerDashboard() {
-//   const { id } = useParams();
-//   const [trainer, setTrainer] = useState(null);
-//   const [loading, setLoading] = useState(true);
+  // หากไม่พบข้อมูลผู้ฝึกสอน
+  if (!trainer) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh]">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">ไม่พบข้อมูลผู้ฝึกสอน</h2>
+          <p className="text-gray-600">ไม่พบข้อมูลผู้ฝึกสอนที่มี ID: {id}</p>
+        </div>
+      </div>
+    );
+  }
 
-//   useEffect(() => {
-//     async function fetchTrainer() {
-//       try {
-//         const res = await fetch(`/api/trainer/${id}`);
-//         if (!res.ok) throw new Error("Trainer not found");
-//         const data = await res.json();
-//         setTrainer(data.trainer);
-//       } catch (error) {
-//         console.error("Error fetching trainer:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     }
+  return (
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight">สวัสดี, คุณ {trainer.firstName} ID : {trainer.id}</h1>
+        <p className="text-muted-foreground">
+          หน้าทดสอบการแสดงข้อมูลจาก Server Action
+        </p>
+      </div>
 
-//     if (id) fetchTrainer();
-//   }, [id]);
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>ข้อมูลส่วนตัว</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="col-span-2 flex justify-center mb-4">
+              {trainer.profileImage ? (
+                <div className="w-32 h-32 rounded-full overflow-hidden">
+                  <img 
+                    src={trainer.profileImage} 
+                    alt={`${trainer.firstName} ${trainer.lastName}`} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center">
+                  <span className="text-indigo-700 text-3xl font-bold">
+                    {getInitials(trainer.firstName, trainer.lastName)}
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">ชื่อผู้ใช้:</p>
+              <p className="text-lg">{trainer.username}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">ชื่อ-นามสกุล:</p>
+              <p className="text-lg">{trainer.firstName} {trainer.lastName}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">ชื่อเล่น:</p>
+              <p className="text-lg">{trainer.nickname || '-'}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">อีเมล:</p>
+              <p className="text-lg">{trainer.email}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">เบอร์โทรศัพท์:</p>
+              <p className="text-lg">{trainer.phone || '-'}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">เพศ:</p>
+              <p className="text-lg">{trainer.gender || '-'}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">วันเกิด:</p>
+              <p className="text-lg">{trainer.dateOfBirth ? formatDate(trainer.dateOfBirth) : '-'}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">อายุ:</p>
+              <p className="text-lg">{trainer.dateOfBirth ? `${calculateAge(trainer.dateOfBirth)} ปี` : '-'}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">ประสบการณ์:</p>
+              <p className="text-lg">{trainer.experience ? `${trainer.experience} ปี` : '-'}</p>
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">สถานะ:</p>
+              <p className="text-lg">
+                <span className={`inline-block px-2 py-1 rounded-md text-sm ${
+                  trainer.status === 'active' ? 'bg-green-100 text-green-800' : 
+                  trainer.status === 'inactive' ? 'bg-red-100 text-red-800' : 
+                  'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {trainer.status || '-'}
+                </span>
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-//   if (loading) return <p className="text-center text-lg">Loading...</p>;
-//   if (!trainer) return <p className="text-center text-red-500">Trainer not found</p>;
+      <div className="grid md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>ข้อมูลวิชาชีพ</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">ความเชี่ยวชาญ:</p>
+                <p className="text-lg">{trainer.specialization || '-'}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">ใบรับรอง/วุฒิบัตร:</p>
+                <p className="text-lg">{trainer.certification || '-'}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">วันที่เริ่มงาน:</p>
+                <p className="text-lg">{trainer.startDate ? formatDate(trainer.startDate) : '-'}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">วันที่สิ้นสุด:</p>
+                <p className="text-lg">{trainer.endDate ? formatDate(trainer.endDate) : '-'}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-//   return (
-//     <div className="min-h-screen bg-gray-100 p-6">
-//       {/* Header */}
-//       <div className="bg-orange-500 text-white py-6 px-8 rounded-lg shadow-md text-center">
-//         <h1 className="text-3xl font-bold">Trainer Dashboard</h1>
-//         <p>Welcome {trainer.trainer_firstname}!</p>
-//       </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>ประวัติโดยย่อ</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="prose">
+              {trainer.bio ? (
+                <div dangerouslySetInnerHTML={{ __html: trainer.bio.replace(/\n/g, '<br>') }} />
+              ) : (
+                <p className="text-muted-foreground">ไม่มีข้อมูลประวัติโดยย่อ</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-//       {/* Trainer Info Card */}
-//       <div className="mt-6 max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6 text-black">
-//         <h2 className="text-2xl font-bold mb-4">ข้อมูลผู้ฝึกสอน</h2>
-//         <div className="grid grid-cols-2 gap-4">
-//           <p><strong>รหัส:</strong> {trainer.trainer_id}</p>
-//           <p><strong>ชื่อผู้ใช้:</strong> {trainer.trainer_username}</p>
-//           <p><strong>อีเมล:</strong> {trainer.trainer_email}</p>
-//           <p><strong>เบอร์โทร:</strong> {trainer.trainer_phone}</p>
-//           <p><strong>วันเกิด:</strong> {trainer.trainer_dob}</p>
-//           <p><strong>เพศ:</strong> {trainer.trainer_gender}</p>
-//           <p><strong>ประสบการณ์:</strong> {trainer.trainer_exp} ปี</p>
-//           <p><strong>สถานะ:</strong> {trainer.trainer_status === 1 ? "Active" : "Inactive"}</p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
+      <div className="mt-6 bg-indigo-50 p-4 rounded-md">
+        <p className="text-indigo-800 text-center font-medium">
+          ข้อมูลถูกดึงมาจาก Server Action getTrainerById เรียบร้อย
+        </p>
+      </div>
+    </div>
+  );
+}

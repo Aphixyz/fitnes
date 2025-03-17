@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from '@/utils/utils';
 
 export const MemberNavbar = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
