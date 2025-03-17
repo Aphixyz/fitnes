@@ -300,7 +300,7 @@
 
 // app/trainer/[id]/profile/page.jsx
 import { query } from '@/lib/db';
-import TrainerProfileManager from '@/components/profile/TrainerProfileManager';
+import TrainerProfileManager from '@/app/trainer/_components/(profile)/TrainerProfileManager';
 
 // ฟังก์ชันสำหรับดึงข้อมูล trainer
 async function getTrainerData(trainerId) {
