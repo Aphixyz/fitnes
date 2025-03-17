@@ -1,14 +1,215 @@
-import React from 'react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 
-function Page() {
+export default function AdminDashboard() {
+  // ข้อมูลสำหรับแสดงในแดชบอร์ด (จำลอง)
+  const stats = [
+    {
+      title: "ผู้ฝึกสอนทั้งหมด",
+      value: "24",
+      change: "+2",
+      changeType: "increase",
+      icon: (
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+          ></path>
+        </svg>
+      ),
+    },
+    {
+      title: "สมาชิกทั้งหมด",
+      value: "356",
+      change: "+28",
+      changeType: "increase",
+      icon: (
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+          ></path>
+        </svg>
+      ),
+    },
+    {
+      title: "รายได้ประจำเดือน",
+      value: "฿125,500",
+      change: "+12.5%",
+      changeType: "increase",
+      icon: (
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
+        </svg>
+      ),
+    },
+    {
+      title: "แผนออกกำลังกายทั้งหมด",
+      value: "874",
+      change: "+54",
+      changeType: "increase",
+      icon: (
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+          ></path>
+        </svg>
+      ),
+    },
+  ];
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className='text-3xl'>Admin Dashboard</h1>
-      <div>
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight">
+          แดชบอร์ดผู้ดูแลระบบ
+        </h1>
+        <p className="text-muted-foreground">
+          ดูภาพรวมระบบติดตามการออกกำลังกายและโภชนาการส่วนบุคคล
+        </p>
+      </div>
 
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, i) => (
+          <Card key={i}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-blue-100 text-blue-700 rounded-full">
+                    {stat.icon}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {stat.title}
+                    </p>
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                  </div>
+                </div>
+                <div
+                  className={`text-sm ${
+                    stat.changeType === "increase"
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {stat.change}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-6">
+        <Card className="col-span-2">
+          <CardHeader>
+            <CardTitle>ภาพรวมประจำเดือน</CardTitle>
+            <CardDescription>แสดงสถิติการใช้งานระบบรายเดือน</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* ในที่นี้จะจำลองเป็นกราฟแบบง่ายๆ */}
+            <div className="h-80 flex items-center justify-center bg-gray-50 rounded-md">
+              <p className="text-muted-foreground">แสดงกราฟข้อมูลที่นี่</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>กิจกรรมล่าสุด</CardTitle>
+            <CardDescription>
+              แสดงกิจกรรมที่เกิดขึ้นล่าสุดในระบบ
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((_, i) => (
+                <div key={i} className="flex items-start space-x-3">
+                  <div className="p-1.5 bg-blue-100 text-blue-700 rounded-full">
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {
+                        [
+                          "ผู้ฝึกสอนใหม่ลงทะเบียน",
+                          "สมาชิกใหม่ลงทะเบียน",
+                          "มีการชำระเงิน",
+                          "แผนออกกำลังกายถูกสร้าง",
+                        ][i]
+                      }
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {
+                        [
+                          "2 นาทีที่แล้ว",
+                          "15 นาทีที่แล้ว",
+                          "45 นาทีที่แล้ว",
+                          "1 ชั่วโมงที่แล้ว",
+                        ][i]
+                      }
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
-
-export default Page;
