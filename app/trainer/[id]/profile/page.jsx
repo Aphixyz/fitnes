@@ -299,18 +299,19 @@
 // }
 
 // app/trainer/[id]/profile/page.jsx
-import { updateTrainerProfile } from "@/actions/trainer/profile";
-import { query } from "@/lib/db";
+import { query } from '@/lib/db';
+import TrainerProfileManager from '@/components/profile/TrainerProfileManager';
 
 // ฟังก์ชันสำหรับดึงข้อมูล trainer
 async function getTrainerData(trainerId) {
   try {
-    const trainers = await query("SELECT * FROM trainer WHERE trainer_id = ?", [
-      trainerId,
-    ]);
+    const trainers = await query(
+      'SELECT * FROM trainer WHERE trainer_id = ?',
+      [trainerId]
+    );
     return trainers[0] || null;
   } catch (error) {
-    console.error("Error fetching trainer data:", error);
+    console.error('Error fetching trainer data:', error);
     return null;
   }
 }
@@ -318,143 +319,15 @@ async function getTrainerData(trainerId) {
 export default async function TrainerProfilePage({ params }) {
   const { id } = await params;
   const trainer = await getTrainerData(id);
-
+  
   if (!trainer) {
     return <div className="p-8">ไม่พบข้อมูลผู้ฝึกสอน</div>;
   }
-
+  
   return (
-    <div className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">แก้ไขข้อมูลส่วนตัว</h1>
-
-      <form action={updateTrainerProfile}>
-        <input type="hidden" name="trainer_id" value={trainer.trainer_id} />
-
-        <div className="mb-4">
-          <label
-            htmlFor="trainer_firstname"
-            className="block text-sm font-medium mb-1"
-          >
-            ชื่อ
-          </label>
-          <input
-            type="text"
-            id="trainer_firstname"
-            name="trainer_firstname"
-            defaultValue={trainer.trainer_firstname}
-            required
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="trainer_lastname"
-            className="block text-sm font-medium mb-1"
-          >
-            นามสกุล
-          </label>
-          <input
-            type="text"
-            id="trainer_lastname"
-            name="trainer_lastname"
-            defaultValue={trainer.trainer_lastname}
-            required
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="trainer_email"
-            className="block text-sm font-medium mb-1"
-          >
-            อีเมล
-          </label>
-          <input
-            type="email"
-            id="trainer_email"
-            name="trainer_email"
-            defaultValue={trainer.trainer_email}
-            required
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="trainer_phone"
-            className="block text-sm font-medium mb-1"
-          >
-            เบอร์โทรศัพท์
-          </label>
-          <input
-            type="tel"
-            id="trainer_phone"
-            name="trainer_phone"
-            defaultValue={trainer.trainer_phone || ""}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="trainer_exp"
-            className="block text-sm font-medium mb-1"
-          >
-            ประสบการณ์ (ปี)
-          </label>
-          <input
-            type="number"
-            id="trainer_exp"
-            name="trainer_exp"
-            defaultValue={trainer.trainer_exp || ""}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="trainer_status"
-            className="block text-sm font-medium mb-1"
-          >
-            สถานะ
-          </label>
-          <select
-            id="trainer_status"
-            name="trainer_status"
-            defaultValue={trainer.trainer_status || "active"}
-            className="w-full p-2 border rounded"
-          >
-            <option value="active">ใช้งาน</option>
-            <option value="inactive">ไม่ใช้งาน</option>
-            <option value="on leave">ลาพัก</option>
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="trainer_bio"
-            className="block text-sm font-medium mb-1"
-          >
-            ประวัติโดยย่อ
-          </label>
-          <textarea
-            id="trainer_bio"
-            name="trainer_bio"
-            defaultValue={trainer.trainer_bio || ""}
-            rows="4"
-            className="w-full p-2 border rounded"
-          ></textarea>
-        </div>
-
-        <button
-          type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-        >
-          บันทึกข้อมูล
-        </button>
-      </form>
+    <div className="container mx-auto py-8 px-4 max-w-4xl">
+      <h1 className="text-2xl font-bold mb-8 text-gray-800 border-b pb-4">ข้อมูลส่วนตัวผู้ฝึกสอน</h1>
+      <TrainerProfileManager trainer={trainer} />
     </div>
   );
 }
