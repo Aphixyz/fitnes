@@ -1,4 +1,5 @@
 import TrainerNavbar from "@/components/navigation/TrainerNavbar";
+import { ThemeProvider } from "@/components/Theme/ThemeProvider";
 
 export const metadata = {
   title: "ผู้ฝึกสอน | FitTrack",

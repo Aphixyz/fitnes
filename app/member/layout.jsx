@@ -1,4 +1,5 @@
 import MemberNavbar from "@/components/navigation/MemberNavbar";
+import { ThemeProvider } from "@/components/Theme/ThemeProvider";
 
 export const metadata = {
   title: "สมาชิก | FitTrack",

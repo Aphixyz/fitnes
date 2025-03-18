@@ -1,6 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getMemberById } from "@/actions/member/getMemberData";
 import { formatDate, calculateAge, getInitials } from "@/utils/utils";
+import { Button } from "@/components/ui/button";
 
 export default async function MemberDashboard({ params }) {
   // ดึงข้อมูลสมาชิกโดยใช้ ID จาก params
