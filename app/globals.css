@@ -5,14 +5,28 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #3b82f6; /* สีฟ้าของ Tailwind (blue-500) */
+  --primary-foreground: #ffffff;
+  --secondary: #6b7280; /* gray-500 */
+  --secondary-foreground: #ffffff;
+  --destructive: #ef4444; /* red-500 */
+  --destructive-foreground: #ffffff;
 }
+
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary: #2563eb; /* blue-600 */
+    --primary-foreground: #ffffff;
+    --secondary: #4b5563; /* gray-600 */
+    --secondary-foreground: #ffffff;
+    --destructive: #dc2626; /* red-600 */
+    --destructive-foreground: #ffffff;
   }
 }
+
 
 body {
   color: var(--foreground);
