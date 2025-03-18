@@ -5,26 +5,30 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: 'class', // เพิ่มบรรทัดนี้
   theme: {
     extend: {
       colors: {
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        
         primary: {
-          DEFAULT: '#3861fb', // สีน้ำเงินเข้มจากเมนูของคุณ
-          dark: '#2a4bce'
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
         },
-        background: {
-          light: '#f5f7fa',
-          dark: '#121212' 
+        secondary: {
+          DEFAULT: "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
         },
-        card: {
-          light: '#ffffff',
-          dark: '#1e1e1e'
+        destructive: {
+          DEFAULT: "var(--destructive)",
+          foreground: "var(--destructive-foreground)",
         },
-        text: {
-          light: '#1f2937',
-          dark: '#e5e7eb'
-        }
+        accent: {
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
+        },
+        ring: "var(--ring)",
+        input: "var(--input)",
       },
     },
   },
