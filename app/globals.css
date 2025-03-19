@@ -5,12 +5,22 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --primary: #3b82f6; /* สีฟ้าของ Tailwind (blue-500) */
+  
+  /* เพิ่ม variables สำหรับปุ่ม */
+  --primary: #3861fb;
   --primary-foreground: #ffffff;
-  --secondary: #6b7280; /* gray-500 */
-  --secondary-foreground: #ffffff;
-  --destructive: #ef4444; /* red-500 */
+  
+  --secondary: #f3f4f6;
+  --secondary-foreground: #1f2937;
+  
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
+  
+  --accent: #f3f4f6;
+  --accent-foreground: #1f2937;
+  
+  --ring: #3861fb;
+  --input: #e5e7eb;
 }
 
 
@@ -18,12 +28,22 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-    --primary: #2563eb; /* blue-600 */
+    
+    /* เพิ่ม variables สำหรับ Dark Mode */
+    --primary: #2a4bce;
     --primary-foreground: #ffffff;
-    --secondary: #4b5563; /* gray-600 */
-    --secondary-foreground: #ffffff;
-    --destructive: #dc2626; /* red-600 */
+    
+    --secondary: #2d3748;
+    --secondary-foreground: #e5e7eb;
+    
+    --destructive: #b91c1c;
     --destructive-foreground: #ffffff;
+    
+    --accent: #2d3748;
+    --accent-foreground: #e5e7eb;
+    
+    --ring: #2a4bce;
+    --input: #4b5563;
   }
 }
 
