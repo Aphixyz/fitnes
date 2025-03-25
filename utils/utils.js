@@ -48,6 +48,31 @@ export const formatDate = (dateString) => {
 };
 
 /**
+ * จัดรูปแบบวันและเวลาเป็น DD/MM/YYYY HH:MM
+ * @param {string|Date} date - วันที่และเวลาที่ต้องการจัดรูปแบบ
+ * @returns {string} - วันที่และเวลาในรูปแบบ DD/MM/YYYY HH:MM
+ */
+export function formatDateTime(date) {
+  if (!date) return "-";
+  
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "-";
+    
+    return d.toLocaleDateString('th-TH', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    console.error("Error formatting date time:", error);
+    return "-";
+  }
+}
+
+/**
  * Format a number as Thai Baht
  * @param {number} amount - Amount to format
  * @returns {string} - Formatted currency string
@@ -83,17 +108,21 @@ export function truncateText(text, maxLength = 100) {
 }
 
 /**
- * Calculate BMI from height and weight
- * @param {number} weight - Weight in kg
- * @param {number} height - Height in cm
- * @returns {number} - BMI value
+ * คำนวณดัชนีมวลกาย (BMI)
+ * @param {number} weightKg - น้ำหนักในหน่วยกิโลกรัม
+ * @param {number} heightCm - ส่วนสูงในหน่วยเซนติเมตร
+ * @returns {number|null} - ค่า BMI หรือ null ถ้าข้อมูลไม่ถูกต้อง
  */
-export function calculateBMI(weight, height) {
-  // Convert height from cm to m
-  const heightInMeters = height / 100;
-
-  // Calculate BMI: weight(kg) / height(m)^2
-  return (weight / (heightInMeters * heightInMeters)).toFixed(2);
+export function calculateBMI(weightKg, heightCm) {
+  if (!weightKg || !heightCm || heightCm <= 0 || weightKg <= 0) return null;
+  
+  try {
+    const heightM = heightCm / 100;
+    return (weightKg / (heightM * heightM)).toFixed(2);
+  } catch (error) {
+    console.error("Error calculating BMI:", error);
+    return null;
+  }
 }
 
 /**
@@ -110,37 +139,64 @@ export function getBMICategory(bmi) {
 }
 
 /**
- * Calculate daily calorie needs
- * @param {number} weight - Weight in kg
- * @param {number} height - Height in cm
- * @param {number} age - Age in years
- * @param {string} gender - 'male' or 'female'
- * @param {string} activityLevel - Activity level
- * @returns {number} - Daily calorie needs
+ * แปลงค่า BMI เป็นสถานะน้ำหนักตามเกณฑ์
+ * @param {number} bmi - ค่า BMI
+ * @returns {Object} - ข้อมูลสถานะน้ำหนัก
  */
-export function calculateDailyCalories(
-  weight,
-  height,
-  age,
-  gender,
-  activityLevel = "moderate"
-) {
-  // Calculate BMR using Mifflin-St Jeor Equation
-  let bmr;
-  if (gender === "male") {
-    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-  } else {
-    bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+export function getBmiStatus(bmi) {
+  if (!bmi) return { label: "ไม่มีข้อมูล", color: "text-gray-500" };
+  
+  if (bmi < 18.5) return { label: "น้ำหนักน้อย/ผอม", color: "text-blue-500" };
+  if (bmi < 23) return { label: "ปกติ (สุขภาพดี)", color: "text-green-500" };
+  if (bmi < 25) return { label: "ท้วม/โรคอ้วนระดับ 1", color: "text-yellow-500" };
+  if (bmi < 30) return { label: "อ้วน/โรคอ้วนระดับ 2", color: "text-orange-500" };
+  return { label: "อ้วนมาก/โรคอ้วนระดับ 3", color: "text-red-500" };
+}
+
+/**
+ * คำนวณแคลอรี่ที่ควรได้รับต่อวัน (BMR)
+ * @param {string} gender - เพศ ('male' หรือ 'female')
+ * @param {number} weightKg - น้ำหนักในหน่วยกิโลกรัม
+ * @param {number} heightCm - ส่วนสูงในหน่วยเซนติเมตร
+ * @param {number} age - อายุในหน่วยปี
+ * @param {string} activityLevel - ระดับกิจกรรม
+ * @returns {number|null} - แคลอรี่ที่ควรได้รับต่อวัน หรือ null ถ้าข้อมูลไม่ถูกต้อง
+ */
+export function calculateDailyCalories(gender, weightKg, heightCm, age, activityLevel = 'moderate') {
+  if (!gender || !weightKg || !heightCm || !age) return null;
+  
+  try {
+    // คำนวณ BMR
+    let bmr;
+    if (gender.toLowerCase() === 'male') {
+      bmr = 66 + (13.75 * weightKg) + (5 * heightCm) - (6.75 * age);
+    } else {
+      bmr = 655 + (9.56 * weightKg) + (1.85 * heightCm) - (4.68 * age);
+    }
+    
+    // ปรับตามระดับกิจกรรม
+    const activityFactors = {
+      'sedentary': 1.2, // ไม่ค่อยเคลื่อนไหว
+      'light': 1.375, // ออกกำลังกายเบา 1-3 วันต่อสัปดาห์
+      'moderate': 1.55, // ออกกำลังกายปานกลาง 3-5 วันต่อสัปดาห์
+      'active': 1.725, // ออกกำลังกายหนัก 6-7 วันต่อสัปดาห์
+      'very_active': 1.9 // ออกกำลังกายหนักมาก วันละ 2 ครั้ง
+    };
+    
+    const factor = activityFactors[activityLevel] || activityFactors.moderate;
+    
+    return Math.round(bmr * factor);
+  } catch (error) {
+    console.error("Error calculating daily calories:", error);
+    return null;
   }
+}
 
-  // Apply activity multiplier
-  const activityMultipliers = {
-    sedentary: 1.2, // Little or no exercise
-    light: 1.375, // Light exercise 1-3 days/week
-    moderate: 1.55, // Moderate exercise 3-5 days/week
-    active: 1.725, // Hard exercise 6-7 days/week
-    veryActive: 1.9, // Very hard exercise & physical job or 2x training
-  };
-
-  return Math.round(bmr * (activityMultipliers[activityLevel] || 1.55));
+/**
+ * แปลงหน่วยเป็นเซนติเมตรเป็นเมตร
+ * @param {number} cm - ความสูงในหน่วยเซนติเมตร
+ * @returns {number} - ความสูงในหน่วยเมตร
+ */
+export function cmToM(cm) {
+  return cm / 100;
 }
