@@ -1,6 +1,6 @@
 "use server";
 
-import { pool } from "@/lib/db";
+import pool from "@/lib/db";
 import bcrypt from "bcryptjs"; // ✅ ใช้ bcryptjs ถ้า bcrypt มีปัญหา
 
 export async function createTrainer(data) {
