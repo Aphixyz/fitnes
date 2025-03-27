@@ -54,17 +54,17 @@ export const formatDate = (dateString) => {
  */
 export function formatDateTime(date) {
   if (!date) return "-";
-  
+
   try {
     const d = new Date(date);
     if (isNaN(d.getTime())) return "-";
-    
-    return d.toLocaleDateString('th-TH', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+
+    return d.toLocaleDateString("th-TH", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   } catch (error) {
     console.error("Error formatting date time:", error);
@@ -115,7 +115,7 @@ export function truncateText(text, maxLength = 100) {
  */
 export function calculateBMI(weightKg, heightCm) {
   if (!weightKg || !heightCm || heightCm <= 0 || weightKg <= 0) return null;
-  
+
   try {
     const heightM = heightCm / 100;
     return (weightKg / (heightM * heightM)).toFixed(2);
@@ -145,11 +145,13 @@ export function getBMICategory(bmi) {
  */
 export function getBmiStatus(bmi) {
   if (!bmi) return { label: "ไม่มีข้อมูล", color: "text-gray-500" };
-  
+
   if (bmi < 18.5) return { label: "น้ำหนักน้อย/ผอม", color: "text-blue-500" };
   if (bmi < 23) return { label: "ปกติ (สุขภาพดี)", color: "text-green-500" };
-  if (bmi < 25) return { label: "ท้วม/โรคอ้วนระดับ 1", color: "text-yellow-500" };
-  if (bmi < 30) return { label: "อ้วน/โรคอ้วนระดับ 2", color: "text-orange-500" };
+  if (bmi < 25)
+    return { label: "ท้วม/โรคอ้วนระดับ 1", color: "text-yellow-500" };
+  if (bmi < 30)
+    return { label: "อ้วน/โรคอ้วนระดับ 2", color: "text-orange-500" };
   return { label: "อ้วนมาก/โรคอ้วนระดับ 3", color: "text-red-500" };
 }
 
@@ -162,29 +164,35 @@ export function getBmiStatus(bmi) {
  * @param {string} activityLevel - ระดับกิจกรรม
  * @returns {number|null} - แคลอรี่ที่ควรได้รับต่อวัน หรือ null ถ้าข้อมูลไม่ถูกต้อง
  */
-export function calculateDailyCalories(gender, weightKg, heightCm, age, activityLevel = 'moderate') {
+export function calculateDailyCalories(
+  gender,
+  weightKg,
+  heightCm,
+  age,
+  activityLevel = "moderate"
+) {
   if (!gender || !weightKg || !heightCm || !age) return null;
-  
+
   try {
     // คำนวณ BMR
     let bmr;
-    if (gender.toLowerCase() === 'male') {
-      bmr = 66 + (13.75 * weightKg) + (5 * heightCm) - (6.75 * age);
+    if (gender.toLowerCase() === "male") {
+      bmr = 66 + 13.75 * weightKg + 5 * heightCm - 6.75 * age;
     } else {
-      bmr = 655 + (9.56 * weightKg) + (1.85 * heightCm) - (4.68 * age);
+      bmr = 655 + 9.56 * weightKg + 1.85 * heightCm - 4.68 * age;
     }
-    
+
     // ปรับตามระดับกิจกรรม
     const activityFactors = {
-      'sedentary': 1.2, // ไม่ค่อยเคลื่อนไหว
-      'light': 1.375, // ออกกำลังกายเบา 1-3 วันต่อสัปดาห์
-      'moderate': 1.55, // ออกกำลังกายปานกลาง 3-5 วันต่อสัปดาห์
-      'active': 1.725, // ออกกำลังกายหนัก 6-7 วันต่อสัปดาห์
-      'very_active': 1.9 // ออกกำลังกายหนักมาก วันละ 2 ครั้ง
+      sedentary: 1.2, // ไม่ค่อยเคลื่อนไหว
+      light: 1.375, // ออกกำลังกายเบา 1-3 วันต่อสัปดาห์
+      moderate: 1.55, // ออกกำลังกายปานกลาง 3-5 วันต่อสัปดาห์
+      active: 1.725, // ออกกำลังกายหนัก 6-7 วันต่อสัปดาห์
+      very_active: 1.9, // ออกกำลังกายหนักมาก วันละ 2 ครั้ง
     };
-    
+
     const factor = activityFactors[activityLevel] || activityFactors.moderate;
-    
+
     return Math.round(bmr * factor);
   } catch (error) {
     console.error("Error calculating daily calories:", error);
@@ -199,4 +207,28 @@ export function calculateDailyCalories(gender, weightKg, heightCm, age, activity
  */
 export function cmToM(cm) {
   return cm / 100;
+}
+
+/**
+ * ดึง URL หลักของแอปพลิเคชัน
+ * @returns {string} Base URL ของแอปพลิเคชัน
+ */
+export function getBaseUrl() {
+  if (typeof window !== "undefined") {
+    // ใช้ window.location เมื่ออยู่บนเบราวเซอร์
+    return `${window.location.protocol}//${window.location.host}`;
+  }
+
+  // เมื่อรันบน Server
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+
+  // ค่าเริ่มต้นสำหรับโหมดพัฒนา
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:3000";
+  }
+
+  // ค่าเริ่มต้นสำหรับโหมดโปรดักชัน
+  return "https://fittrack.example.com";
 }

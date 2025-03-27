@@ -7,8 +7,6 @@ export const metadata = {
 };
 
 export default function TrainerLayout({ children, params }) {
-  // params จะมี id ของ trainer ที่สามารถนำมาใช้ได้
-  // params.id คือค่า ID ของผู้ฝึกสอนที่เข้าถึงหน้านี้
   
   return (
     <div className="min-h-screen flex flex-col">
