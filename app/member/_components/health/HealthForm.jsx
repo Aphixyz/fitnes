@@ -23,7 +23,6 @@ export default function HealthForm({ memberId, initialData = null }) {
     member_id: memberId,
     member_health_weight: initialData?.member_health_weight || "",
     member_health_height: initialData?.member_health_height || "",
-    member_health_initial_weight: initialData?.member_health_initial_weight || "",
     member_health_bodyfat: initialData?.member_health_bodyfat || "",
     member_health_chest: initialData?.member_health_chest || "",
     member_health_waist: initialData?.member_health_waist || "",
@@ -55,7 +54,6 @@ export default function HealthForm({ memberId, initialData = null }) {
       const numericFields = [
         'member_health_weight', 
         'member_health_height', 
-        'member_health_initial_weight', 
         'member_health_bodyfat', 
         'member_health_chest',
         'member_health_waist',
@@ -75,12 +73,9 @@ export default function HealthForm({ memberId, initialData = null }) {
 
       // แปลงวันที่ให้เป็นรูปแบบที่ MySQL รองรับ (YYYY-MM-DD)
       if (dataToSubmit.member_health_measurementdate) {
-        // ตรวจสอบว่าเป็น string หรือไม่
         if (typeof dataToSubmit.member_health_measurementdate === 'string') {
-          // หากเป็น string ในรูปแบบ ISO (YYYY-MM-DD) ให้คงไว้ตามเดิม
-          // ไม่ต้องทำอะไร เพราะเป็นรูปแบบที่ถูกต้องแล้ว
+          // Do nothing, already in correct format
         } else {
-          // หากเป็น Date object ให้แปลงเป็น string ในรูปแบบ YYYY-MM-DD
           dataToSubmit.member_health_measurementdate = new Date(dataToSubmit.member_health_measurementdate)
             .toISOString().split('T')[0];
         }
@@ -99,7 +94,6 @@ export default function HealthForm({ memberId, initialData = null }) {
         variant: "success",
       });
 
-      // ถ้าไม่ได้แก้ไข (เพิ่มใหม่) ให้รีเซ็ตฟอร์ม
       if (!isEditing) {
         setFormData({
           ...formData,
@@ -162,22 +156,6 @@ export default function HealthForm({ memberId, initialData = null }) {
                 required
               />
             </div>
-
-            {/* น้ำหนักเริ่มต้น - แสดงเฉพาะตอนเพิ่มข้อมูลครั้งแรก */}
-            {!isEditing && (
-              <div className="space-y-2">
-                <Label htmlFor="member_health_initial_weight">น้ำหนักเริ่มต้น (กก.)</Label>
-                <Input
-                  id="member_health_initial_weight"
-                  name="member_health_initial_weight"
-                  type="number"
-                  step="0.01"
-                  value={formData.member_health_initial_weight}
-                  onChange={handleChange}
-                  placeholder="ระบุน้ำหนักเริ่มต้นในหน่วยกิโลกรัม"
-                />
-              </div>
-            )}
 
             {/* เปอร์เซ็นต์ไขมัน */}
             <div className="space-y-2">

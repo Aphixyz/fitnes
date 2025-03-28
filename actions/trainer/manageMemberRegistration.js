@@ -20,7 +20,7 @@ export async function getTrainerRegistrations(trainerId, status = null) {
              m.member_lastname, 
              m.member_email, 
              m.member_phone, 
-             m.member_profile_image 
+             m.member_profileimage 
       FROM registration r
       LEFT JOIN member m ON r.member_id = m.member_id
       WHERE r.trainer_id = ?
@@ -159,7 +159,7 @@ export async function confirmRegistration(data) {
           `INSERT INTO member 
            (member_username, member_password, member_firstname, member_lastname, 
             member_email, member_phone, member_gender, member_dob, 
-            member_profile_image, member_status) 
+            member_profileimage, member_status) 
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
           [
             memberData.member_username,
@@ -170,7 +170,7 @@ export async function confirmRegistration(data) {
             memberData.member_phone || null,
             memberData.member_gender || null,
             memberData.member_dob || null,
-            memberData.member_profile_image || null,
+            memberData.memberprofile_image || null,
           ]
         );
 

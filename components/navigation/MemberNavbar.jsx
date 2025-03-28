@@ -4,16 +4,27 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { cn } from '@/utils/utils';
+import { cn } from "@/utils/utils";
 
 export const MemberNavbar = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
+  const getMemberId = () => {
+    const pathParts = pathname.split('/');
+    const memberIdIndex = pathParts.findIndex(part => part === 'member') + 1;
+    if (memberIdIndex > 0 && memberIdIndex < pathParts.length) {
+      return pathParts[memberIdIndex];
+    }
+    return '';
+  };
+
+  const memberId = getMemberId();
+
   const menuItems = [
     {
       label: "แดชบอร์ด",
-      href: "/member",
+      href: `/member/${memberId}`,
       icon: (
         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -22,7 +33,7 @@ export const MemberNavbar = ({ user }) => {
     },
     {
       label: "การออกกำลังกาย",
-      href: "/member/workouts",
+      href: `/member/${memberId}/workout`,
       icon: (
         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
@@ -31,7 +42,7 @@ export const MemberNavbar = ({ user }) => {
     },
     {
       label: "โภชนาการ",
-      href: "/member/nutrition",
+      href: `/member/${memberId}/nutrition`,
       icon: (
         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -40,7 +51,7 @@ export const MemberNavbar = ({ user }) => {
     },
     {
       label: "บันทึกกิจกรรม",
-      href: "/member/logs",
+      href: `/member/${memberId}/health`,
       icon: (
         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -73,7 +84,7 @@ export const MemberNavbar = ({ user }) => {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/member" className="text-white font-bold text-xl flex items-center">
+              <Link href={`/member/${memberId}`} className="text-white font-bold text-xl flex items-center">
                 <svg className="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
