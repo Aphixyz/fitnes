@@ -251,9 +251,13 @@ export default function HealthForm({ memberId, initialData = null }) {
                 <SelectTrigger id="member_health_fitness_level">
                   <SelectValue placeholder="เลือกระดับความฟิต" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white shadow-md z-50">
                   {fitnessLevels.map((level) => (
-                    <SelectItem key={level.value} value={level.value}>
+                    <SelectItem 
+                      key={level.value} 
+                      value={level.value}
+                      className="hover:bg-gray-100"
+                    >
                       {level.label}
                     </SelectItem>
                   ))}

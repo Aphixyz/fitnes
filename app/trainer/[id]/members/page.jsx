@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getTrainerMembers, getMemberSummaryByStatus } from "@/actions/trainer/getTrainerMembers";
 import { formatDate } from "@/utils/utils";
+import MemberActionMenu from "@/app/trainer/_components/memberActionMenu";
 
 export default function TrainerMembersPage({ params }) {
   // Unwrap params ซึ่งเป็น Promise ก่อนใช้งาน (ตามข้อกำหนดใหม่ของ Next.js 15)
@@ -333,16 +334,15 @@ export default function TrainerMembersPage({ params }) {
                           : "-"}
                       </TableCell>
                       <TableCell>
-                        {getStatusBadge(member.registration_status_text)}
+                        <div className="flex items-center space-x-2">
+                          {getStatusBadge(member.registration_status_text)}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => viewMemberDetails(member.member_id)}
-                        >
-                          รายละเอียด
-                        </Button>
+                        <MemberActionMenu 
+                          member={member}
+                          trainerId={trainerId}
+                        />
                       </TableCell>
                     </TableRow>
                   ))

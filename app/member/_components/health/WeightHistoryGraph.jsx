@@ -68,12 +68,12 @@ export default function WeightHistoryGraph({ historyData }) {
           <SelectTrigger className="w-32">
             <SelectValue placeholder="เลือกช่วงเวลา" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1m">1 เดือน</SelectItem>
-            <SelectItem value="3m">3 เดือน</SelectItem>
-            <SelectItem value="6m">6 เดือน</SelectItem>
-            <SelectItem value="1y">1 ปี</SelectItem>
-            <SelectItem value="all">ทั้งหมด</SelectItem>
+          <SelectContent className="bg-white shadow-md z-50">
+            <SelectItem value="1m" className="hover:bg-gray-100">1 เดือน</SelectItem>
+            <SelectItem value="3m" className="hover:bg-gray-100">3 เดือน</SelectItem>
+            <SelectItem value="6m" className="hover:bg-gray-100">6 เดือน</SelectItem>
+            <SelectItem value="1y" className="hover:bg-gray-100">1 ปี</SelectItem>
+            <SelectItem value="all" className="hover:bg-gray-100">ทั้งหมด</SelectItem>
           </SelectContent>
         </Select>
       </CardHeader>

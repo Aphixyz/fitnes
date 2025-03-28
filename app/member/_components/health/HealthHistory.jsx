@@ -57,13 +57,16 @@ export default function HealthHistory({ historyData, onViewDetails }) {
                     <TableCell>{bmi || "-"}</TableCell>
                     <TableCell>{record.member_health_bodyfat || "-"}</TableCell>
                     <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => onViewDetails(record)}
-                      >
-                        ดูรายละเอียด
-                      </Button>
+                      <div className="flex items-center justify-end">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => onViewDetails(record)}
+                          className="hover:bg-gray-100"
+                        >
+                          ดูรายละเอียด
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
