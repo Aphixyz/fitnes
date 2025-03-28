@@ -184,8 +184,8 @@ export default function GoalForm({
                 </SelectTrigger>
                 <SelectContent className="bg-white shadow-md z-50">
                   {goalTypes.map((type) => (
-                    <SelectItem 
-                      key={type.value} 
+                    <SelectItem
+                      key={type.value}
                       value={type.value}
                       className="hover:bg-gray-100"
                     >

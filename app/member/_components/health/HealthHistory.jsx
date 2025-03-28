@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { formatDate, calculateBMI } from "@/utils/utils";
 
 export default function HealthHistory({ historyData, onViewDetails }) {
@@ -16,14 +23,16 @@ export default function HealthHistory({ historyData, onViewDetails }) {
           <CardTitle>ประวัติการบันทึกข้อมูลสุขภาพ</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">ยังไม่มีประวัติการบันทึกข้อมูลสุขภาพ</p>
+          <p className="text-muted-foreground">
+            ยังไม่มีประวัติการบันทึกข้อมูลสุขภาพ
+          </p>
         </CardContent>
       </Card>
     );
   }
 
   const showMore = () => {
-    setVisibleItems(prev => prev + 5);
+    setVisibleItems((prev) => prev + 5);
   };
 
   return (
@@ -47,20 +56,25 @@ export default function HealthHistory({ historyData, onViewDetails }) {
             <TableBody>
               {historyData.slice(0, visibleItems).map((record) => {
                 // คำนวณ BMI สำหรับแต่ละรายการ
-                const bmi = calculateBMI(record.member_health_weight, record.member_health_height);
-                
+                const bmi = calculateBMI(
+                  record.member_health_weight,
+                  record.member_health_height
+                );
+
                 return (
                   <TableRow key={record.member_health_id}>
-                    <TableCell>{formatDate(record.member_health_measurementdate)}</TableCell>
+                    <TableCell>
+                      {formatDate(record.member_health_measurementdate)}
+                    </TableCell>
                     <TableCell>{record.member_health_weight || "-"}</TableCell>
                     <TableCell>{record.member_health_height || "-"}</TableCell>
                     <TableCell>{bmi || "-"}</TableCell>
                     <TableCell>{record.member_health_bodyfat || "-"}</TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => onViewDetails(record)}
                           className="hover:bg-gray-100"
                         >
