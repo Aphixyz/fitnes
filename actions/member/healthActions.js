@@ -78,11 +78,28 @@ export async function addMemberHealth(healthData) {
     // กำหนด member_health_recorddate
     healthData.member_health_recorddate = new Date();
 
-    // กรองฟิลด์ member_health_id ออกไป (ถ้ามี)
+    // ตรวจสอบและแปลงค่าว่างเป็น null สำหรับฟิลด์ตัวเลข
+    const numericFields = [
+      'member_health_weight', 
+      'member_health_height', 
+      'member_health_bodyfat', 
+      'member_health_chest',
+      'member_health_waist',
+      'member_health_hip',
+      'member_health_arm',
+      'member_health_thigh'
+    ];
+
+    // กรองฟิลด์ member_health_id ออกไป (ถ้ามี) และจัดการค่าว่าง
     const dataToSave = {};
     Object.entries(healthData).forEach(([key, value]) => {
       if (key !== "member_health_id") {
-        dataToSave[key] = value;
+        // แปลงค่าว่างเป็น null สำหรับฟิลด์ตัวเลข
+        if (numericFields.includes(key) && (value === "" || value === undefined)) {
+          dataToSave[key] = null;
+        } else {
+          dataToSave[key] = value;
+        }
       }
     });
 

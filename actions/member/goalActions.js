@@ -9,6 +9,12 @@ import pool from "@/lib/db";
  */
 export async function getActiveMemberGoal(memberId) {
   try {
+    // ตรวจสอบว่ามี memberId หรือไม่
+    if (!memberId) {
+      console.log("No member ID provided");
+      return null;
+    }
+
     const [rows] = await pool.query(
       `SELECT * FROM fitness_goal 
        WHERE member_id = ? AND fitness_goal_status = 'active' 
@@ -20,7 +26,8 @@ export async function getActiveMemberGoal(memberId) {
     return rows[0] || null;
   } catch (error) {
     console.error("Error fetching active goal:", error);
-    throw new Error("ไม่สามารถดึงข้อมูลเป้าหมายที่กำลังใช้งานได้");
+    // ไม่ throw error แต่ return null เพื่อให้ frontend จัดการได้
+    return null;
   }
 }
 
@@ -31,6 +38,12 @@ export async function getActiveMemberGoal(memberId) {
  */
 export async function getMemberGoalHistory(memberId) {
   try {
+    // ตรวจสอบว่ามี memberId หรือไม่
+    if (!memberId) {
+      console.log("No member ID provided for goal history");
+      return [];
+    }
+
     const [rows] = await pool.query(
       `SELECT * FROM fitness_goal 
        WHERE member_id = ? 
@@ -38,10 +51,11 @@ export async function getMemberGoalHistory(memberId) {
       [memberId]
     );
 
-    return rows;
+    return rows || [];
   } catch (error) {
     console.error("Error fetching goal history:", error);
-    throw new Error("ไม่สามารถดึงประวัติเป้าหมายได้");
+    // ไม่ throw error แต่ return [] เพื่อให้ frontend จัดการได้
+    return [];
   }
 }
 

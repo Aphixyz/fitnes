@@ -20,7 +20,7 @@ export default async function MemberDashboard({ params }) {
           <h2 className="text-2xl font-bold text-red-600 mb-4">
             ไม่พบข้อมูลสมาชิก
           </h2>
-          <p className="text-gray-600">ไม่พบข้อมูลสมาชิกที่มี ID: {memberId}</p>
+          <p className="text-gray-600">ไม่พบข้อมูลสมาชิกที่มี ID: {member}</p>
         </div>
       </div>
     );
