@@ -108,11 +108,11 @@ export default function GoalForm({
 
       // จัดการกับเป้าหมายกล้ามเนื้อ - เก็บในฟิลด์ note แทน
       if (
-        formData.muscle_target &&
+        formData.fitness_goal_targetmuscle &&
         formData.fitness_goal_type === "เพิ่มกล้ามเนื้อ"
       ) {
         dataToSubmit.fitness_goal_targetmuscle =
-          "เป้าหมายกล้ามเนื้อ: " + formData.muscle_target;
+          "เป้าหมายกล้ามเนื้อ: " + formData.fitness_goal_targetmuscle;
 
         if (formData.fitness_goal_note) {
           dataToSubmit.fitness_goal_note += "\n\n" + formData.fitness_goal_note;
@@ -143,7 +143,7 @@ export default function GoalForm({
           ...formData,
           fitness_goal_targetweight: "",
           weight_difference: "",
-          muscle_target: "",
+          fitness_goal_targetmuscle: "",
           fitness_goal_note: "",
         });
       }
@@ -281,7 +281,7 @@ export default function GoalForm({
               <Textarea
                 id="muscle_target"
                 name="muscle_target"
-                value={formData.muscle_target}
+                value={formData.fitness_goal_targetmuscle}
                 onChange={handleChange}
                 placeholder="ระบุส่วนของร่างกายที่ต้องการเพิ่มกล้ามเนื้อ (เช่น แขน, ขา, หน้าอก)"
                 rows={3}

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getTrainerMembers, getMemberSummaryByStatus } from "@/actions/trainer/getTrainerMembers";
 import { formatDate } from "@/utils/utils";
-import MemberActionMenu from "@/app/trainer/_components/memberActionMenu";
+import MemberActionMenu from "@/app/trainer/_components/(member)/memberActionMenu";
 
 export default function TrainerMembersPage({ params }) {
   // Unwrap params ซึ่งเป็น Promise ก่อนใช้งาน (ตามข้อกำหนดใหม่ของ Next.js 15)
