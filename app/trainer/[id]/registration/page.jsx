@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { use } from "react"; // Import React.use()
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import LinkGenerator from "../../_components/LinkGenerator";
-import RegistrationList from "../../_components/RegistrationList";
+import LinkGenerator from "../../_components/(registration)/LinkGenerator";
+import RegistrationList from "../../_components/(registration)/RegistrationList";
 
 export default function TrainerRegistrationPage({ params }) {
   const { id: trainerId } = use(params); // ใช้ React.use() เพื่อดึงค่า params
