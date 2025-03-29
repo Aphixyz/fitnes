@@ -58,16 +58,13 @@ export async function getTrainerMembers({ trainerId, page = 1, pageSize = 10, se
     if (status !== 'all') {
       if (status === 'active') {
         query += ` AND r.registration_status = 1 AND (r.registration_enddate > NOW() OR r.registration_enddate IS NULL)`;
+      } else if (status === 'pending') {
+        query += ` AND r.registration_status = 0`;
       } else if (status === 'expired') {
         query += ` AND (r.registration_status = 2 OR (r.registration_status = 1 AND r.registration_enddate < NOW()))`;
+      } else if (status === 'rejected') {
+        query += ` AND r.registration_status = 3`;
       }
-    } else {
-      // แสดงเฉพาะสถานะ active และ expired เท่านั้น แม้ตัวกรองเป็น 'all'
-      query += ` AND (
-        (r.registration_status = 1) OR 
-        (r.registration_status = 2) OR 
-        (r.registration_status = 1 AND r.registration_enddate < NOW())
-      )`;
     }
 
     // Query สำหรับนับจำนวนทั้งหมด
