@@ -182,9 +182,13 @@ export default function GoalForm({
                 <SelectTrigger id="fitness_goal_type">
                   <SelectValue placeholder="เลือกประเภทเป้าหมาย" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white shadow-md z-50">
                   {goalTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
+                    <SelectItem
+                      key={type.value}
+                      value={type.value}
+                      className="hover:bg-gray-100"
+                    >
                       {type.label}
                     </SelectItem>
                   ))}

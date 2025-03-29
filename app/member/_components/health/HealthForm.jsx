@@ -1,12 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { addMemberHealth, updateMemberHealth } from "@/actions/member/healthActions";
+import {
+  addMemberHealth,
+  updateMemberHealth,
+} from "@/actions/member/healthActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 
@@ -31,10 +46,13 @@ export default function HealthForm({ memberId, initialData = null }) {
     member_health_thigh: initialData?.member_health_thigh || "",
     member_health_condition: initialData?.member_health_condition || "",
     member_health_allergy: initialData?.member_health_allergy || "",
-    member_health_fitness_level: initialData?.member_health_fitness_level || "beginner",
-    member_health_measurementdate: initialData?.member_health_measurementdate 
-      ? new Date(initialData.member_health_measurementdate).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0],
+    member_health_fitness_level:
+      initialData?.member_health_fitness_level || "beginner",
+    member_health_measurementdate: initialData?.member_health_measurementdate
+      ? new Date(initialData.member_health_measurementdate)
+          .toISOString()
+          .split("T")[0]
+      : new Date().toISOString().split("T")[0],
   });
 
   const handleChange = (e) => {
@@ -52,20 +70,20 @@ export default function HealthForm({ memberId, initialData = null }) {
 
     try {
       const numericFields = [
-        'member_health_weight', 
-        'member_health_height', 
-        'member_health_bodyfat', 
-        'member_health_chest',
-        'member_health_waist',
-        'member_health_hip',
-        'member_health_arm',
-        'member_health_thigh'
+        "member_health_weight",
+        "member_health_height",
+        "member_health_bodyfat",
+        "member_health_chest",
+        "member_health_waist",
+        "member_health_hip",
+        "member_health_arm",
+        "member_health_thigh",
       ];
-      
+
       const dataToSubmit = { ...formData };
-      
+
       // แปลงข้อมูลให้เป็นตัวเลข
-      numericFields.forEach(field => {
+      numericFields.forEach((field) => {
         if (dataToSubmit[field]) {
           dataToSubmit[field] = parseFloat(dataToSubmit[field]);
         }
@@ -73,17 +91,23 @@ export default function HealthForm({ memberId, initialData = null }) {
 
       // แปลงวันที่ให้เป็นรูปแบบที่ MySQL รองรับ (YYYY-MM-DD)
       if (dataToSubmit.member_health_measurementdate) {
-        if (typeof dataToSubmit.member_health_measurementdate === 'string') {
+        if (typeof dataToSubmit.member_health_measurementdate === "string") {
           // Do nothing, already in correct format
         } else {
-          dataToSubmit.member_health_measurementdate = new Date(dataToSubmit.member_health_measurementdate)
-            .toISOString().split('T')[0];
+          dataToSubmit.member_health_measurementdate = new Date(
+            dataToSubmit.member_health_measurementdate
+          )
+            .toISOString()
+            .split("T")[0];
         }
       }
 
       let result;
       if (isEditing) {
-        result = await updateMemberHealth(initialData.member_health_id, dataToSubmit);
+        result = await updateMemberHealth(
+          initialData.member_health_id,
+          dataToSubmit
+        );
       } else {
         result = await addMemberHealth(dataToSubmit);
       }
@@ -104,11 +128,11 @@ export default function HealthForm({ memberId, initialData = null }) {
           member_health_hip: "",
           member_health_arm: "",
           member_health_thigh: "",
-          member_health_measurementdate: new Date().toISOString().split('T')[0],
+          member_health_measurementdate: new Date().toISOString().split("T")[0],
         });
       }
     } catch (error) {
-      console.error('Error saving health data:', error);
+      console.error("Error saving health data:", error);
       toast({
         title: "เกิดข้อผิดพลาด",
         description: error.message || "ไม่สามารถบันทึกข้อมูลได้",
@@ -122,7 +146,9 @@ export default function HealthForm({ memberId, initialData = null }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{isEditing ? "แก้ไขข้อมูลสุขภาพ" : "บันทึกข้อมูลสุขภาพใหม่"}</CardTitle>
+        <CardTitle>
+          {isEditing ? "แก้ไขข้อมูลสุขภาพ" : "บันทึกข้อมูลสุขภาพใหม่"}
+        </CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
@@ -159,7 +185,9 @@ export default function HealthForm({ memberId, initialData = null }) {
 
             {/* เปอร์เซ็นต์ไขมัน */}
             <div className="space-y-2">
-              <Label htmlFor="member_health_bodyfat">เปอร์เซ็นต์ไขมัน (%)</Label>
+              <Label htmlFor="member_health_bodyfat">
+                เปอร์เซ็นต์ไขมัน (%)
+              </Label>
               <Input
                 id="member_health_bodyfat"
                 name="member_health_bodyfat"
@@ -246,14 +274,20 @@ export default function HealthForm({ memberId, initialData = null }) {
               <Label htmlFor="member_health_fitness_level">ระดับความฟิต</Label>
               <Select
                 value={formData.member_health_fitness_level}
-                onValueChange={(value) => handleSelectChange("member_health_fitness_level", value)}
+                onValueChange={(value) =>
+                  handleSelectChange("member_health_fitness_level", value)
+                }
               >
                 <SelectTrigger id="member_health_fitness_level">
                   <SelectValue placeholder="เลือกระดับความฟิต" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white shadow-md z-50">
                   {fitnessLevels.map((level) => (
-                    <SelectItem key={level.value} value={level.value}>
+                    <SelectItem
+                      key={level.value}
+                      value={level.value}
+                      className="hover:bg-gray-100"
+                    >
                       {level.label}
                     </SelectItem>
                   ))}
@@ -277,7 +311,9 @@ export default function HealthForm({ memberId, initialData = null }) {
 
           {/* ข้อมูลสุขภาพและการแพ้ */}
           <div className="space-y-2">
-            <Label htmlFor="member_health_condition">โรคประจำตัว/ข้อจำกัดทางสุขภาพ</Label>
+            <Label htmlFor="member_health_condition">
+              โรคประจำตัว/ข้อจำกัดทางสุขภาพ
+            </Label>
             <Textarea
               id="member_health_condition"
               name="member_health_condition"
