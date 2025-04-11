@@ -8,6 +8,9 @@ export default function MemberTable({ members = [], showActions = false }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
+  // console.log("Members received:", members);
+  // console.log("Show actions:", showActions);
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-300 shadow-md">

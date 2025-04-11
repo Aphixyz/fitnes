@@ -4,6 +4,8 @@ import MemberTable from "../_components/member/table";
 export default async function MemberPage() {
   const res = await getMemberWithTrainer();
 
+  // console.log("API Response:", res);
+
   if (!res.success) {
     return (
       <div className="p-4 text-red-600">
@@ -12,6 +14,7 @@ export default async function MemberPage() {
     );
   }
 
+  // console.log("Members data:", res.data);
   return (
     
     <div className="p-6">

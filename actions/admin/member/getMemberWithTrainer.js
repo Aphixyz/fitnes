@@ -21,7 +21,7 @@ export async function getMemberWithTrainer() {
         t.trainer_status
       FROM registration r
       JOIN member m ON r.member_id = m.member_id
-      JOIN trainer t ON r.trainer_id = t.trainer_id
+      LEFT JOIN trainer t ON r.trainer_id = t.trainer_id
       WHERE r.registration_status = 1
       ORDER BY m.member_id
     `);
