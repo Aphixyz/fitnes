@@ -106,7 +106,7 @@ export default function MemberTable({ members = [], showActions = false }) {
             ))
           ) : (
             <tr>
-              <td colSpan={showActions ? 5 : 4} className="text-center py-4">
+              <td colSpan={showActions ? 7 : 6} className="text-center py-4">
                 ไม่มีข้อมูลสมาชิก
               </td>
             </tr>
