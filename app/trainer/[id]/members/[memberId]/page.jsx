@@ -117,7 +117,6 @@ export default function MemberDetailsPage() {
             </Button>
           </Link>
         </div>
-
         <div className="flex space-x-2">
           <Link href={`/trainer/${trainerId}/members/${memberId}/nutrition`}>
             <Button variant="outline" size="sm">

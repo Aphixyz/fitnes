@@ -260,7 +260,7 @@ export default function WorkoutPlanForm({ trainerId, initialData, memberId }) {
                   >
                     <SelectValue placeholder="เลือกสมาชิก" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60 bg-white shadow-md">
                     {loading ? (
                       <div className="p-2 text-center">กำลังโหลด...</div>
                     ) : members.length === 0 ? (
@@ -290,7 +290,7 @@ export default function WorkoutPlanForm({ trainerId, initialData, memberId }) {
                 <SelectTrigger id="difficulty_level">
                   <SelectValue placeholder="เลือกระดับความยาก" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-60 bg-white shadow-md">
                   {difficultyLevels.map((level) => (
                     <SelectItem key={level.value} value={level.value}>
                       {level.label}
@@ -310,7 +310,7 @@ export default function WorkoutPlanForm({ trainerId, initialData, memberId }) {
                 <SelectTrigger id="workout_frequency">
                   <SelectValue placeholder="เลือกความถี่" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-60 bg-white shadow-md">
                   {frequencyOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value.toString()}>
                       {option.label}
@@ -406,7 +406,7 @@ export default function WorkoutPlanForm({ trainerId, initialData, memberId }) {
                 <SelectTrigger id="plan_status">
                   <SelectValue placeholder="เลือกสถานะ" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-60 bg-white shadow-md">
                   <SelectItem value="active">ใช้งาน</SelectItem>
                   <SelectItem value="inactive">ไม่ใช้งาน</SelectItem>
                   <SelectItem value="completed">เสร็จสิ้น</SelectItem>

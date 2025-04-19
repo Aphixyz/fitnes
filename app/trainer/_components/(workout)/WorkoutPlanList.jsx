@@ -176,7 +176,7 @@ export default function WorkoutPlanList({ plans, trainerId, showMember = true, o
                           <MoreHorizontal className="h-5 w-5" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuContent align="end" className="w-56 bg-white shadow-md">
                         <DropdownMenuItem 
                           onClick={() => router.push(`/trainer/${trainerId}/workouts/${plan.workout_plan_id}`)}
                           className="cursor-pointer"
