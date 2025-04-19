@@ -9,13 +9,26 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatDate } from "@/utils/utils";
-import { ArrowLeft, Calendar, FileText, Activity, Target, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  FileText,
+  Activity,
+  Target,
+  AlertCircle,
+} from "lucide-react";
 import Link from "next/link";
 
-// Import Server Actions 
+// Import Server Actions
 import { getMemberDetails } from "@/actions/trainer/getMemberDetails";
-import { getMemberHealth, getMemberHealthHistory } from "@/actions/member/healthActions";
-import { getActiveMemberGoal, getMemberGoalHistory } from "@/actions/member/goalActions";
+import {
+  getMemberHealth,
+  getMemberHealthHistory,
+} from "@/actions/member/healthActions";
+import {
+  getActiveMemberGoal,
+  getMemberGoalHistory,
+} from "@/actions/member/goalActions";
 
 // Import Components
 import MemberInfoTab from "@/app/trainer/_components/(member)/MemberInfoTab";
@@ -31,7 +44,7 @@ export default function MemberDetailsPage() {
   const router = useRouter();
   const trainerId = params.id;
   const memberId = params.memberId;
-  
+
   const [activeTab, setActiveTab] = useState("info");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,29 +61,30 @@ export default function MemberDetailsPage() {
       try {
         // ดึงข้อมูลสมาชิก
         const memberDetailsResult = await getMemberDetails(trainerId, memberId);
-        
+
         if (!memberDetailsResult.success) {
-          throw new Error(memberDetailsResult.message || "ไม่สามารถดึงข้อมูลสมาชิกได้");
+          throw new Error(
+            memberDetailsResult.message || "ไม่สามารถดึงข้อมูลสมาชิกได้"
+          );
         }
-        
+
         setMemberData(memberDetailsResult.member);
-        
+
         // ดึงข้อมูลสุขภาพ
         const healthData = await getMemberHealth(memberId);
         setHealthData(healthData);
-        
+
         // ดึงประวัติข้อมูลสุขภาพ
         const healthHistory = await getMemberHealthHistory(memberId, 5); // ดึง 5 รายการล่าสุด
         setHealthHistory(healthHistory);
-        
+
         // ดึงข้อมูลเป้าหมาย
         const goalData = await getActiveMemberGoal(memberId);
         setGoalData(goalData);
-        
+
         // ดึงประวัติเป้าหมาย
         const goalHistory = await getMemberGoalHistory(memberId);
         setGoalHistory(goalHistory);
-
       } catch (error) {
         console.error("Error fetching data:", error);
         setError(error.message || "เกิดข้อผิดพลาดในการดึงข้อมูล");
@@ -103,13 +117,14 @@ export default function MemberDetailsPage() {
             </Button>
           </Link>
         </div>
-        
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm">
-            <FileText className="mr-2 h-4 w-4" />
-            แผนโภชนาการ
-          </Button>
-          <Link href={`/trainer/${trainerId}/members/${memberId}/workout`}>
+          <Link href={`/trainer/${trainerId}/members/${memberId}/nutrition`}>
+            <Button variant="outline" size="sm">
+              <FileText className="mr-2 h-4 w-4" />
+              แผนโภชนาการ
+            </Button>
+          </Link>
+          <Link href={`/trainer/${trainerId}/members/${memberId}/exercise`}>
             <Button variant="outline" size="sm">
               <Activity className="mr-2 h-4 w-4" />
               แผนออกกำลังกาย
@@ -123,7 +138,10 @@ export default function MemberDetailsPage() {
         <div className="flex items-center space-x-4">
           <Avatar className="h-16 w-16">
             {memberData?.member_profileimage ? (
-              <AvatarImage src={memberData.member_profileimage} alt={`${memberData.member_firstname} ${memberData.member_lastname}`} />
+              <AvatarImage
+                src={memberData.member_profileimage}
+                alt={`${memberData.member_firstname} ${memberData.member_lastname}`}
+              />
             ) : (
               <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xl">
                 {memberData?.member_firstname?.charAt(0)}
@@ -136,7 +154,11 @@ export default function MemberDetailsPage() {
               {`${memberData?.member_firstname} ${memberData?.member_lastname}`}
             </h1>
             <div className="flex items-center space-x-2 mt-1">
-              <Badge className={memberData?.is_expired ? "bg-red-500" : "bg-green-500"}>
+              <Badge
+                className={
+                  memberData?.is_expired ? "bg-red-500" : "bg-green-500"
+                }
+              >
                 {memberData?.is_expired ? "หมดอายุ" : "ใช้งาน"}
               </Badge>
               <span className="text-sm text-muted-foreground">
@@ -159,10 +181,10 @@ export default function MemberDetailsPage() {
       </div>
 
       {/* Summary Card */}
-      <MemberSummaryCard 
-        healthData={healthData} 
-        goalData={goalData} 
-        loading={loading} 
+      <MemberSummaryCard
+        healthData={healthData}
+        goalData={goalData}
+        loading={loading}
       />
 
       {/* Tab Navigation */}
