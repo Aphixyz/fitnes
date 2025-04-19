@@ -216,7 +216,7 @@ export default function TrainerMembersPage({ params }) {
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="ทั้งหมด" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className= "bg-white shadow-md">
               <SelectItem value="all">ทั้งหมด</SelectItem>
               <SelectItem value="active">ใช้งาน</SelectItem>
               <SelectItem value="expired">หมดอายุ</SelectItem>

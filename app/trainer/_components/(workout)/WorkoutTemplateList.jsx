@@ -115,7 +115,7 @@ export default function WorkoutTemplateList({ templates, trainerId, onSelect, me
                       <MoreHorizontal className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-56 bg-white shadow-md">
                     <DropdownMenuItem onClick={() => handleView(template.template_id)}>
                       <Eye className="mr-2 h-4 w-4" /> ดูรายละเอียด
                     </DropdownMenuItem>

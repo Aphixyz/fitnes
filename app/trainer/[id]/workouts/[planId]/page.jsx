@@ -218,7 +218,7 @@ export default function WorkoutPlanDetailsPage({ params }) {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-3xl font-semibold text-gray-400">
-                          {plan.member_name.charAt(0)}
+                          {plan.member_name ? plan.member_name.charAt(0) : '?'}
                         </div>
                       )}
                     </div>

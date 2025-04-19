@@ -1,6 +1,6 @@
-'use server';
+"use server";
 
-import db from '@/lib/db';
+import db from "@/lib/db";
 
 /**
  * ดึงข้อมูลโปรแกรมการฝึกทั้งหมดของเทรนเนอร์
@@ -10,7 +10,7 @@ import db from '@/lib/db';
 export async function getTrainerWorkoutPlans(trainerId) {
   try {
     if (!trainerId) {
-      throw new Error('กรุณาระบุรหัสเทรนเนอร์');
+      throw new Error("กรุณาระบุรหัสเทรนเนอร์");
     }
 
     const [plans] = await db.query(
@@ -29,17 +29,19 @@ export async function getTrainerWorkoutPlans(trainerId) {
 
     return {
       success: true,
-      plans: plans.map(plan => ({
+      plans: plans.map((plan) => ({
         ...plan,
-        member_name: `${plan.member_firstname || ''} ${plan.member_lastname || ''}`.trim(),
-        is_active: plan.plan_status === 'active'
-      }))
+        member_name: `${plan.member_firstname || ""} ${
+          plan.member_lastname || ""
+        }`.trim(),
+        is_active: plan.plan_status === "active",
+      })),
     };
   } catch (error) {
-    console.error('Error fetching workout plans:', error);
+    console.error("Error fetching workout plans:", error);
     return {
       success: false,
-      message: error.message || 'เกิดข้อผิดพลาดในการดึงข้อมูลโปรแกรมการฝึก'
+      message: error.message || "เกิดข้อผิดพลาดในการดึงข้อมูลโปรแกรมการฝึก",
     };
   }
 }
@@ -53,7 +55,7 @@ export async function getTrainerWorkoutPlans(trainerId) {
 export async function getMemberWorkoutPlans(trainerId, memberId) {
   try {
     if (!trainerId || !memberId) {
-      throw new Error('กรุณาระบุรหัสเทรนเนอร์และรหัสสมาชิก');
+      throw new Error("กรุณาระบุรหัสเทรนเนอร์และรหัสสมาชิก");
     }
 
     const [plans] = await db.query(
@@ -69,16 +71,16 @@ export async function getMemberWorkoutPlans(trainerId, memberId) {
 
     return {
       success: true,
-      plans: plans.map(plan => ({
+      plans: plans.map((plan) => ({
         ...plan,
-        is_active: plan.plan_status === 'active'
-      }))
+        is_active: plan.plan_status === "active",
+      })),
     };
   } catch (error) {
-    console.error('Error fetching member workout plans:', error);
+    console.error("Error fetching member workout plans:", error);
     return {
       success: false,
-      message: error.message || 'เกิดข้อผิดพลาดในการดึงข้อมูลโปรแกรมการฝึก'
+      message: error.message || "เกิดข้อผิดพลาดในการดึงข้อมูลโปรแกรมการฝึก",
     };
   }
 }
@@ -92,10 +94,9 @@ export async function getMemberWorkoutPlans(trainerId, memberId) {
 export async function getWorkoutPlanById(planId, trainerId) {
   try {
     if (!planId || !trainerId) {
-      throw new Error('กรุณาระบุรหัสโปรแกรมการฝึกและรหัสเทรนเนอร์');
+      throw new Error("กรุณาระบุรหัสโปรแกรมการฝึกและรหัสเทรนเนอร์");
     }
 
-    // ดึงข้อมูลโปรแกรมการฝึก
     const [plans] = await db.query(
       `SELECT wp.*, 
               m.member_firstname, 
@@ -109,34 +110,18 @@ export async function getWorkoutPlanById(planId, trainerId) {
     );
 
     if (plans.length === 0) {
-      throw new Error('ไม่พบข้อมูลโปรแกรมการฝึกหรือไม่มีสิทธิ์ในการเข้าถึง');
+      throw new Error("ไม่พบข้อมูลโปรแกรมการฝึกหรือไม่มีสิทธิ์ในการเข้าถึง");
     }
-
-    const plan = plans[0];
-
-    // ดึงข้อมูลท่าออกกำลังกายในโปรแกรม
-    const [exercises] = await db.query(
-      `SELECT * 
-       FROM workout_exercise 
-       WHERE workout_plan_id = ? 
-       ORDER BY exercise_day, exercise_order`,
-      [planId]
-    );
 
     return {
       success: true,
-      plan: {
-        ...plan,
-        member_name: `${plan.member_firstname || ''} ${plan.member_lastname || ''}`.trim(),
-        is_active: plan.plan_status === 'active'
-      },
-      exercises
+      plan: plans[0],
     };
   } catch (error) {
-    console.error('Error fetching workout plan:', error);
+    console.error("Error fetching workout plan:", error);
     return {
       success: false,
-      message: error.message || 'เกิดข้อผิดพลาดในการดึงข้อมูลโปรแกรมการฝึก'
+      message: error.message || "เกิดข้อผิดพลาดในการดึงข้อมูลโปรแกรมการฝึก",
     };
   }
 }
@@ -150,26 +135,28 @@ export async function createWorkoutPlan(data) {
   try {
     // ตรวจสอบข้อมูลที่จำเป็น
     if (!data.trainer_id || !data.member_id || !data.plan_name) {
-      throw new Error('กรุณาระบุข้อมูลที่จำเป็น: รหัสเทรนเนอร์, รหัสสมาชิก, ชื่อโปรแกรม');
+      throw new Error(
+        "กรุณาระบุข้อมูลที่จำเป็น: รหัสเทรนเนอร์, รหัสสมาชิก, ชื่อโปรแกรม"
+      );
     }
 
     // ตรวจสอบการมีอยู่ของเทรนเนอร์และสมาชิก
     const [trainerCheck] = await db.query(
-      'SELECT trainer_id FROM trainer WHERE trainer_id = ?',
+      "SELECT trainer_id FROM trainer WHERE trainer_id = ?",
       [data.trainer_id]
     );
 
     if (trainerCheck.length === 0) {
-      throw new Error('ไม่พบข้อมูลเทรนเนอร์');
+      throw new Error("ไม่พบข้อมูลเทรนเนอร์");
     }
 
     const [memberCheck] = await db.query(
-      'SELECT member_id FROM member WHERE member_id = ?',
+      "SELECT member_id FROM member WHERE member_id = ?",
       [data.member_id]
     );
 
     if (memberCheck.length === 0) {
-      throw new Error('ไม่พบข้อมูลสมาชิก');
+      throw new Error("ไม่พบข้อมูลสมาชิก");
     }
 
     // ตรวจสอบว่าสมาชิกอยู่ภายใต้การดูแลของเทรนเนอร์หรือไม่
@@ -181,11 +168,13 @@ export async function createWorkoutPlan(data) {
     );
 
     if (registrationCheck.length === 0) {
-      throw new Error('สมาชิกไม่ได้อยู่ภายใต้การดูแลของเทรนเนอร์นี้หรือสถานะไม่ถูกต้อง');
+      throw new Error(
+        "สมาชิกไม่ได้อยู่ภายใต้การดูแลของเทรนเนอร์นี้หรือสถานะไม่ถูกต้อง"
+      );
     }
 
     // เริ่ม transaction
-    await db.query('START TRANSACTION');
+    await db.query("START TRANSACTION");
 
     try {
       // สร้างโปรแกรมการฝึก
@@ -203,34 +192,34 @@ export async function createWorkoutPlan(data) {
           data.plan_startdate || new Date(),
           data.plan_enddate || null,
           data.workout_days || null,
-          data.difficulty_level || 'beginner',
+          data.difficulty_level || "beginner",
           data.workout_frequency || 3,
-          data.plan_status || 'active'
+          data.plan_status || "active",
         ]
       );
 
       if (!result || !result.insertId) {
-        throw new Error('ไม่สามารถสร้างโปรแกรมการฝึกได้');
+        throw new Error("ไม่สามารถสร้างโปรแกรมการฝึกได้");
       }
 
       // Commit transaction
-      await db.query('COMMIT');
+      await db.query("COMMIT");
 
       return {
         success: true,
         plan_id: result.insertId,
-        message: 'สร้างโปรแกรมการฝึกสำเร็จ'
+        message: "สร้างโปรแกรมการฝึกสำเร็จ",
       };
     } catch (error) {
       // Rollback transaction ในกรณีที่เกิดข้อผิดพลาด
-      await db.query('ROLLBACK');
+      await db.query("ROLLBACK");
       throw error;
     }
   } catch (error) {
-    console.error('Error creating workout plan:', error);
+    console.error("Error creating workout plan:", error);
     return {
       success: false,
-      message: error.message || 'เกิดข้อผิดพลาดในการสร้างโปรแกรมการฝึก'
+      message: error.message || "เกิดข้อผิดพลาดในการสร้างโปรแกรมการฝึก",
     };
   }
 }
@@ -245,33 +234,33 @@ export async function createWorkoutPlan(data) {
 export async function updateWorkoutPlan(planId, data, trainerId) {
   try {
     if (!planId || !data || !trainerId) {
-      throw new Error('กรุณาระบุข้อมูลที่จำเป็น');
+      throw new Error("กรุณาระบุข้อมูลที่จำเป็น");
     }
 
     // ตรวจสอบการมีอยู่ของโปรแกรมและสิทธิ์ของเทรนเนอร์
     const [planCheck] = await db.query(
-      'SELECT workout_plan_id FROM workout_plan WHERE workout_plan_id = ? AND trainer_id = ?',
+      "SELECT workout_plan_id FROM workout_plan WHERE workout_plan_id = ? AND trainer_id = ?",
       [planId, trainerId]
     );
 
     if (planCheck.length === 0) {
-      throw new Error('ไม่พบข้อมูลโปรแกรมการฝึกหรือไม่มีสิทธิ์ในการแก้ไข');
+      throw new Error("ไม่พบข้อมูลโปรแกรมการฝึกหรือไม่มีสิทธิ์ในการแก้ไข");
     }
 
     // สร้าง SQL สำหรับการอัพเดต
     const updates = Object.entries(data)
-      .filter(([key]) => key !== 'workout_plan_id' && key !== 'trainer_id') // ไม่อัพเดต primary key และ trainer_id
+      .filter(([key]) => key !== "workout_plan_id" && key !== "trainer_id") // ไม่อัพเดต primary key และ trainer_id
       .map(([key]) => `${key} = ?`)
-      .join(', ');
-    
+      .join(", ");
+
     if (!updates) {
-      throw new Error('ไม่มีข้อมูลที่ต้องการอัพเดต');
+      throw new Error("ไม่มีข้อมูลที่ต้องการอัพเดต");
     }
-    
+
     const values = Object.entries(data)
-      .filter(([key]) => key !== 'workout_plan_id' && key !== 'trainer_id')
+      .filter(([key]) => key !== "workout_plan_id" && key !== "trainer_id")
       .map(([_, value]) => value);
-    
+
     values.push(planId); // เพิ่ม planId สำหรับ WHERE clause
 
     // อัพเดตข้อมูล
@@ -281,18 +270,18 @@ export async function updateWorkoutPlan(planId, data, trainerId) {
     );
 
     if (!result || result.affectedRows === 0) {
-      throw new Error('ไม่สามารถอัพเดตโปรแกรมการฝึกได้');
+      throw new Error("ไม่สามารถอัพเดตโปรแกรมการฝึกได้");
     }
 
     return {
       success: true,
-      message: 'อัพเดตโปรแกรมการฝึกสำเร็จ'
+      message: "อัพเดตโปรแกรมการฝึกสำเร็จ",
     };
   } catch (error) {
-    console.error('Error updating workout plan:', error);
+    console.error("Error updating workout plan:", error);
     return {
       success: false,
-      message: error.message || 'เกิดข้อผิดพลาดในการอัพเดตโปรแกรมการฝึก'
+      message: error.message || "เกิดข้อผิดพลาดในการอัพเดตโปรแกรมการฝึก",
     };
   }
 }
@@ -307,43 +296,43 @@ export async function updateWorkoutPlan(planId, data, trainerId) {
 export async function changeWorkoutPlanStatus(planId, status, trainerId) {
   try {
     if (!planId || !status || !trainerId) {
-      throw new Error('กรุณาระบุข้อมูลที่จำเป็น');
+      throw new Error("กรุณาระบุข้อมูลที่จำเป็น");
     }
 
     // ตรวจสอบสถานะที่ถูกต้อง
-    if (!['active', 'inactive', 'completed'].includes(status)) {
-      throw new Error('สถานะไม่ถูกต้อง');
+    if (!["active", "inactive", "completed"].includes(status)) {
+      throw new Error("สถานะไม่ถูกต้อง");
     }
 
     // ตรวจสอบการมีอยู่ของโปรแกรมและสิทธิ์ของเทรนเนอร์
     const [planCheck] = await db.query(
-      'SELECT workout_plan_id FROM workout_plan WHERE workout_plan_id = ? AND trainer_id = ?',
+      "SELECT workout_plan_id FROM workout_plan WHERE workout_plan_id = ? AND trainer_id = ?",
       [planId, trainerId]
     );
 
     if (planCheck.length === 0) {
-      throw new Error('ไม่พบข้อมูลโปรแกรมการฝึกหรือไม่มีสิทธิ์ในการแก้ไข');
+      throw new Error("ไม่พบข้อมูลโปรแกรมการฝึกหรือไม่มีสิทธิ์ในการแก้ไข");
     }
 
     // อัพเดตสถานะ
     const [result] = await db.query(
-      'UPDATE workout_plan SET plan_status = ? WHERE workout_plan_id = ?',
+      "UPDATE workout_plan SET plan_status = ? WHERE workout_plan_id = ?",
       [status, planId]
     );
 
     if (!result || result.affectedRows === 0) {
-      throw new Error('ไม่สามารถเปลี่ยนสถานะโปรแกรมการฝึกได้');
+      throw new Error("ไม่สามารถเปลี่ยนสถานะโปรแกรมการฝึกได้");
     }
 
     return {
       success: true,
-      message: `เปลี่ยนสถานะโปรแกรมการฝึกเป็น ${status} สำเร็จ`
+      message: `เปลี่ยนสถานะโปรแกรมการฝึกเป็น ${status} สำเร็จ`,
     };
   } catch (error) {
-    console.error('Error changing workout plan status:', error);
+    console.error("Error changing workout plan status:", error);
     return {
       success: false,
-      message: error.message || 'เกิดข้อผิดพลาดในการเปลี่ยนสถานะโปรแกรมการฝึก'
+      message: error.message || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะโปรแกรมการฝึก",
     };
   }
 }
@@ -357,56 +346,84 @@ export async function changeWorkoutPlanStatus(planId, status, trainerId) {
 export async function deleteWorkoutPlan(planId, trainerId) {
   try {
     if (!planId || !trainerId) {
-      throw new Error('กรุณาระบุรหัสโปรแกรมการฝึกและรหัสเทรนเนอร์');
+      throw new Error("กรุณาระบุรหัสโปรแกรมการฝึกและรหัสเทรนเนอร์");
     }
 
     // ตรวจสอบการมีอยู่ของโปรแกรมและสิทธิ์ของเทรนเนอร์
     const [planCheck] = await db.query(
-      'SELECT workout_plan_id FROM workout_plan WHERE workout_plan_id = ? AND trainer_id = ?',
+      "SELECT workout_plan_id FROM workout_plan WHERE workout_plan_id = ? AND trainer_id = ?",
       [planId, trainerId]
     );
 
     if (planCheck.length === 0) {
-      throw new Error('ไม่พบข้อมูลโปรแกรมการฝึกหรือไม่มีสิทธิ์ในการลบ');
+      throw new Error("ไม่พบข้อมูลโปรแกรมการฝึกหรือไม่มีสิทธิ์ในการลบ");
     }
 
     // เริ่ม transaction
-    await db.query('START TRANSACTION');
+    await db.query("START TRANSACTION");
 
     try {
       // ลบท่าออกกำลังกายในโปรแกรมก่อน (เนื่องจากมี foreign key constraint)
-      await db.query(
-        'DELETE FROM workout_exercise WHERE workout_plan_id = ?',
-        [planId]
-      );
+      await db.query("DELETE FROM workout_exercise WHERE workout_plan_id = ?", [
+        planId,
+      ]);
 
       // ลบโปรแกรมการฝึก
       const [result] = await db.query(
-        'DELETE FROM workout_plan WHERE workout_plan_id = ?',
+        "DELETE FROM workout_plan WHERE workout_plan_id = ?",
         [planId]
       );
 
       if (!result || result.affectedRows === 0) {
-        throw new Error('ไม่สามารถลบโปรแกรมการฝึกได้');
+        throw new Error("ไม่สามารถลบโปรแกรมการฝึกได้");
       }
 
       // Commit transaction
-      await db.query('COMMIT');
+      await db.query("COMMIT");
 
       return {
         success: true,
-        message: 'ลบโปรแกรมการฝึกสำเร็จ'
+        message: "ลบโปรแกรมการฝึกสำเร็จ",
       };
     } catch (error) {
       // Rollback transaction ในกรณีที่เกิดข้อผิดพลาด
-      await db.query('ROLLBACK');
+      await db.query("ROLLBACK");
       throw error;
     }
   } catch (error) {
-    console.error('Error deleting workout plan:', error);
+    console.error("Error deleting workout plan:", error);
     return {
       success: false,
-      message: error.message || 'เกิดข้อผิดพลาดในการลบโปรแกรมการฝึก'
+      message: error.message || "เกิดข้อผิดพลาดในการลบโปรแกรมการฝึก",
     };
   }
+}
+
+export async function getActiveWorkoutPlan(memberId) {
+  if (!memberId) {
+    throw new Error("กรุณาระบุรหัสสมาชิก");
+  }
+
+  const [result] = await db.query(
+    `SELECT * FROM workout_plan 
+     WHERE member_id = ? AND plan_status = 'active' 
+     ORDER BY plan_startdate DESC 
+     LIMIT 1`,
+    [memberId]
+  );
+
+  if (!result || result.length === 0) {
+    console.error("No active workout plan found for member:", memberId);
+    return null;
+  }
+
+  return result[0];
+}
+
+export async function getActiveNutritionPlan(memberId) {
+  const result = await db.query(
+    `SELECT * FROM nutrition_plan WHERE member_id = ? AND plan_status = 'active' ORDER BY plan_startdate DESC LIMIT 1`,
+    [memberId]
+  );
+  return result.length > 0 ? result[0] : null;
 }

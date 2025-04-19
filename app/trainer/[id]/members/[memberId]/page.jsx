@@ -109,10 +109,12 @@ export default function MemberDetailsPage() {
             <FileText className="mr-2 h-4 w-4" />
             แผนโภชนาการ
           </Button>
-          <Button variant="outline" size="sm">
-            <Activity className="mr-2 h-4 w-4" />
-            แผนออกกำลังกาย
-          </Button>
+          <Link href={`/trainer/${trainerId}/members/${memberId}/workout`}>
+            <Button variant="outline" size="sm">
+              <Activity className="mr-2 h-4 w-4" />
+              แผนออกกำลังกาย
+            </Button>
+          </Link>
         </div>
       </div>
 
