@@ -27,7 +27,7 @@ import {
   getAllMemberGoals,
   changeGoalStatus,
   deleteGoal,
-} from "@/actions/trainer/goalManagementAction";
+} from "@/actions/trainer/goal/goalManagementAction";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
