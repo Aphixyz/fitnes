@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -11,17 +11,17 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getTrainerNutritionPlans } from "@/actions/trainer/nutrition/nutritionPlanAction";
+import { getTrainerWorkoutPlans } from "@/actions/trainer/workout/workoutPlanActions";
 import { toast } from "@/components/ui/use-toast";
-import NutritionPlanList from "@/app/trainer/_components/nutrition/NutritionPlanList";
-import { FilterIcon, Plus } from "lucide-react";
-import CreateNutritionPlanButton from "@/app/trainer/_components/nutrition/CreateNutritionPlanButton";
+import WorkoutPlanList from "@/app/trainer/_components/workout/WorkoutPlanList";
+import { FilterIcon } from "lucide-react";
+import CreateWorkoutButton from "@/app/trainer/_components/workout/CreateWorkoutButton";
 
-export default function TrainerNutritionPage({ params }) {
+export default function TrainerWorkoutsPage({ params }) {
   const { id: trainerId } = React.use(params);
   const router = useRouter();
 
-  const [nutritionPlans, setNutritionPlans] = useState([]);
+  const [workoutPlans, setWorkoutPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState(null);
@@ -34,14 +34,14 @@ export default function TrainerNutritionPage({ params }) {
     completed: 0,
   });
 
-  // ดึงข้อมูลโปรแกรมโภชนาการ
-  const fetchNutritionPlans = async () => {
+  // ดึงข้อมูลโปรแกรมการฝึก
+  const fetchWorkoutPlans = async () => {
     setLoading(true);
     try {
-      const result = await getTrainerNutritionPlans(trainerId);
+      const result = await getTrainerWorkoutPlans(trainerId);
 
       if (result.success) {
-        setNutritionPlans(result.plans);
+        setWorkoutPlans(result.plans);
 
         // คำนวณสถิติ
         const total = result.plans.length;
@@ -57,13 +57,13 @@ export default function TrainerNutritionPage({ params }) {
 
         setStats({ total, active, inactive, completed });
       } else {
-        setError(result.message || "ไม่สามารถดึงข้อมูลแผนโภชนาการได้");
-        setNutritionPlans([]);
+        setError(result.message || "ไม่สามารถดึงข้อมูลโปรแกรมการฝึกได้");
+        setWorkoutPlans([]);
       }
     } catch (error) {
       setError("เกิดข้อผิดพลาดในการดึงข้อมูล");
       console.error(error);
-      setNutritionPlans([]);
+      setWorkoutPlans([]);
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export default function TrainerNutritionPage({ params }) {
 
   // ดึงข้อมูลเมื่อโหลดหน้า
   useEffect(() => {
-    fetchNutritionPlans();
+    fetchWorkoutPlans();
   }, [trainerId]);
 
   // ฟังก์ชันค้นหา
@@ -81,7 +81,7 @@ export default function TrainerNutritionPage({ params }) {
   };
 
   // กรองข้อมูลตามคำค้นหา
-  const filteredPlans = nutritionPlans.filter((plan) => {
+  const filteredPlans = workoutPlans.filter((plan) => {
     const searchTermLower = searchTerm.toLowerCase();
     return (
       plan.plan_name.toLowerCase().includes(searchTermLower) ||
@@ -92,9 +92,11 @@ export default function TrainerNutritionPage({ params }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight mb-1">แผนโภชนาการ</h1>
+        <h1 className="text-2xl font-bold tracking-tight mb-1">
+          โปรแกรมการฝึก
+        </h1>
         <p className="text-muted-foreground">
-          จัดการแผนโภชนาการสำหรับสมาชิกของคุณ
+          จัดการโปรแกรมการออกกำลังกายสำหรับสมาชิกของคุณ
         </p>
       </div>
 
@@ -102,7 +104,9 @@ export default function TrainerNutritionPage({ params }) {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="py-4">
-            <CardTitle className="text-sm font-medium">แผนทั้งหมด</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              โปรแกรมทั้งหมด
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -153,7 +157,7 @@ export default function TrainerNutritionPage({ params }) {
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <form onSubmit={handleSearch} className="flex space-x-2">
           <Input
-            placeholder="ค้นหาตามชื่อแผนหรือสมาชิก"
+            placeholder="ค้นหาตามชื่อโปรแกรมหรือสมาชิก"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="max-w-sm"
@@ -165,12 +169,12 @@ export default function TrainerNutritionPage({ params }) {
           <Button
             variant="outline"
             onClick={() =>
-              router.push(`/trainer/${trainerId}/nutrition/templates`)
+              router.push(`/trainer/${trainerId}/workout/templates`)
             }
           >
             <FilterIcon className="h-4 w-4 mr-2" /> เทมเพลต
           </Button>
-          <CreateNutritionPlanButton trainerId={trainerId} />
+          <CreateWorkoutButton trainerId={trainerId} />
         </div>
       </div>
 
@@ -200,7 +204,7 @@ export default function TrainerNutritionPage({ params }) {
         </Card>
       )}
 
-      {/* แสดงรายการแผนโภชนาการ */}
+      {/* แสดงรายการโปรแกรมการฝึก */}
       {loading ? (
         <Card>
           <CardContent className="py-10">
@@ -211,10 +215,10 @@ export default function TrainerNutritionPage({ params }) {
           </CardContent>
         </Card>
       ) : (
-        <NutritionPlanList
+        <WorkoutPlanList
           plans={filteredPlans}
           trainerId={trainerId}
-          onRefresh={fetchNutritionPlans}
+          onRefresh={fetchWorkoutPlans}
         />
       )}
     </div>

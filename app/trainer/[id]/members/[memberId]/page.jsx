@@ -31,10 +31,10 @@ import {
 } from "@/actions/member/goalActions";
 
 // Import Components
-import MemberInfoTab from "@/app/trainer/_components/(member)/MemberInfoTab";
-import MemberHealthTab from "@/app/trainer/_components/(member)/MemberHealthTab";
-import MemberGoalTab from "@/app/trainer/_components/(member)/MemberGoalTab";
-import MemberSummaryCard from "@/app/trainer/_components/(member)/MemberSummaryCard";
+import MemberInfoTab from "@/app/trainer/_components/member/MemberInfoTab";
+import MemberHealthTab from "@/app/trainer/_components/member/MemberHealthTab";
+import MemberGoalTab from "@/app/trainer/_components/member/MemberGoalTab";
+import MemberSummaryCard from "@/app/trainer/_components/member/MemberSummaryCard";
 
 /**
  * หน้าแสดงรายละเอียดสมาชิกสำหรับเทรนเนอร์
@@ -118,13 +118,13 @@ export default function MemberDetailsPage() {
           </Link>
         </div>
         <div className="flex space-x-2">
-          <Link href={`/trainer/${trainerId}/members/${memberId}/nutrition`}>
+          <Link href={`/trainer/${trainerId}/members/${memberId}/nutrition-plan`}>
             <Button variant="outline" size="sm">
               <FileText className="mr-2 h-4 w-4" />
               แผนโภชนาการ
             </Button>
           </Link>
-          <Link href={`/trainer/${trainerId}/members/${memberId}/exercise`}>
+          <Link href={`/trainer/${trainerId}/members/${memberId}/workout-plan`}>
             <Button variant="outline" size="sm">
               <Activity className="mr-2 h-4 w-4" />
               แผนออกกำลังกาย
