@@ -232,3 +232,103 @@ export function getBaseUrl() {
   // ค่าเริ่มต้นสำหรับโหมดโปรดักชัน
   return "https://fittrack.example.com";
 }
+
+/**
+ * แปลงตัวเลขวันเป็นชื่อวันภาษาไทย
+ * @param {number|string} dayNumber - ตัวเลขวัน (1 = วันจันทร์, 2 = วันอังคาร, ..., 7 = วันอาทิตย์)
+ * @param {boolean} includePrefix - รวมคำนำหน้า "วัน" หรือไม่
+ * @returns {string} - ชื่อวันภาษาไทย
+ */
+export function getDayNameThai(dayNumber, includePrefix = true) {
+  // แปลง input เป็นตัวเลข
+  const day = parseInt(dayNumber, 10);
+
+  if (isNaN(day) || day < 1 || day > 7) {
+    return "ไม่ระบุวัน"; // ค่าไม่ถูกต้อง
+  }
+
+  const prefix = includePrefix ? "วัน" : "";
+  const dayNames = [
+    `${prefix}จันทร์`, // 1
+    `${prefix}อังคาร`, // 2
+    `${prefix}พุธ`, // 3
+    `${prefix}พฤหัสบดี`, // 4
+    `${prefix}ศุกร์`, // 5
+    `${prefix}เสาร์`, // 6
+    `${prefix}อาทิตย์`, // 7
+  ];
+
+  return dayNames[day - 1];
+}
+
+/**
+ * แปลงตัวเลขวันเป็นชื่อวันภาษาอังกฤษ
+ * @param {number|string} dayNumber - ตัวเลขวัน (1 = Monday, 2 = Tuesday, ..., 7 = Sunday)
+ * @returns {string} - ชื่อวันภาษาอังกฤษ
+ */
+export function getDayNameEng(dayNumber) {
+  // แปลง input เป็นตัวเลข
+  const day = parseInt(dayNumber, 10);
+
+  if (isNaN(day) || day < 1 || day > 7) {
+    return "Unknown";
+  }
+
+  const dayNames = [
+    "Monday", // 1
+    "Tuesday", // 2
+    "Wednesday", // 3
+    "Thursday", // 4
+    "Friday", // 5
+    "Saturday", // 6
+    "Sunday", // 7
+  ];
+
+  return dayNames[day - 1];
+}
+
+/**
+ * แปลงชื่อวันภาษาอังกฤษเป็นตัวเลขวัน
+ * @param {string} dayName - ชื่อวันภาษาอังกฤษ (Monday, Tuesday, ...)
+ * @returns {number} - ตัวเลขวัน (1 = Monday, 2 = Tuesday, ..., 7 = Sunday) หรือ 0 ถ้าไม่พบ
+ */
+export function getDayNumber(dayName) {
+  if (!dayName) return 0;
+
+  const dayMap = {
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+    saturday: 6,
+    sunday: 7,
+  };
+
+  const normalizedDay = dayName.toLowerCase().trim();
+  return dayMap[normalizedDay] || 0;
+}
+
+/**
+ * แปลงชื่อวันภาษาอังกฤษเป็นชื่อวันภาษาไทย
+ * @param {string} engDayName - ชื่อวันภาษาอังกฤษ
+ * @param {boolean} includePrefix - รวมคำนำหน้า "วัน" หรือไม่
+ * @returns {string} - ชื่อวันภาษาไทย
+ */
+export function translateDayNameToThai(engDayName, includePrefix = true) {
+  if (!engDayName) return "ไม่ระบุวัน";
+
+  const prefix = includePrefix ? "วัน" : "";
+  const dayMap = {
+    monday: `${prefix}จันทร์`,
+    tuesday: `${prefix}อังคาร`,
+    wednesday: `${prefix}พุธ`,
+    thursday: `${prefix}พฤหัสบดี`,
+    friday: `${prefix}ศุกร์`,
+    saturday: `${prefix}เสาร์`,
+    sunday: `${prefix}อาทิตย์`,
+  };
+
+  const normalizedDay = engDayName.toLowerCase().trim();
+  return dayMap[normalizedDay] || "ไม่ระบุวัน";
+}
