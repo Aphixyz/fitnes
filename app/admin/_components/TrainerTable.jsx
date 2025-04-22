@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { deleteTrainer } from "@/actions/admin/deleteTrainer";
 import { useTransition } from "react";
 import { getInitials } from "@/utils/utils";
+import StatusBadge from "./common/Status";
 
 export default function TrainerTable({ trainers, showActions = false }) {
   const [isPending, startTransition] = useTransition();
@@ -75,17 +76,11 @@ export default function TrainerTable({ trainers, showActions = false }) {
                   {trainer.trainer_firstname} {trainer.trainer_lastname}
                 </td>
                 <td className="px-4 py-2 border">{trainer.trainer_email}</td>
-                <td className="px-4 py-2 border text-center">{trainer.trainer_exp}</td>
-                <td
-                  className={`px-4 py-2 border text-center font-semibold ${
-                    trainer.trainer_status === "active"
-                      ? "bg-green-100 text-green-800"
-                      : trainer.trainer_status === "inactive"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
-                >
-                  {trainer.trainer_status === "active" ? "Active" : "Inactive"}
+                <td className="px-4 py-2 border text-center">
+                  {trainer.trainer_exp}
+                </td>
+                <td className="px-4 py-2 border text-center">
+                  <StatusBadge status={trainer.trainer_status} />
                 </td>
 
                 {showActions && (
