@@ -12,8 +12,8 @@ import GoalHistory from "@/app/member/_components/goal/GoalHistory";
 import {
   getActiveMemberGoal,
   getMemberGoalHistory,
-} from "@/actions/member/goalActions";
-import { getMemberHealth } from "@/actions/member/healthActions";
+} from "@/actions/member/goal/goalActions";
+import { getMemberHealth } from "@/actions/member/health/healthActions";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MemberGoalPage() {
@@ -27,21 +27,21 @@ export default function MemberGoalPage() {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [debugInfo, setDebugInfo] = useState({});  // เพิ่มข้อมูลดีบัก
+  const [debugInfo, setDebugInfo] = useState({}); // เพิ่มข้อมูลดีบัก
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       const debug = {}; // เก็บข้อมูลดีบัก
-      
+
       try {
         console.log(`[GoalPage] Fetching data for member ID: ${memberId}`);
         debug.memberId = memberId;
-        
+
         // ดึงข้อมูลน้ำหนักปัจจุบัน
         const healthData = await getMemberHealth(memberId);
         debug.healthData = healthData ? "exists" : "null";
-        
+
         if (healthData && healthData.weight) {
           setCurrentWeight(healthData.weight);
           debug.currentWeight = healthData.weight;
@@ -59,24 +59,32 @@ export default function MemberGoalPage() {
           debug.goalHistoryReceived = goalHistory ? "received" : "null";
           debug.goalHistoryType = typeof goalHistory;
           debug.goalHistoryIsArray = Array.isArray(goalHistory);
-          debug.goalHistoryLength = Array.isArray(goalHistory) ? goalHistory.length : "N/A";
-          
+          debug.goalHistoryLength = Array.isArray(goalHistory)
+            ? goalHistory.length
+            : "N/A";
+
           // ตรวจสอบและแปลงข้อมูลให้เป็นอาร์เรย์
           if (Array.isArray(goalHistory)) {
             setHistoryData(goalHistory);
           } else {
-            console.warn("[GoalPage] goalHistory is not an array:", goalHistory);
+            console.warn(
+              "[GoalPage] goalHistory is not an array:",
+              goalHistory
+            );
             setHistoryData([]);
           }
         } catch (historyError) {
-          console.error("[GoalPage] Error fetching goal history:", historyError);
+          console.error(
+            "[GoalPage] Error fetching goal history:",
+            historyError
+          );
           debug.goalHistoryError = historyError.message;
           setHistoryData([]);
         }
       } catch (error) {
         console.error("[GoalPage] Error loading data:", error);
         debug.mainError = error.message;
-        
+
         toast({
           title: "เกิดข้อผิดพลาด",
           description: "ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
@@ -95,13 +103,13 @@ export default function MemberGoalPage() {
     setLoading(true);
     try {
       console.log("[GoalPage] Refreshing data...");
-      
+
       // ดึงข้อมูลน้ำหนักปัจจุบัน
       const healthData = await getMemberHealth(memberId);
       if (healthData && healthData.weight) {
         setCurrentWeight(healthData.weight);
       }
-      
+
       // ดึงข้อมูลเป้าหมายที่กำลังใช้งาน
       const activeGoal = await getActiveMemberGoal(memberId);
       setGoalData(activeGoal);
@@ -109,19 +117,22 @@ export default function MemberGoalPage() {
       // ดึงประวัติเป้าหมาย
       const goalHistory = await getMemberGoalHistory(memberId);
       console.log("[GoalPage] Refreshed goal history:", goalHistory);
-      
+
       // ตรวจสอบและแปลงข้อมูลให้เป็นอาร์เรย์
       if (Array.isArray(goalHistory)) {
         setHistoryData(goalHistory);
       } else {
-        console.warn("[GoalPage] Refreshed goalHistory is not an array:", goalHistory);
+        console.warn(
+          "[GoalPage] Refreshed goalHistory is not an array:",
+          goalHistory
+        );
         setHistoryData([]);
       }
 
       // รีเซ็ตการแก้ไข
       setIsEditing(false);
       setSelectedRecord(null);
-      
+
       toast({
         title: "อัพเดทข้อมูลสำเร็จ",
         variant: "success",
@@ -173,7 +184,9 @@ export default function MemberGoalPage() {
           <TabsTrigger value="add">
             {isEditing ? "แก้ไขเป้าหมาย" : "ตั้งเป้าหมายใหม่"}
           </TabsTrigger>
-          <TabsTrigger value="history">ประวัติ ({historyData?.length || 0})</TabsTrigger>
+          <TabsTrigger value="history">
+            ประวัติ ({historyData?.length || 0})
+          </TabsTrigger>
           <TabsTrigger value="details" disabled={!selectedRecord}>
             รายละเอียด
           </TabsTrigger>
@@ -231,7 +244,8 @@ export default function MemberGoalPage() {
                 {/* ข้อความดีบัก */}
                 {(historyData === null || historyData.length === 0) && (
                   <p className="text-sm text-muted-foreground mb-2">
-                    ไม่พบประวัติเป้าหมาย ({historyData === null ? 'null' : 'empty array'})
+                    ไม่พบประวัติเป้าหมาย (
+                    {historyData === null ? "null" : "empty array"})
                   </p>
                 )}
                 <GoalHistory

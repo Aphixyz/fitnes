@@ -2,20 +2,29 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import HealthForm from "@/app/member/_components/health/HealthForm";
 import HealthInfo from "@/app/member/_components/health/HealthInfo";
 import HealthHistory from "@/app/member/_components/health/HealthHistory";
-import { getMemberHealth, getMemberHealthHistory } from "@/actions/member/healthActions";
+import {
+  getMemberHealth,
+  getMemberHealthHistory,
+} from "@/actions/member/health/healthActions";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MemberHealthPage() {
   // ใช้ useParams() แทนการเข้าถึง params.id โดยตรง
   const params = useParams();
   const memberId = params.id;
-  
+
   const [activeTab, setActiveTab] = useState("info");
   const [healthData, setHealthData] = useState(null);
   const [historyData, setHistoryData] = useState(null);
@@ -81,7 +90,9 @@ export default function MemberHealthPage() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-1">ข้อมูลสุขภาพ</h1>
+          <h1 className="text-2xl font-bold tracking-tight mb-1">
+            ข้อมูลสุขภาพ
+          </h1>
           <p className="text-muted-foreground">
             จัดการข้อมูลสุขภาพของคุณและติดตามความก้าวหน้า
           </p>
@@ -120,7 +131,7 @@ export default function MemberHealthPage() {
                 </CardContent>
               </Card>
             ) : (
-              <HealthInfo 
+              <HealthInfo
                 healthData={healthData}
                 onEdit={handleEdit}
                 refreshData={handleRefreshData}
@@ -129,8 +140,8 @@ export default function MemberHealthPage() {
           </TabsContent>
 
           <TabsContent value="add" className="m-0">
-            <HealthForm 
-              memberId={memberId} 
+            <HealthForm
+              memberId={memberId}
               initialData={isEditing ? selectedRecord : null}
             />
           </TabsContent>
@@ -150,7 +161,7 @@ export default function MemberHealthPage() {
                 </CardContent>
               </Card>
             ) : (
-              <HealthHistory 
+              <HealthHistory
                 historyData={historyData}
                 onViewDetails={handleViewDetails}
               />
@@ -159,7 +170,7 @@ export default function MemberHealthPage() {
 
           <TabsContent value="details" className="m-0">
             {selectedRecord && (
-              <HealthInfo 
+              <HealthInfo
                 healthData={selectedRecord}
                 onEdit={handleEdit}
                 refreshData={handleRefreshData}

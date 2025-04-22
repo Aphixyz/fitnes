@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   createMemberGoal,
   updateMemberGoal,
-} from "@/actions/member/goalActions";
+} from "@/actions/member/goal/goalActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

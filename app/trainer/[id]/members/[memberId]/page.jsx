@@ -24,11 +24,11 @@ import { getMemberDetails } from "@/actions/trainer/getMemberDetails";
 import {
   getMemberHealth,
   getMemberHealthHistory,
-} from "@/actions/member/healthActions";
+} from "@/actions/member/health/healthActions";
 import {
   getActiveMemberGoal,
   getMemberGoalHistory,
-} from "@/actions/member/goalActions";
+} from "@/actions/member/goal/goalActions";
 
 // Import Components
 import MemberInfoTab from "@/app/trainer/_components/member/MemberInfoTab";
@@ -118,7 +118,9 @@ export default function MemberDetailsPage() {
           </Link>
         </div>
         <div className="flex space-x-2">
-          <Link href={`/trainer/${trainerId}/members/${memberId}/nutrition-plan`}>
+          <Link
+            href={`/trainer/${trainerId}/members/${memberId}/nutrition-plan`}
+          >
             <Button variant="outline" size="sm">
               <FileText className="mr-2 h-4 w-4" />
               แผนโภชนาการ

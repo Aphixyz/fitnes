@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   addMemberHealth,
   updateMemberHealth,
-} from "@/actions/member/healthActions";
+} from "@/actions/member/health/healthActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
