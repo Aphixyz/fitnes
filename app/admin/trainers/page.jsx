@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getTrainerData } from "@/actions/admin/getTrainer";
+import { getTrainerByStatus } from "@/actions/admin/getTrainerByStatus";
 import TrainerTable from "@/app/admin/_components/TrainerTable";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -12,6 +13,7 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   const [trainers, setTrainers] = useState([]);
   const [filteredTrainers, setFilteredTrainers] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("");
 
   // Fetch data only once when the component mounts
   useEffect(() => {
@@ -23,6 +25,18 @@ export default function Page() {
 
     fetchTrainers();
   }, []); // Empty dependency array means this effect runs only once
+
+  const handleStatusFilter = async (e) => {
+    const value = e.target.value;
+    setStatusFilter(value);
+
+    const result =
+      value === "" ? await getTrainerData() : await getTrainerByStatus(value);
+
+    setFilteredTrainers(result);
+  };
+
+  // const statuses = ["active", "inactive", "pending"];
 
   return (
     <div className="p-6">
@@ -36,6 +50,24 @@ export default function Page() {
         <Button variant="default">
           <Link href="/admin/trainers/manage">การจัดการ</Link>
         </Button>
+      </div>
+
+      <div className="w-full flex justify-end mb-4">
+        <div className="w-auto">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            กรองตามสถานะ
+          </label>
+          <select
+            value={statusFilter}
+            onChange={handleStatusFilter}
+            className="p-2 border rounded-md w-auto"
+          >
+            <option value="">แสดงทั้งหมด</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="pending">Pending</option>
+          </select>
+        </div>
       </div>
 
       <h1 className="text-center text-2xl font-bold mb-4">

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { updateTrainer } from "@/actions/admin/updateTrainer";
 import { getTrainerById } from "@/actions/admin/getTrainerById"; // คุณต้องสร้าง action นี้
+import { useDropzone } from "react-dropzone";
 
 const schema = yup.object().shape({
   trainer_username: yup.string().required("กรุณากรอกชื่อผู้ใช้"),
@@ -23,6 +24,7 @@ export default function EditTrainerPage() {
 
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [previewImage, setPreviewImage] = useState("");
 
   const {
     register,
@@ -36,21 +38,40 @@ export default function EditTrainerPage() {
 
   useEffect(() => {
     async function fetchTrainer() {
-      if (!trainerId) {
-        return; // ถ้าไม่มี trainerId ให้หยุด
-      }
+      if (!trainerId) return;
       const trainer = await getTrainerById(trainerId);
       if (trainer) {
-        reset(trainer); // ใช้ reset
+        reset(trainer);
+        if (trainer.trainer_profile_image) {
+          setPreviewImage(trainer.trainer_profile_image);
+        }
       }
       setLoading(false);
     }
 
-    if (trainerId) {
-      fetchTrainer();
-    }
+    fetchTrainer();
   }, [trainerId, reset]);
   // รวม reset ใน dependencies array
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewImage(reader.result);
+          setValue("trainer_profile_image", reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    [setValue]
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    multiple: false,
+  });
 
   const onSubmit = async (data) => {
     data.trainer_id = trainerId;
@@ -237,7 +258,7 @@ export default function EditTrainerPage() {
         {/* ประสบการณ์ */}
         <div>
           <label htmlFor="experience" className="block font-medium">
-            ประสบการณ์
+            ประสบการณ์(ปี)
           </label>
           <input
             {...register("trainer_exp")}
@@ -252,15 +273,25 @@ export default function EditTrainerPage() {
 
         {/* รูปโปรไฟล์ */}
         <div>
-          <label htmlFor="profileImage" className="block font-medium">
-            รูปโปรไฟล์
-          </label>
-          <input
-            {...register("trainer_profile_image")}
-            id="profileImage"
-            className="w-full p-2 border rounded"
-            placeholder="กรุณากรอกลิงค์รูปโปรไฟล์"
-          />
+          <label className="block font-medium">รูปโปรไฟล์</label>
+          <div
+            {...getRootProps()}
+            className={`w-full p-4 border-2 border-dashed rounded text-center cursor-pointer ${
+              isDragActive ? "border-blue-500" : "border-gray-300"
+            }`}
+          >
+            <input {...getInputProps()} />
+            {previewImage ? (
+              <img
+                src={previewImage}
+                alt="Profile Preview"
+                className="mx-auto max-h-48 object-contain"
+              />
+            ) : (
+              <p>ลากและวางรูปภาพที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
+            )}
+          </div>
+          <input type="hidden" {...register("trainer_profile_image")} />
           {errors.trainer_profile_image && (
             <p className="text-red-500 text-sm">
               {errors.trainer_profile_image.message}

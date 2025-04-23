@@ -1,0 +1,51 @@
+[
+    {
+      "id": "strength",
+      "name": "Strength",
+      "thai_name": "เสริมสร้างกล้ามเนื้อ",
+      "description": "ท่าออกกำลังกายที่เน้นการสร้างความแข็งแรงและขนาดของกล้ามเนื้อ",
+      "icon": "dumbbell"
+    },
+    {
+      "id": "cardio",
+      "name": "Cardio",
+      "thai_name": "คาร์ดิโอ",
+      "description": "ท่าออกกำลังกายที่เน้นการเพิ่มอัตราการเต้นของหัวใจและการเผาผลาญพลังงาน",
+      "icon": "heart"
+    },
+    {
+      "id": "core",
+      "name": "Core",
+      "thai_name": "กล้ามเนื้อแกนกลาง",
+      "description": "ท่าออกกำลังกายที่เน้นการสร้างความแข็งแรงของกล้ามเนื้อแกนกลางลำตัว",
+      "icon": "activity"
+    },
+    {
+      "id": "flexibility",
+      "name": "Flexibility",
+      "thai_name": "ความยืดหยุ่น",
+      "description": "ท่าออกกำลังกายที่เน้นการเพิ่มความยืดหยุ่นและการเคลื่อนไหวของร่างกาย",
+      "icon": "move"
+    },
+    {
+      "id": "balance",
+      "name": "Balance",
+      "thai_name": "การทรงตัว",
+      "description": "ท่าออกกำลังกายที่เน้นการพัฒนาการทรงตัวและความมั่นคงของร่างกาย",
+      "icon": "shield"
+    },
+    {
+      "id": "compound",
+      "name": "Compound",
+      "thai_name": "ท่าผสมผสาน",
+      "description": "ท่าออกกำลังกายที่ใช้กล้ามเนื้อหลายส่วนพร้อมกัน",
+      "icon": "layers"
+    },
+    {
+      "id": "isolation",
+      "name": "Isolation",
+      "thai_name": "ท่าเฉพาะจุด",
+      "description": "ท่าออกกำลังกายที่เน้นกล้ามเนื้อเฉพาะส่วน",
+      "icon": "target"
+    }
+  ]

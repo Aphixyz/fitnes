@@ -3,10 +3,14 @@
 import { useRouter } from "next/navigation";
 import { getInitials } from "@/utils/utils"; // ฟังก์ชันตัดชื่อย่อ เช่น A.P.
 import { useTransition } from "react";
+import StatusBadge from "../common/Status";
 
 export default function MemberTable({ members = [], showActions = false }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
+  // console.log("Members received:", members);
+  // console.log("Show actions:", showActions);
 
   return (
     <div className="overflow-x-auto">
@@ -63,21 +67,7 @@ export default function MemberTable({ members = [], showActions = false }) {
                   {member.trainer_firstname} {member.trainer_lastname}
                 </td>
                 <td className="px-4 py-2 border text-center">
-                  <span
-                    className={`inline-block px-3 py-1 text-sm font-semibold rounded-full border ${
-                      member.member_status === "active"
-                        ? "text-green-600 border-green-600"
-                        : member.member_status === "inactive"
-                        ? "text-red-600 border-red-600"
-                        : "text-yellow-600 border-yellow-600"
-                    }`}
-                  >
-                    {member.member_status === "active"
-                      ? "Active"
-                      : member.member_status === "inactive"
-                      ? "Inactive"
-                      : "Pending"}
-                  </span>
+                  <StatusBadge status={member.member_status} />
                 </td>
 
                 {showActions && (
@@ -106,7 +96,7 @@ export default function MemberTable({ members = [], showActions = false }) {
             ))
           ) : (
             <tr>
-              <td colSpan={showActions ? 5 : 4} className="text-center py-4">
+              <td colSpan={showActions ? 7 : 6} className="text-center py-4">
                 ไม่มีข้อมูลสมาชิก
               </td>
             </tr>
