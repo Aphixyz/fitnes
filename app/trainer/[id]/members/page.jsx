@@ -2,22 +2,44 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getTrainerMembers, getMemberSummaryByStatus } from "@/actions/trainer/getTrainerMembers";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getTrainerMembers,
+  getMemberSummaryByStatus,
+} from "@/actions/trainer/getTrainerMembers";
 import { formatDate } from "@/utils/utils";
-import MemberActionMenu from "@/app/trainer/_components/(member)/memberActionMenu";
+import MemberActionMenu from "@/app/trainer/_components/member/memberActionMenu";
 
 export default function TrainerMembersPage({ params }) {
   // Unwrap params ซึ่งเป็น Promise ก่อนใช้งาน (ตามข้อกำหนดใหม่ของ Next.js 15)
   const { id: trainerId } = React.use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   // สถานะและการตั้งค่า
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,16 +49,16 @@ export default function TrainerMembersPage({ params }) {
     active: 0,
     pending: 0,
     expired: 0,
-    rejected: 0
+    rejected: 0,
   });
-  
+
   // การตั้งค่า pagination และการค้นหา
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  
+
   // ดึงค่าจาก URL parameters
   useEffect(() => {
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -59,7 +81,7 @@ export default function TrainerMembersPage({ params }) {
         page: currentPage,
         pageSize,
         searchTerm,
-        status: statusFilter
+        status: statusFilter,
       });
 
       if (result.success) {
@@ -96,10 +118,10 @@ export default function TrainerMembersPage({ params }) {
     fetchSummary();
   }, [trainerId, currentPage, pageSize, searchTerm, statusFilter]);
 
-    // อัปเดต URL parameters
+  // อัปเดต URL parameters
   const updateUrlParams = (newParams) => {
     const params = new URLSearchParams(searchParams);
-    
+
     for (const [key, value] of Object.entries(newParams)) {
       if (value !== undefined && value !== null && value !== "") {
         params.set(key, value);
@@ -107,7 +129,7 @@ export default function TrainerMembersPage({ params }) {
         params.delete(key);
       }
     }
-    
+
     router.push(`/trainer/${trainerId}/members?${params.toString()}`);
   };
 
@@ -206,17 +228,14 @@ export default function TrainerMembersPage({ params }) {
           />
           <Button type="submit">ค้นหา</Button>
         </form>
-        
+
         <div className="flex items-center space-x-2">
           <div>กรองตามสถานะ:</div>
-          <Select 
-            value={statusFilter} 
-            onValueChange={handleStatusChange}
-          >
+          <Select value={statusFilter} onValueChange={handleStatusChange}>
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="ทั้งหมด" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white shadow-md">
               <SelectItem value="all">ทั้งหมด</SelectItem>
               <SelectItem value="active">ใช้งาน</SelectItem>
               <SelectItem value="expired">หมดอายุ</SelectItem>
@@ -229,7 +248,8 @@ export default function TrainerMembersPage({ params }) {
       {searchTerm && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            ผลการค้นหาสำหรับ: <span className="font-medium">"{searchTerm}"</span>
+            ผลการค้นหาสำหรับ:{" "}
+            <span className="font-medium">"{searchTerm}"</span>
           </p>
           <Button
             variant="ghost"
@@ -267,23 +287,23 @@ export default function TrainerMembersPage({ params }) {
                   <TableRow>
                     <TableCell colSpan={9} className="text-center py-8">
                       <div className="flex justify-center">
-                        <svg 
-                          className="animate-spin h-8 w-8 text-primary" 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          fill="none" 
+                        <svg
+                          className="animate-spin h-8 w-8 text-primary"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
                           viewBox="0 0 24 24"
                         >
-                          <circle 
-                            className="opacity-25" 
-                            cx="12" 
-                            cy="12" 
-                            r="10" 
-                            stroke="currentColor" 
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
                             strokeWidth="4"
                           ></circle>
-                          <path 
-                            className="opacity-75" 
-                            fill="currentColor" 
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           ></path>
                         </svg>
@@ -308,9 +328,9 @@ export default function TrainerMembersPage({ params }) {
                       </TableCell>
                       <TableCell>
                         {member.member_profileimage ? (
-                          <img 
-                            src={member.member_profileimage} 
-                            alt={member.full_name} 
+                          <img
+                            src={member.member_profileimage}
+                            alt={member.full_name}
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
@@ -324,13 +344,13 @@ export default function TrainerMembersPage({ params }) {
                       <TableCell>{member.member_email}</TableCell>
                       <TableCell>{member.member_phone || "-"}</TableCell>
                       <TableCell>
-                        {member.registration_startdate 
-                          ? formatDate(member.registration_startdate) 
+                        {member.registration_startdate
+                          ? formatDate(member.registration_startdate)
                           : "-"}
                       </TableCell>
                       <TableCell>
-                        {member.registration_enddate 
-                          ? formatDate(member.registration_enddate) 
+                        {member.registration_enddate
+                          ? formatDate(member.registration_enddate)
                           : "-"}
                       </TableCell>
                       <TableCell>
@@ -339,7 +359,7 @@ export default function TrainerMembersPage({ params }) {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <MemberActionMenu 
+                        <MemberActionMenu
                           member={member}
                           trainerId={trainerId}
                         />
