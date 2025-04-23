@@ -232,3 +232,20 @@ export function getBaseUrl() {
   // ค่าเริ่มต้นสำหรับโหมดโปรดักชัน
   return "https://fittrack.example.com";
 }
+
+export function paginate(items, currentPage = 1, perPage = 10) {
+  const totalItems = items.length;
+  const totalPages = Math.ceil(totalItems / perPage);
+  const start = (currentPage - 1) * perPage;
+  const end = start + perPage;
+  const data = items.slice(start, end);
+
+  return {
+    data,
+    totalItems,
+    totalPages,
+    currentPage,
+    perPage,
+  };
+}
+
