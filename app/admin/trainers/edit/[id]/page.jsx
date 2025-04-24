@@ -8,6 +8,8 @@ import * as yup from "yup";
 import { updateTrainer } from "@/actions/admin/updateTrainer";
 import { getTrainerById } from "@/actions/admin/getTrainerById"; // คุณต้องสร้าง action นี้
 import { useDropzone } from "react-dropzone";
+import Back from "@/components/button/Back";
+import Saves from "@/components/button/Save";
 
 const schema = yup.object().shape({
   trainer_username: yup.string().required("กรุณากรอกชื่อผู้ใช้"),
@@ -339,9 +341,9 @@ export default function EditTrainerPage() {
           {/* ปุ่ม "บันทึกการแก้ไข" */}
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-4 w-full"
+            className="bg-blue-500 text-white px-4 py-2 rounded mt-4 w-15"
           >
-            บันทึกการแก้ไข
+            <Saves/>
           </button>
 
           {/* ปุ่ม "ยกเลิก" */}
@@ -350,7 +352,7 @@ export default function EditTrainerPage() {
             className="bg-gray-500 text-white px-4 py-2 rounded mt-4 ml-4"
             onClick={() => router.back()} // ใช้ router.back() เพื่อย้อนกลับไปหน้าก่อนหน้า
           >
-            ยกเลิก
+            <Back/>
           </button>
         </div>
       </form>

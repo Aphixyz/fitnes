@@ -1,33 +1,40 @@
 "use client";
 
 import { useState } from "react";
+import SearchInput from "@/components/button/Search";
 
-const SearchFilter = ({ trainers, setFilteredTrainers }) => {
+const SearchFilter = ({ data, onFilter, placeholder, searchFields }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleInputChange = (e) => {
-    setSearchTerm(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value);
 
-    const lowercasedSearchTerm = e.target.value.toLowerCase();
-    const filtered = trainers.filter((trainer) => {
-      return (
-        trainer.trainer_firstname.toLowerCase().includes(lowercasedSearchTerm) ||
-        trainer.trainer_lastname.toLowerCase().includes(lowercasedSearchTerm) ||
-        trainer.trainer_id.toString().includes(lowercasedSearchTerm)
-      );
-    });
+    const lowercasedSearchTerm = value.toLowerCase();
 
-    setFilteredTrainers(filtered); // Update filtered trainers when search term changes
+    const filtered = data.filter((item) =>
+      searchFields.some((field) => {
+        const fieldValue = item[field];
+        if (!fieldValue) return false;
+
+        const stringValue =
+          typeof fieldValue === "number"
+            ? fieldValue.toString()
+            : fieldValue;
+
+        return stringValue.toLowerCase().includes(lowercasedSearchTerm);
+      })
+    );
+
+    onFilter(filtered);
   };
 
   return (
     <div className="flex justify-start mb-4">
-      <input
-        type="text"
-        placeholder="ค้นหาผู้ฝึกสอน"
+      <SearchInput
         value={searchTerm}
         onChange={handleInputChange}
-        className="px-4 py-2 border border-gray-300 rounded-md w-64 text-center"
+        placeholder={placeholder || "ค้นหา..."}
       />
     </div>
   );

@@ -1,13 +1,22 @@
-"use client"; // ต้องใช้เพื่อให้ onClick ทำงานได้
+"use client";
 
 import { useRouter } from "next/navigation";
 import { deleteTrainer } from "@/actions/admin/deleteTrainer";
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
 import { getInitials } from "@/utils/utils";
 import StatusBadge from "./common/Status";
+import Edit from "@/components/button/Edit";
+import Delete from "@/components/button/Delete";
+import Pagination from "./common/Paginate";
+import { paginate } from "@/utils/utils";
 
-export default function TrainerTable({ trainers, showActions = false }) {
+export default function TrainerTable({
+  trainers,
+  showActions = false,
+  perPage = 10,
+}) {
   const [isPending, startTransition] = useTransition();
+  const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
 
   const handleDelete = (id) => {
@@ -24,6 +33,8 @@ export default function TrainerTable({ trainers, showActions = false }) {
     }
   };
 
+  const pagination = paginate(trainers || [], currentPage, perPage);
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-300 shadow-md">
@@ -32,15 +43,14 @@ export default function TrainerTable({ trainers, showActions = false }) {
             <th className="px-4 py-2 border">รหัส</th>
             <th className="px-4 py-2 border">รูปภาพ</th>
             <th className="px-4 py-2 border">ชื่อ-สกุล</th>
-            <th className="px-4 py-2 border">อีเมลล์</th>
             <th className="px-4 py-2 border">ประสบการณ์(ปี)</th>
             <th className="px-4 py-2 border">สถานะ</th>
             {showActions && <th className="px-4 py-2 border">การจัดการ</th>}
           </tr>
         </thead>
         <tbody>
-          {trainers && trainers.length > 0 ? (
-            trainers.map((trainer) => (
+          {pagination.data.length > 0 ? (
+            pagination.data.map((trainer) => (
               <tr
                 key={trainer.trainer_id}
                 className="hover:bg-gray-100 cursor-pointer"
@@ -75,7 +85,6 @@ export default function TrainerTable({ trainers, showActions = false }) {
                 <td className="px-4 py-2 border">
                   {trainer.trainer_firstname} {trainer.trainer_lastname}
                 </td>
-                <td className="px-4 py-2 border">{trainer.trainer_email}</td>
                 <td className="px-4 py-2 border text-center">
                   {trainer.trainer_exp}
                 </td>
@@ -87,23 +96,23 @@ export default function TrainerTable({ trainers, showActions = false }) {
                   <td className="px-4 py-2 border text-center space-x-2">
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent the row click
+                        e.stopPropagation();
                         router.push(
                           `/admin/trainers/edit/${trainer.trainer_id}`
                         );
                       }}
                       className="px-2 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
                     >
-                      แก้ไข
+                      <Edit />
                     </button>
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent the row click
+                        e.stopPropagation();
                         handleDelete(trainer.trainer_id);
                       }}
                       className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded"
                     >
-                      ลบ
+                      <Delete />
                     </button>
                   </td>
                 )}
@@ -118,6 +127,12 @@ export default function TrainerTable({ trainers, showActions = false }) {
           )}
         </tbody>
       </table>
+      <Pagination
+        currentPage={pagination.currentPage}
+        totalPages={Math.max(1, pagination.totalPages)}
+        onPageChange={setCurrentPage}
+        disableNavigation={pagination.totalItems <= perPage}
+      />
     </div>
   );
 }
