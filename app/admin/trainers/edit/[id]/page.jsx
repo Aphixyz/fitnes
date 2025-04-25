@@ -8,8 +8,9 @@ import * as yup from "yup";
 import { updateTrainer } from "@/actions/admin/updateTrainer";
 import { getTrainerById } from "@/actions/admin/getTrainerById"; // คุณต้องสร้าง action นี้
 import { useDropzone } from "react-dropzone";
-import Back from "@/components/button/Back";
 import Saves from "@/components/button/Save";
+import BackButton from "@/components/button/Back";
+import AddButton from "@/components/button/Add";
 
 const schema = yup.object().shape({
   trainer_username: yup.string().required("กรุณากรอกชื่อผู้ใช้"),
@@ -339,21 +340,14 @@ export default function EditTrainerPage() {
 
         <div className="flex justify-between items-center mb-4">
           {/* ปุ่ม "บันทึกการแก้ไข" */}
-          <button
+          <AddButton
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-4 w-15"
-          >
-            <Saves/>
-          </button>
+            buttonText="บันทึกการแก้ไข"
+            isSubmitting={false}
+          />
 
           {/* ปุ่ม "ยกเลิก" */}
-          <button
-            type="button"
-            className="bg-gray-500 text-white px-4 py-2 rounded mt-4 ml-4"
-            onClick={() => router.back()} // ใช้ router.back() เพื่อย้อนกลับไปหน้าก่อนหน้า
-          >
-            <Back/>
-          </button>
+          <BackButton />
         </div>
       </form>
 

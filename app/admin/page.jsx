@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -5,15 +8,16 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { getTrainerData } from "@/actions/admin/getTrainer";
+import { getMemberWithTrainer } from "@/actions/admin/member/getMemberWithTrainer";
 
 export default function AdminDashboard() {
-  // ข้อมูลสำหรับแสดงในแดชบอร์ด (จำลอง)
-  const stats = [
+  const [stats, setStats] = useState([
     {
       title: "ผู้ฝึกสอนทั้งหมด",
-      value: "24",
-      change: "+2",
-      changeType: "increase",
+      value: "0",
+      change: "",
+      changeType: "neutral",
       icon: (
         <svg
           className="h-6 w-6"
@@ -33,9 +37,9 @@ export default function AdminDashboard() {
     },
     {
       title: "สมาชิกทั้งหมด",
-      value: "356",
-      change: "+28",
-      changeType: "increase",
+      value: "0",
+      change: "",
+      changeType: "neutral",
       icon: (
         <svg
           className="h-6 w-6"
@@ -97,7 +101,96 @@ export default function AdminDashboard() {
         </svg>
       ),
     },
-  ];
+  ]);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        setLoading(true);
+
+        // ดึงข้อมูลเทรนเนอร์และสมาชิก
+        const trainers = await getTrainerData();
+        const membersResponse = await getMemberWithTrainer();
+        const members = membersResponse.success ? membersResponse.data : [];
+
+        // อ่านข้อมูลเก่าจาก localStorage
+        const previousData = JSON.parse(
+          localStorage.getItem("previousData")
+        ) || {
+          trainers: 0,
+          members: 0,
+        };
+
+        // คำนวณการเปลี่ยนแปลง
+        const trainerChange = trainers.length - previousData.trainers;
+        const memberChange = members.length - previousData.members;
+
+        // อัพเดตข้อมูลใน localStorage
+        localStorage.setItem(
+          "previousData",
+          JSON.stringify({
+            trainers: trainers.length,
+            members: members.length,
+          })
+        );
+
+        // อัพเดตข้อมูลสถิติ
+        setStats((prevStats) => {
+          const newStats = [...prevStats];
+
+          // อัพเดตข้อมูลเทรนเนอร์
+          newStats[0] = {
+            ...newStats[0],
+            value: trainers.length.toString(),
+            change:
+              trainerChange !== 0
+                ? trainerChange > 0
+                  ? `+${trainerChange}`
+                  : trainerChange.toString()
+                : "",
+            changeType:
+              trainerChange > 0
+                ? "increase"
+                : trainerChange < 0
+                ? "decrease"
+                : "neutral",
+          };
+
+          // อัพเดตข้อมูลสมาชิก
+          newStats[1] = {
+            ...newStats[1],
+            value: members.length.toString(),
+            change:
+              memberChange !== 0
+                ? memberChange > 0
+                  ? `+${memberChange}`
+                  : memberChange.toString()
+                : "",
+            changeType:
+              memberChange > 0
+                ? "increase"
+                : memberChange < 0
+                ? "decrease"
+                : "neutral",
+          };
+
+          return newStats;
+        });
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+        setError("ไม่สามารถโหลดข้อมูลแดชบอร์ดได้");
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
 
   return (
     <div>
@@ -110,36 +203,50 @@ export default function AdminDashboard() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, i) => (
-          <Card key={i}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between space-x-2">
-                <div className="flex items-center space-x-4">
-                  <div className="p-2 bg-blue-100 text-blue-700 rounded-full">
-                    {stat.icon}
+      {loading ? (
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+          <span className="ml-2">กำลังโหลดข้อมูล...</span>
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 text-red-700 p-4 rounded-md">{error}</div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat, i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between space-x-2">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-2 bg-blue-100 text-blue-700 rounded-full">
+                      {stat.icon}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </p>
+                      <p className="text-2xl font-bold">{stat.value}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {stat.title}
-                    </p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                  </div>
+                  {/* แสดงเฉพาะเมื่อมีการเปลี่ยนแปลง (change ไม่เป็นค่าว่าง) */}
+                  {stat.change && (
+                    <div
+                      className={`text-sm ${
+                        stat.changeType === "increase"
+                          ? "text-green-500"
+                          : stat.changeType === "decrease"
+                          ? "text-red-500"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {stat.change}
+                    </div>
+                  )}
                 </div>
-                <div
-                  className={`text-sm ${
-                    stat.changeType === "increase"
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }`}
-                >
-                  {stat.change}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-6">
         <Card className="col-span-2">

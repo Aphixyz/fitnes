@@ -76,7 +76,7 @@ export default function MemberPage() {
               <select
                 value={statusFilter}
                 onChange={handleStatusFilter}
-                className="text-center p-1 border rounded-md w-auto"
+                className="p-1 border rounded-md w-auto"
               >
                 <option value="">แสดงทั้งหมด</option>
                 <option value="active">ใช้งาน</option>

@@ -9,6 +9,7 @@ import Edit from "@/components/button/Edit";
 import Delete from "@/components/button/Delete";
 import Pagination from "./common/Paginate";
 import { paginate } from "@/utils/utils";
+import { useEffect } from "react";
 
 export default function TrainerTable({
   trainers,
@@ -17,12 +18,25 @@ export default function TrainerTable({
 }) {
   const [isPending, startTransition] = useTransition();
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);  // Add loading state
   const router = useRouter();
+
+  useEffect(() => {
+    setIsLoading(true);  // Start loading when component mounts or data is refreshed
+    const fetchData = async () => {
+      // You can add any logic here to fetch new data when the page is refreshed
+      // For example, calling an API to get fresh data
+      setIsLoading(false);  // Stop loading once the data is fetched
+    };
+    fetchData();
+  }, [trainers]);
 
   const handleDelete = (id) => {
     if (confirm("ยืนยันการลบ?")) {
+      setIsLoading(true);  // Set loading state to true before the action
       startTransition(async () => {
         const success = await deleteTrainer(id);
+        setIsLoading(false);  // Set loading state back to false after the action
         if (success) {
           alert("ลบสำเร็จ ✅");
           router.refresh(); // โหลดข้อมูลใหม่
@@ -33,10 +47,17 @@ export default function TrainerTable({
     }
   };
 
+
   const pagination = paginate(trainers || [], currentPage, perPage);
 
   return (
     <div className="overflow-x-auto">
+      {isLoading && (
+        <div className="flex justify-center items-center py-4">
+          <div className="w-8 h-8 border-4 border-t-4 border-gray-500 rounded-full animate-spin"></div>
+        </div>
+      )}
+
       <table className="min-w-full bg-white border border-gray-300 shadow-md">
         <thead className="bg-gray-200">
           <tr>
