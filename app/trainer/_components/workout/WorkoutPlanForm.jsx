@@ -24,7 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   createWorkoutPlan,
   updateWorkoutPlan,
-} from "@/actions/trainer/workout/workoutPlanActions";
+} from "@/actions/trainer/workout/workoutv1/workoutPlanActions";
 import { getTrainerMembers } from "@/actions/trainer/getTrainerMembers";
 import { toast } from "@/components/ui/use-toast";
 import { AlertCircle } from "lucide-react";

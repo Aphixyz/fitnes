@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getWorkoutPlanById } from "@/actions/trainer/workout/workoutPlanActions";
+import { getWorkoutPlanById } from "@/actions/trainer/workout/workoutv1/workoutPlanActions";
 import WorkoutPlanForm from "@/app/trainer/_components/workout/WorkoutPlanForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,10 +34,12 @@ export default function EditMemberWorkoutPlanPage() {
               description: "โปรแกรมการฝึกนี้ไม่ได้เป็นของสมาชิกที่ระบุ",
               variant: "destructive",
             });
-            router.push(`/trainer/${trainerId}/members/${memberId}/workout-plan`);
+            router.push(
+              `/trainer/${trainerId}/members/${memberId}/workout-plan`
+            );
             return;
           }
-          
+
           setPlan(result.plan);
         } else {
           toast({
@@ -63,7 +65,9 @@ export default function EditMemberWorkoutPlanPage() {
     fetchWorkoutPlan();
   }, [trainerId, memberId, planId, router]);
 
-  const memberName = plan ? `${plan.member_firstname} ${plan.member_lastname}` : '';
+  const memberName = plan
+    ? `${plan.member_firstname} ${plan.member_lastname}`
+    : "";
 
   return (
     <div className="space-y-6">
@@ -76,7 +80,9 @@ export default function EditMemberWorkoutPlanPage() {
             <p className="text-muted-foreground">สำหรับ {memberName}</p>
           )}
         </div>
-        <Link href={`/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}`}>
+        <Link
+          href={`/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}`}
+        >
           <Button variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />
             กลับ

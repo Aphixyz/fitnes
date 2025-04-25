@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getTrainerWorkoutPlans } from "@/actions/trainer/workout/workoutPlanActions";
+import { getTrainerWorkoutPlans } from "@/actions/trainer/workout/workoutv1/workoutPlanActions";
 import { toast } from "@/components/ui/use-toast";
 import WorkoutPlanList from "@/app/trainer/_components/workout/WorkoutPlanList";
 import { FilterIcon } from "lucide-react";

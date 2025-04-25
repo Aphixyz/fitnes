@@ -233,6 +233,61 @@ export function getBaseUrl() {
   return "https://fittrack.example.com";
 }
 
+/**
+ * ขอรายชื่อวันในสัปดาห์เป็นภาษาไทย
+ * @returns {string[]} - รายชื่อวันในสัปดาห์ภาษาไทย
+ */
+export function getThaiDays() {
+  return ["จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์", "อาทิตย์"];
+}
+
+/**
+ * ตรวจสอบว่าสตริงเป็นชื่อวันในภาษาไทยหรือไม่
+ * @param {string} day - สตริงที่ต้องการตรวจสอบ
+ * @returns {boolean} - true หากเป็นชื่อวันในภาษาไทย
+ */
+export function isThaiDay(day) {
+  const thaiDays = getThaiDays();
+  return thaiDays.includes(day);
+}
+
+/**
+ * แปลงชื่อวันภาษาอังกฤษเป็นภาษาไทย
+ * @param {string} englishDay - ชื่อวันภาษาอังกฤษ (monday, tuesday, ...)
+ * @returns {string} - ชื่อวันภาษาไทย
+ */
+export function getThaiDay(englishDay) {
+  const dayMapping = {
+    monday: "จันทร์",
+    tuesday: "อังคาร",
+    wednesday: "พุธ",
+    thursday: "พฤหัสบดี",
+    friday: "ศุกร์",
+    saturday: "เสาร์",
+    sunday: "อาทิตย์",
+  };
+
+  return dayMapping[englishDay?.toLowerCase()] || englishDay;
+}
+
+/**
+ * แปลงชื่อวันภาษาไทยเป็นภาษาอังกฤษ
+ * @param {string} thaiDay - ชื่อวันภาษาไทย
+ * @returns {string} - ชื่อวันภาษาอังกฤษ (monday, tuesday, ...)
+ */
+export function getEnglishDay(thaiDay) {
+  const dayMapping = {
+    จันทร์: "monday",
+    อังคาร: "tuesday",
+    พุธ: "wednesday",
+    พฤหัสบดี: "thursday",
+    ศุกร์: "friday",
+    เสาร์: "saturday",
+    อาทิตย์: "sunday",
+  };
+
+  return dayMapping[thaiDay] || thaiDay;
+}
 export function paginate(items, currentPage = 1, perPage = 10) {
   const totalItems = items.length;
   const totalPages = Math.ceil(totalItems / perPage);

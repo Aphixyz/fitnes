@@ -28,7 +28,7 @@ import {
   BookOpen,
   User,
 } from "lucide-react";
-import { createWorkoutFromTemplate } from "@/actions/trainer/workout/workoutTemplateActions";
+import { createWorkoutFromTemplate } from "@/actions/trainer/workout/workoutv1/workoutTemplateActions";
 import { toast } from "@/components/ui/use-toast";
 import { formatDate } from "@/utils/utils";
 

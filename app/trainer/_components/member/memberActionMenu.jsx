@@ -21,7 +21,7 @@ import {
 import {
   getActiveWorkoutPlan,
   getActiveNutritionPlan,
-} from "@/actions/trainer/workout/workoutPlanActions";
+} from "@/actions/trainer/workout/workoutv1/workoutPlanActions";
 
 export function toast({ title, description, variant = "default" }) {
   return <Toast title={title} description={description} variant={variant} />;

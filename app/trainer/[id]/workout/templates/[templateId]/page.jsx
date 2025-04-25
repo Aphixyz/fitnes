@@ -17,8 +17,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   getWorkoutTemplateById,
   createWorkoutFromTemplate,
-} from "@/actions/trainer/workout/workoutTemplateActions";
-import { getPlanExercises } from "@/actions/trainer/workout/workoutExerciseActions";
+} from "@/actions/trainer/workout/workoutv1/workoutTemplateActions";
+import { getPlanExercises } from "@/actions/trainer/workout/workoutv1/workoutExerciseActions";
 import { formatDate } from "@/utils/utils";
 import ExerciseList from "@/app/trainer/_components/workout/ExerciseList";
 import { toast } from "@/components/ui/use-toast";

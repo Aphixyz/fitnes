@@ -43,7 +43,7 @@ import { toast } from "@/components/ui/use-toast";
 import {
   changeWorkoutPlanStatus,
   deleteWorkoutPlan,
-} from "@/actions/trainer/workout/workoutPlanActions";
+} from "@/actions/trainer/workout/workoutv1/workoutPlanActions";
 import CreateWorkoutButton from "@/app/trainer/_components/workout/CreateWorkoutButton";
 
 export default function WorkoutPlanList({
