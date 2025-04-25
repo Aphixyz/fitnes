@@ -1,11 +1,11 @@
-'use server';
+"use server";
 
 import pool from "@/lib/db";
 
 export async function getTrainerById(id) {
   try {
     if (!id) {
-      throw new Error('กรุณาระบุ ID ของผู้ฝึกสอน');
+      throw new Error("กรุณาระบุ ID ของผู้ฝึกสอน");
     }
 
     // ทำการ query ข้อมูลจากฐานข้อมูล - ไม่ดึงข้อมูล password เพื่อความปลอดภัย
@@ -40,28 +40,28 @@ export async function getTrainerById(id) {
 
     // แปลงข้อมูลให้เป็นรูปแบบ camelCase ที่ใช้งานง่าย
     const trainer = {
-      id: rows[0].trainer_id,
-      username: rows[0].trainer_username,
-      firstName: rows[0].trainer_firstname,
-      lastName: rows[0].trainer_lastname,
-      email: rows[0].trainer_email,
-      nickname: rows[0].trainer_nickname,
-      phone: rows[0].trainer_phone,
-      dateOfBirth: rows[0].trainer_dob,
-      gender: rows[0].trainer_gender,
-      experience: rows[0].trainer_exp,
-      profileImage: rows[0].trainer_profile_image,
-      bio: rows[0].trainer_bio,
-      specialization: rows[0].trainer_specialization,
-      certification: rows[0].trainer_certification,
-      startDate: rows[0].trainer_startdate,
-      endDate: rows[0].trainer_enddate,
-      status: rows[0].trainer_status
+      trainer_id: rows[0].trainer_id,
+      trainer_username: rows[0].trainer_username,
+      trainer_firstname: rows[0].trainer_firstname,
+      trainer_lastname: rows[0].trainer_lastname,
+      trainer_email: rows[0].trainer_email,
+      trainer_nickname: rows[0].trainer_nickname,
+      trainer_phone: rows[0].trainer_phone,
+      trainer_dob: rows[0].trainer_dob,
+      trainer_gender: rows[0].trainer_gender,
+      trainer_exp: rows[0].trainer_exp,
+      trainer_profile_image: rows[0].trainer_profile_image,
+      trainer_bio: rows[0].trainer_bio,
+      trainer_specialization: rows[0].trainer_specialization,
+      trainer_certification: rows[0].trainer_certification,
+      trainer_startdate: rows[0].trainer_startdate,
+      trainer_enddate: rows[0].trainer_enddate,
+      trainer_status: rows[0].trainer_status,
     };
 
     return trainer;
   } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการดึงข้อมูลผู้ฝึกสอน:', error);
-    throw new Error('ไม่สามารถดึงข้อมูลผู้ฝึกสอนได้');
+    console.error("เกิดข้อผิดพลาดในการดึงข้อมูลผู้ฝึกสอน:", error);
+    throw new Error("ไม่สามารถดึงข้อมูลผู้ฝึกสอนได้");
   }
 }

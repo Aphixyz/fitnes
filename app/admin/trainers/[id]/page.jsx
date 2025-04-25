@@ -1,15 +1,39 @@
+"use client";
+
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getTrainerById } from "@/actions/admin/getTrainerById";
 import { formatDate, calculateAge, getInitials } from "@/utils/utils";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 
-export default async function TrainerDashboard({ params }) {
-  // ต้องใช้ await ก่อนเข้าถึง params ใน Next.js 15
-  const { id } = await params;
+export default function TrainerDashboard() {
+  const params = useParams();
+  const { id } = params;
 
-  // ดึงข้อมูลผู้ฝึกสอนโดยใช้ ID
-  const trainer = await getTrainerById(id);
+  const [trainer, setTrainer] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // หากไม่พบข้อมูลผู้ฝึกสอน
+  useEffect(() => {
+    const fetchTrainer = async () => {
+      setLoading(true);
+      const data = await getTrainerById(id);
+      setTrainer(data);
+      setLoading(false);
+    };
+
+    if (id) {
+      fetchTrainer();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <p className="text-lg text-gray-500">กำลังโหลดข้อมูล...</p>
+      </div>
+    );
+  }
+
   if (!trainer) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
@@ -27,7 +51,7 @@ export default async function TrainerDashboard({ params }) {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">
-          สวัสดี, คุณ {trainer.firstName} ID : {trainer.id}
+          สวัสดี, คุณ {trainer.trainer_firstname} ID : {trainer.trainer_id}
         </h1>
         <p className="text-muted-foreground">
           หน้าทดสอบการแสดงข้อมูลจาก Server Action
@@ -41,18 +65,21 @@ export default async function TrainerDashboard({ params }) {
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="col-span-2 flex justify-center mb-4">
-              {trainer.profileImage ? (
+              {trainer.trainer_profile_image ? (
                 <div className="w-32 h-32 rounded-full overflow-hidden">
                   <img
-                    src={trainer.profileImage}
-                    alt={`${trainer.firstName} ${trainer.lastName}`}
+                    src={trainer.trainer_profile_image}
+                    alt={`${trainer.trainer_firstname} ${trainer.trainer_lastname}`}
                     className="w-full h-full object-cover"
                   />
                 </div>
               ) : (
                 <div className="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center">
                   <span className="text-indigo-700 text-3xl font-bold">
-                    {getInitials(trainer.firstName, trainer.lastName)}
+                    {getInitials(
+                      trainer.trainer_firstname,
+                      trainer.trainer_lastname
+                    )}
                   </span>
                 </div>
               )}
@@ -62,7 +89,7 @@ export default async function TrainerDashboard({ params }) {
               <p className="text-sm font-medium text-muted-foreground">
                 ชื่อผู้ใช้:
               </p>
-              <p className="text-lg">{trainer.username}</p>
+              <p className="text-lg">{trainer.trainer_username}</p>
             </div>
 
             <div>
@@ -70,7 +97,7 @@ export default async function TrainerDashboard({ params }) {
                 ชื่อ-นามสกุล:
               </p>
               <p className="text-lg">
-                {trainer.firstName} {trainer.lastName}
+                {trainer.trainer_firstname} {trainer.trainer_lastname}
               </p>
             </div>
 
@@ -78,26 +105,26 @@ export default async function TrainerDashboard({ params }) {
               <p className="text-sm font-medium text-muted-foreground">
                 ชื่อเล่น:
               </p>
-              <p className="text-lg">{trainer.nickname || "-"}</p>
+              <p className="text-lg">{trainer.trainer_nickname || "-"}</p>
             </div>
 
             <div>
               <p className="text-sm font-medium text-muted-foreground">
                 อีเมล:
               </p>
-              <p className="text-lg">{trainer.email}</p>
+              <p className="text-lg">{trainer.trainer_email}</p>
             </div>
 
             <div>
               <p className="text-sm font-medium text-muted-foreground">
                 เบอร์โทรศัพท์:
               </p>
-              <p className="text-lg">{trainer.phone || "-"}</p>
+              <p className="text-lg">{trainer.trainer_phone || "-"}</p>
             </div>
 
             <div>
               <p className="text-sm font-medium text-muted-foreground">เพศ:</p>
-              <p className="text-lg">{trainer.gender || "-"}</p>
+              <p className="text-lg">{trainer.trainer_gender || "-"}</p>
             </div>
 
             <div>
@@ -105,15 +132,15 @@ export default async function TrainerDashboard({ params }) {
                 วันเกิด:
               </p>
               <p className="text-lg">
-                {trainer.dateOfBirth ? formatDate(trainer.dateOfBirth) : "-"}
+                {trainer.trainer_dob ? formatDate(trainer.trainer_dob) : "-"}
               </p>
             </div>
 
             <div>
               <p className="text-sm font-medium text-muted-foreground">อายุ:</p>
               <p className="text-lg">
-                {trainer.dateOfBirth
-                  ? `${calculateAge(trainer.dateOfBirth)} ปี`
+                {trainer.trainer_dob
+                  ? `${calculateAge(trainer.trainer_dob)} ปี`
                   : "-"}
               </p>
             </div>
@@ -123,7 +150,7 @@ export default async function TrainerDashboard({ params }) {
                 ประสบการณ์:
               </p>
               <p className="text-lg">
-                {trainer.experience ? `${trainer.experience} ปี` : "-"}
+                {trainer.trainer_exp ? `${trainer.trainer_exp} ปี` : "-"}
               </p>
             </div>
 
@@ -134,14 +161,14 @@ export default async function TrainerDashboard({ params }) {
               <p className="text-lg">
                 <span
                   className={`inline-block px-2 py-1 rounded-md text-sm ${
-                    trainer.status === "active"
+                    trainer.trainer_status === "active"
                       ? "bg-green-100 text-green-800"
-                      : trainer.status === "inactive"
+                      : trainer.trainer_status === "inactive"
                       ? "bg-red-100 text-red-800"
                       : "bg-yellow-100 text-yellow-800"
                   }`}
                 >
-                  {trainer.status || "-"}
+                  {trainer.trainer_status || "-"}
                 </span>
               </p>
             </div>
@@ -160,14 +187,18 @@ export default async function TrainerDashboard({ params }) {
                 <p className="text-sm font-medium text-muted-foreground">
                   ความเชี่ยวชาญ:
                 </p>
-                <p className="text-lg">{trainer.specialization || "-"}</p>
+                <p className="text-lg">
+                  {trainer.trainer_specialization || "-"}
+                </p>
               </div>
 
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   ใบรับรอง/วุฒิบัตร:
                 </p>
-                <p className="text-lg">{trainer.certification || "-"}</p>
+                <p className="text-lg">
+                  {trainer.trainer_certification || "-"}
+                </p>
               </div>
 
               <div>
@@ -175,7 +206,9 @@ export default async function TrainerDashboard({ params }) {
                   วันที่เริ่มงาน:
                 </p>
                 <p className="text-lg">
-                  {trainer.startDate ? formatDate(trainer.startDate) : "-"}
+                  {trainer.trainer_startdate
+                    ? formatDate(trainer.trainer_startdate)
+                    : "-"}
                 </p>
               </div>
 
@@ -184,7 +217,9 @@ export default async function TrainerDashboard({ params }) {
                   วันที่สิ้นสุด:
                 </p>
                 <p className="text-lg">
-                  {trainer.endDate ? formatDate(trainer.endDate) : "-"}
+                  {trainer.trainer_enddate
+                    ? formatDate(trainer.trainer_enddate)
+                    : "-"}
                 </p>
               </div>
             </div>
@@ -197,10 +232,10 @@ export default async function TrainerDashboard({ params }) {
           </CardHeader>
           <CardContent>
             <div className="prose">
-              {trainer.bio ? (
+              {trainer.trainer_bio ? (
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: trainer.bio.replace(/\n/g, "<br>"),
+                    __html: trainer.trainer_bio.replace(/\n/g, "<br>"),
                   }}
                 />
               ) : (

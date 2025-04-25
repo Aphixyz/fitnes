@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
-import { verifyRegistrationParams } from "@/actions/trainer/generateRegistrationLink";
+import { verifyRegistrationParams } from "@/actions/trainer/registration/generateRegistrationLink";
 import RegistrationForm from "@/app/register/_components/RegistrationForm";
 
 export default function RegisterPage() {

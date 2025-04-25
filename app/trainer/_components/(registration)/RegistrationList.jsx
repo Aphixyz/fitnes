@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
-import { getTrainerRegistrations } from "@/actions/trainer/manageMemberRegistration";
+import { getTrainerRegistrations } from "@/actions/trainer/registration/manageMemberRegistration";
 import { Clock, CheckCircle, XCircle, AlertTriangle, User } from "lucide-react";
 import ConfirmRegistrationModal from "./ConfirmRegistrationModal";
 

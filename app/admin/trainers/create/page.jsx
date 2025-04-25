@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Button } from "@/components/ui/button";
-import { createTrainer } from "@/actions/admin/createTrainer"; // ✅ เช็กให้ path ถูกต้อง
+import { createTrainer } from "@/actions/admin/createTrainer"; 
+
 
 const schema = yup.object().shape({
   trainer_username: yup.string().required("กรุณากรอกชื่อผู้ใช้"),
@@ -43,6 +44,7 @@ export default function TrainerAddPage() {
     if (result.success) {
       setMessage("✅ เพิ่ม Trainer สำเร็จ! 🎉");
       reset(); // ล้างฟอร์ม
+      router.push("/admin/trainers"); // เปลี่ยนหน้าไปที่ /admin/trainers
     } else {
       setMessage("❌ เกิดข้อผิดพลาด: " + result.error);
     }

@@ -11,11 +11,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { createGoalByTrainer, updateGoalByTrainer } from "@/actions/trainer/goalManagementAction";
+import {
+  createGoalByTrainer,
+  updateGoalByTrainer,
+} from "@/actions/trainer/goal/goalManagementAction";
 import { AlertCircle } from "lucide-react";
 
 const goalTypes = [
@@ -34,7 +43,7 @@ const goalStatuses = [
 
 /**
  * คอมโพเนนต์แบบฟอร์มสร้าง/แก้ไขเป้าหมายการออกกำลังกาย
- * 
+ *
  * @param {Object} props
  * @param {string} props.trainerId - รหัสเทรนเนอร์
  * @param {string} props.memberId - รหัสสมาชิก
@@ -43,18 +52,18 @@ const goalStatuses = [
  * @param {Function} props.onSuccess - ฟังก์ชันเมื่อดำเนินการสำเร็จ
  * @param {Function} props.onCancel - ฟังก์ชันเมื่อยกเลิก
  */
-export default function CreateGoalForm({ 
-  trainerId, 
-  memberId, 
-  initialData = null, 
+export default function CreateGoalForm({
+  trainerId,
+  memberId,
+  initialData = null,
   currentWeight = null,
   onSuccess,
-  onCancel
+  onCancel,
 }) {
   const isEditing = !!initialData;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     goalType: "",
     startDate: "",
@@ -62,7 +71,7 @@ export default function CreateGoalForm({
     status: "active",
     targetWeight: "",
     targetMuscle: "",
-    note: ""
+    note: "",
   });
 
   // โหลดข้อมูลเดิมกรณีแก้ไข
@@ -71,15 +80,19 @@ export default function CreateGoalForm({
       setFormData({
         goalType: initialData.fitness_goal_type || "",
         startDate: initialData.fitness_goal_startdate
-          ? new Date(initialData.fitness_goal_startdate).toISOString().split('T')[0]
+          ? new Date(initialData.fitness_goal_startdate)
+              .toISOString()
+              .split("T")[0]
           : "",
         endDate: initialData.fitness_goal_enddate
-          ? new Date(initialData.fitness_goal_enddate).toISOString().split('T')[0]
+          ? new Date(initialData.fitness_goal_enddate)
+              .toISOString()
+              .split("T")[0]
           : "",
         status: initialData.fitness_goal_status || "active",
         targetWeight: initialData.fitness_goal_targetweight || "",
         targetMuscle: initialData.fitness_goal_targetmuscle || "",
-        note: initialData.fitness_goal_note || ""
+        note: initialData.fitness_goal_note || "",
       });
     } else {
       // กรณีสร้างใหม่ ตั้งค่าเริ่มต้น
@@ -89,12 +102,12 @@ export default function CreateGoalForm({
 
       setFormData({
         goalType: "ลดน้ำหนัก",
-        startDate: today.toISOString().split('T')[0],
-        endDate: threeMonthsLater.toISOString().split('T')[0],
+        startDate: today.toISOString().split("T")[0],
+        endDate: threeMonthsLater.toISOString().split("T")[0],
         status: "active",
         targetWeight: "",
         targetMuscle: "",
-        note: ""
+        note: "",
       });
     }
   }, [initialData]);
@@ -125,9 +138,11 @@ export default function CreateGoalForm({
         startDate: formData.startDate,
         endDate: formData.endDate,
         status: formData.status,
-        targetWeight: formData.targetWeight ? parseFloat(formData.targetWeight) : null,
+        targetWeight: formData.targetWeight
+          ? parseFloat(formData.targetWeight)
+          : null,
         targetMuscle: formData.targetMuscle,
-        note: formData.note
+        note: formData.note,
       };
 
       let result;
@@ -135,7 +150,7 @@ export default function CreateGoalForm({
         // กรณีแก้ไขเป้าหมาย
         result = await updateGoalByTrainer({
           ...dataToSubmit,
-          goalId: initialData.fitness_goal_id
+          goalId: initialData.fitness_goal_id,
         });
       } else {
         // กรณีสร้างเป้าหมายใหม่
@@ -165,9 +180,13 @@ export default function CreateGoalForm({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>{isEditing ? "แก้ไขเป้าหมายการออกกำลังกาย" : "สร้างเป้าหมายการออกกำลังกายใหม่"}</CardTitle>
+        <CardTitle>
+          {isEditing
+            ? "แก้ไขเป้าหมายการออกกำลังกาย"
+            : "สร้างเป้าหมายการออกกำลังกายใหม่"}
+        </CardTitle>
       </CardHeader>
-      
+
       {error && (
         <CardContent>
           <Alert variant="destructive">
@@ -177,13 +196,15 @@ export default function CreateGoalForm({
           </Alert>
         </CardContent>
       )}
-      
+
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* ประเภทเป้าหมาย */}
             <div className="space-y-2">
-              <Label htmlFor="goalType">ประเภทเป้าหมาย <span className="text-red-500">*</span></Label>
+              <Label htmlFor="goalType">
+                ประเภทเป้าหมาย <span className="text-red-500">*</span>
+              </Label>
               <Select
                 value={formData.goalType}
                 onValueChange={(value) => handleSelectChange("goalType", value)}
@@ -205,7 +226,9 @@ export default function CreateGoalForm({
             {/* สถานะเป้าหมาย (แสดงเฉพาะกรณีแก้ไข) */}
             {isEditing && (
               <div className="space-y-2">
-                <Label htmlFor="status">สถานะเป้าหมาย <span className="text-red-500">*</span></Label>
+                <Label htmlFor="status">
+                  สถานะเป้าหมาย <span className="text-red-500">*</span>
+                </Label>
                 <Select
                   value={formData.status}
                   onValueChange={(value) => handleSelectChange("status", value)}
@@ -226,9 +249,13 @@ export default function CreateGoalForm({
             )}
 
             {/* น้ำหนักเป้าหมาย (แสดงเฉพาะเป้าหมายที่เกี่ยวกับน้ำหนัก) */}
-            {(formData.goalType === "ลดน้ำหนัก" || formData.goalType === "เพิ่มน้ำหนัก" || formData.goalType === "คงที่น้ำหนัก") && (
+            {(formData.goalType === "ลดน้ำหนัก" ||
+              formData.goalType === "เพิ่มน้ำหนัก" ||
+              formData.goalType === "คงที่น้ำหนัก") && (
               <div className="space-y-2">
-                <Label htmlFor="targetWeight">น้ำหนักเป้าหมาย (กก.) <span className="text-red-500">*</span></Label>
+                <Label htmlFor="targetWeight">
+                  น้ำหนักเป้าหมาย (กก.) <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="targetWeight"
                   name="targetWeight"
@@ -250,7 +277,9 @@ export default function CreateGoalForm({
             {/* เป้าหมายกล้ามเนื้อ (แสดงเฉพาะเป้าหมายเพิ่มกล้ามเนื้อ) */}
             {formData.goalType === "เพิ่มกล้ามเนื้อ" && (
               <div className="space-y-2">
-                <Label htmlFor="targetMuscle">เป้าหมายกล้ามเนื้อ <span className="text-red-500">*</span></Label>
+                <Label htmlFor="targetMuscle">
+                  เป้าหมายกล้ามเนื้อ <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="targetMuscle"
                   name="targetMuscle"
@@ -264,7 +293,9 @@ export default function CreateGoalForm({
 
             {/* วันที่เริ่มต้น */}
             <div className="space-y-2">
-              <Label htmlFor="startDate">วันที่เริ่มต้น <span className="text-red-500">*</span></Label>
+              <Label htmlFor="startDate">
+                วันที่เริ่มต้น <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="startDate"
                 name="startDate"
@@ -277,7 +308,9 @@ export default function CreateGoalForm({
 
             {/* วันที่สิ้นสุด */}
             <div className="space-y-2">
-              <Label htmlFor="endDate">วันที่สิ้นสุด <span className="text-red-500">*</span></Label>
+              <Label htmlFor="endDate">
+                วันที่สิ้นสุด <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="endDate"
                 name="endDate"
@@ -313,7 +346,11 @@ export default function CreateGoalForm({
             ยกเลิก
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? "กำลังดำเนินการ..." : isEditing ? "บันทึกการแก้ไข" : "สร้างเป้าหมาย"}
+            {loading
+              ? "กำลังดำเนินการ..."
+              : isEditing
+              ? "บันทึกการแก้ไข"
+              : "สร้างเป้าหมาย"}
           </Button>
         </CardFooter>
       </form>
