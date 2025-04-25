@@ -1,16 +1,39 @@
+"use client";
+
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getTrainerById } from "@/actions/admin/getTrainerById";
 import { formatDate, calculateAge, getInitials } from "@/utils/utils";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 
-export default async function TrainerDashboard({ params }) {
-  // ต้องใช้ await ก่อนเข้าถึง params ใน Next.js 15
+export default function TrainerDashboard() {
+  const params = useParams();
   const { id } = params;
 
-  // ดึงข้อมูลผู้ฝึกสอนโดยใช้ ID
-  const trainer = await getTrainerById(id);
-  console.log(trainer); 
+  const [trainer, setTrainer] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // หากไม่พบข้อมูลผู้ฝึกสอน
+  useEffect(() => {
+    const fetchTrainer = async () => {
+      setLoading(true);
+      const data = await getTrainerById(id);
+      setTrainer(data);
+      setLoading(false);
+    };
+
+    if (id) {
+      fetchTrainer();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <p className="text-lg text-gray-500">กำลังโหลดข้อมูล...</p>
+      </div>
+    );
+  }
+
   if (!trainer) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh]">
@@ -53,7 +76,10 @@ export default async function TrainerDashboard({ params }) {
               ) : (
                 <div className="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center">
                   <span className="text-indigo-700 text-3xl font-bold">
-                    {getInitials(trainer.trainer_firstname, trainer.trainer_lastname)}
+                    {getInitials(
+                      trainer.trainer_firstname,
+                      trainer.trainer_lastname
+                    )}
                   </span>
                 </div>
               )}
@@ -161,14 +187,18 @@ export default async function TrainerDashboard({ params }) {
                 <p className="text-sm font-medium text-muted-foreground">
                   ความเชี่ยวชาญ:
                 </p>
-                <p className="text-lg">{trainer.trainer_specialization || "-"}</p>
+                <p className="text-lg">
+                  {trainer.trainer_specialization || "-"}
+                </p>
               </div>
 
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   ใบรับรอง/วุฒิบัตร:
                 </p>
-                <p className="text-lg">{trainer.trainer_certification || "-"}</p>
+                <p className="text-lg">
+                  {trainer.trainer_certification || "-"}
+                </p>
               </div>
 
               <div>
@@ -176,7 +206,9 @@ export default async function TrainerDashboard({ params }) {
                   วันที่เริ่มงาน:
                 </p>
                 <p className="text-lg">
-                  {trainer.trainer_startdate ? formatDate(trainer.trainer_startdate) : "-"}
+                  {trainer.trainer_startdate
+                    ? formatDate(trainer.trainer_startdate)
+                    : "-"}
                 </p>
               </div>
 
@@ -185,7 +217,9 @@ export default async function TrainerDashboard({ params }) {
                   วันที่สิ้นสุด:
                 </p>
                 <p className="text-lg">
-                  {trainer.trainer_enddate ? formatDate(trainer.trainer_enddate) : "-"}
+                  {trainer.trainer_enddate
+                    ? formatDate(trainer.trainer_enddate)
+                    : "-"}
                 </p>
               </div>
             </div>

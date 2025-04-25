@@ -10,10 +10,10 @@ export default function StatusBadge({ status }) {
         }`}
       >
         {status === "active"
-          ? "Active"
+          ? "ใช้งาน"
           : status === "inactive"
-          ? "Inactive"
-          : "Pending"}
+          ? "ไม่ได้ใช้งาน"
+          : "กำลังรอดำเนินการ"}
       </span>
     );
   }

@@ -40,11 +40,18 @@ export async function getMemberWithTrainer() {
 }
 
 
-export async function getMemberWithTrainerPaginated(page = 1, pageSize = 10) {
+export async function getMemberWithTrainerPaginated(page = 1, pageSize = 10, statusFilter = "") {
   try {
     const offset = (page - 1) * pageSize;
 
-    // 1. Query ข้อมูลแบบแบ่งหน้า
+    const whereClause = `
+      WHERE r.registration_status IN (1, 2, 3)
+      ${statusFilter ? `AND m.member_status = ?` : ""}
+    `;
+
+    const queryParams = statusFilter ? [pageSize, offset, statusFilter] : [pageSize, offset];
+
+    // 1. ดึงข้อมูลสมาชิกแบบแบ่งหน้า
     const [members] = await db.query(`
       SELECT 
         m.member_id,
@@ -60,18 +67,21 @@ export async function getMemberWithTrainerPaginated(page = 1, pageSize = 10) {
       FROM registration r
       JOIN member m ON r.member_id = m.member_id
       LEFT JOIN trainer t ON r.trainer_id = t.trainer_id
-      WHERE r.registration_status IN (1, 2, 3)
+      ${whereClause}
       ORDER BY m.member_id
       LIMIT ? OFFSET ?
-    `, [pageSize, offset]);
+    `, statusFilter ? [statusFilter, pageSize, offset] : [pageSize, offset]);
 
-    // 2. Query หาจำนวนรวมทั้งหมด (ใช้สำหรับคำนวณจำนวนหน้า)
-    const [[{ total }]] = await db.query(`
+    // 2. หาจำนวนรวม (ใช้สำหรับ pagination)
+    const countQuery = `
       SELECT COUNT(*) AS total
       FROM registration r
       JOIN member m ON r.member_id = m.member_id
       WHERE r.registration_status IN (1, 2, 3)
-    `);
+      ${statusFilter ? `AND m.member_status = ?` : ""}
+    `;
+
+    const [[{ total }]] = await db.query(countQuery, statusFilter ? [statusFilter] : []);
 
     return {
       success: true,
