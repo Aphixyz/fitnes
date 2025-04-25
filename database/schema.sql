@@ -83,98 +83,101 @@ CREATE TABLE registration (
     FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
 );
-
--- Workout Plan Table - เก็บแผนการออกกำลังกายที่เทรนเนอร์สร้างให้สมาชิก
-CREATE TABLE workout_plan (
-    workout_plan_id INT AUTO_INCREMENT PRIMARY KEY,
-    trainer_id INT NOT NULL,
-    member_id INT NOT NULL,
-    plan_name VARCHAR(100) NOT NULL,
-    plan_description TEXT,
-    plan_startdate DATE,
-    plan_enddate DATE,
-    workout_days VARCHAR(100), -- เก็บเป็น String เช่น "1,3,5" (จันทร์, พุธ, ศุกร์)
-    difficulty_level VARCHAR(20),
-    workout_frequency INT,
-    plan_status VARCHAR(20) DEFAULT 'active',
-    FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE,
-    FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
-);
-
--- Workout Exercise Table - เก็บรายละเอียดท่าออกกำลังกายในแผน
-CREATE TABLE workout_exercise (
-    workout_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
-    workout_plan_id INT NOT NULL,
-    exercise_id VARCHAR(50) NOT NULL, -- รหัสท่าออกกำลังกายจาก exercises.json
-    exercise_day VARCHAR(20), -- วันในสัปดาห์ เช่น "Monday"
-    exercise_order INT NOT NULL,
-    sets INT DEFAULT 3,
-    repetitions VARCHAR(50), -- เช่น "12-15" หรือ "10,8,6"
-    duration_minutes INT,
-    rest_seconds INT DEFAULT 60,
-    weight_kg VARCHAR(50), -- เช่น "50,45,40" สำหรับแต่ละเซ็ต
-    notes TEXT,
-    FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE CASCADE
-);
-
--- Workout Log Table - ตารางที่ขาดหายไปแต่ถูกอ้างอิงใน exercise_log
-CREATE TABLE workout_log (
-    workout_log_id INT AUTO_INCREMENT PRIMARY KEY,
-    member_id INT NOT NULL,
-    workout_plan_id INT,
-    workout_date DATE NOT NULL,
-    duration_minutes INT,
-    intensity_level INT, -- 1-10
-    completion_percentage INT DEFAULT 100,
-    notes TEXT,
-    FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
-    FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE SET NULL
-);
-
--- Exercise Log Table - เก็บข้อมูลการออกกำลังกายที่ทำจริง
-CREATE TABLE exercise_log ( 
-    exercise_log_id INT AUTO_INCREMENT PRIMARY KEY, 
-    workout_log_id INT NOT NULL, 
-    exercise_id VARCHAR(50) NOT NULL, -- รหัสท่าออกกำลังกายจาก exercises.json 
-    exercise_order INT, 
-    sets_completed INT, 
-    reps_per_set VARCHAR(50), -- e.g. "12,10,8" 
-    weight_per_set VARCHAR(50), -- e.g. "50,45,40" 
-    duration_minutes INT, 
-    notes TEXT, 
-    difficulty_rating INT, -- 1-10 
-    FOREIGN KEY (workout_log_id) REFERENCES workout_log(workout_log_id) ON DELETE CASCADE 
-);
-
--- Workout Template Table - เทมเพลตสำหรับแผนการออกกำลังกาย
 CREATE TABLE workout_template (
-    template_id INT AUTO_INCREMENT PRIMARY KEY,
-    trainer_id INT NOT NULL,
-    template_name VARCHAR(100) NOT NULL,
-    template_description TEXT,
-    workout_days VARCHAR(100),
-    difficulty_level VARCHAR(20) DEFAULT 'beginner',
-    target_muscles VARCHAR(255),
-    is_public TINYINT(1) DEFAULT 0,
-    created_at DATETIME NOT NULL,
-    updated_at DATETIME,
-    FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE
+  trainer_id INT NOT NULL,
+  template_id INT AUTO_INCREMENT PRIMARY KEY,
+  template_name VARCHAR(100) NOT NULL,
+  description TEXT,
+  difficulty_level VARCHAR(20),
+  is_public TINYINT(1) DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE
 );
 
--- Template Exercise Table - ท่าออกกำลังกายในเทมเพลต
+CREATE TABLE template_session (
+  session_id INT AUTO_INCREMENT PRIMARY KEY,
+  template_id INT NOT NULL,
+  session_name VARCHAR(100),
+  day_of_week VARCHAR(20),
+  order_index INT,
+  FOREIGN KEY (template_id) REFERENCES workout_template(template_id) ON DELETE CASCADE
+);
+
 CREATE TABLE template_exercise (
-    template_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
-    template_id INT NOT NULL,
-    exercise_id VARCHAR(50) NOT NULL,
-    exercise_day VARCHAR(20),
-    exercise_order INT NOT NULL,
-    sets INT DEFAULT 3,
-    repetitions VARCHAR(50),
-    duration_minutes INT,
-    rest_seconds INT DEFAULT 60,
-    weight_kg VARCHAR(50),
-    notes TEXT,
-    FOREIGN KEY (template_id) REFERENCES workout_template(template_id) ON DELETE CASCADE
+  template_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
+  session_id INT NOT NULL,
+  exercise_id VARCHAR(50),
+  order_index INT,
+  sets INT,
+  reps VARCHAR(50),
+  rest_seconds INT,
+  weight_suggestion VARCHAR(50),
+  FOREIGN KEY (session_id) REFERENCES template_session(session_id) ON DELETE CASCADE
+);
+
+CREATE TABLE workout_plan (
+  workout_plan_id INT AUTO_INCREMENT PRIMARY KEY,
+  template_id INT,
+  trainer_id INT NOT NULL,
+  member_id INT NOT NULL,
+  plan_name VARCHAR(100) NOT NULL,
+  plan_startdate DATE,
+  plan_enddate DATE,
+  plan_status VARCHAR(20) DEFAULT 'active',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (template_id) REFERENCES workout_template(template_id) ON DELETE SET NULL,
+  FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE,
+  FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
+);
+
+CREATE TABLE workout_session (
+  session_id INT AUTO_INCREMENT PRIMARY KEY,
+  workout_plan_id INT NOT NULL,
+  session_name VARCHAR(100),
+  day_of_week VARCHAR(20),
+  order_index INT,
+  FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE CASCADE
+);
+
+CREATE TABLE workout_exercise (
+  workout_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
+  session_id INT NOT NULL,
+  exercise_id VARCHAR(50),
+  order_index INT,
+  sets INT,
+  reps VARCHAR(50),
+  weight_kg VARCHAR(50),
+  rest_seconds INT,
+  notes TEXT,
+  FOREIGN KEY (session_id) REFERENCES workout_session(session_id) ON DELETE CASCADE
+);
+
+CREATE TABLE workout_log (
+  workout_log_id INT AUTO_INCREMENT PRIMARY KEY,
+  member_id INT NOT NULL,
+  workout_plan_id INT,
+  workout_date DATE NOT NULL,
+  duration_minutes INT,
+  intensity_level INT,
+  completion_percentage INT DEFAULT 100,
+  notes TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
+  FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE SET NULL
+);
+
+CREATE TABLE exercise_log (
+  exercise_log_id INT AUTO_INCREMENT PRIMARY KEY,
+  workout_log_id INT NOT NULL,
+  exercise_id VARCHAR(50),
+  exercise_order INT,
+  sets_completed INT,
+  reps_per_set VARCHAR(50),
+  weight_per_set VARCHAR(50),
+  duration_minutes INT,
+  difficulty_rating INT,
+  notes TEXT,
+  FOREIGN KEY (workout_log_id) REFERENCES workout_log(workout_log_id) ON DELETE CASCADE
 );
 
 -- Food Table - ข้อมูลอาหาร

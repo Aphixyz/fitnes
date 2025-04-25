@@ -21,12 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getWorkoutPlanById } from "@/actions/trainer/workout/workoutPlanActions";
+import { getWorkoutPlanById } from "@/actions/trainer/workout/workoutv1/workoutPlanActions";
 import {
   getPlanExercises,
   updatePlanExercise,
   getAllExercises,
-} from "@/actions/trainer/workout/workoutExerciseActions";
+} from "@/actions/trainer/workout/workoutv1/workoutExerciseActions";
 import { toast } from "@/components/ui/use-toast";
 import { ChevronLeft, DumbbellIcon } from "lucide-react";
 
@@ -174,7 +174,9 @@ export default function EditExercisePage({ params }) {
           title: "สำเร็จ",
           description: "อัพเดตท่าออกกำลังกายสำเร็จ",
         });
-        router.push(`/trainer/${trainerId}/members/[memberId]/workout-plan/${planId}`);
+        router.push(
+          `/trainer/${trainerId}/members/[memberId]/workout-plan/${planId}`
+        );
       } else {
         toast({
           title: "เกิดข้อผิดพลาด",

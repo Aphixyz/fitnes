@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { createWorkoutTemplate } from "@/actions/trainer/workout/workoutTemplateActions";
+import { createWorkoutTemplate } from "@/actions/trainer/workout/workoutv1/workoutTemplateActions";
 import { toast } from "@/components/ui/use-toast";
 import { ChevronLeft } from "lucide-react";
 

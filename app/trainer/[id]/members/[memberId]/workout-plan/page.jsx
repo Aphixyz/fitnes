@@ -6,7 +6,7 @@ import {
   getMemberWorkoutPlans,
   changeWorkoutPlanStatus,
   deleteWorkoutPlan,
-} from "@/actions/trainer/workout/workoutPlanActions"; // Fix the path here (add 's')
+} from "@/actions/trainer/workout/workoutv1/workoutPlanActions"; // Fix the path here (add 's')
 import { getMemberDetails } from "@/actions/trainer/getMemberDetails";
 import { Button } from "@/components/ui/button";
 import {

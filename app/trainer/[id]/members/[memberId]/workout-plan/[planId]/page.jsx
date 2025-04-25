@@ -14,8 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { getWorkoutPlanById } from "@/actions/trainer/workout/workoutPlanActions";
-import { getPlanExercises } from "@/actions/trainer/workout/workoutExerciseActions";
+import { getWorkoutPlanById } from "@/actions/trainer/workout/workoutv1/workoutPlanActions";
+import { getPlanExercises } from "@/actions/trainer/workout/workoutv1/workoutExerciseActions";
 import { formatDate } from "@/utils/utils";
 import ExerciseList from "@/app/trainer/_components/workout/ExerciseList";
 import { toast } from "@/components/ui/use-toast";
@@ -165,7 +165,9 @@ export default function MemberWorkoutPlanDetailsPage() {
               <ArrowLeft className="mr-2 h-4 w-4" /> กลับ
             </Button>
           </Link>
-          <Link href={`/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}/edit`}>
+          <Link
+            href={`/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}/edit`}
+          >
             <Button>
               <Edit className="mr-2 h-4 w-4" /> แก้ไข
             </Button>
@@ -260,9 +262,7 @@ export default function MemberWorkoutPlanDetailsPage() {
                         </div>
                       )}
                     </div>
-                    <h3 className="mt-3 text-lg font-medium">
-                      {memberName}
-                    </h3>
+                    <h3 className="mt-3 text-lg font-medium">{memberName}</h3>
                     <p className="text-muted-foreground">
                       {plan.member_gender || "-"}
                     </p>

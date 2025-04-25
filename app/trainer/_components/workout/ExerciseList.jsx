@@ -43,7 +43,7 @@ import { toast } from "@/components/ui/use-toast";
 import {
   deletePlanExercise,
   moveExerciseToDay,
-} from "@/actions/trainer/workout/workoutExerciseActions";
+} from "@/actions/trainer/workout/workoutv1/workoutExerciseActions";
 
 export default function ExerciseList({
   exercises,

@@ -22,8 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getWorkoutPlanById } from "@/actions/trainer/workout/workoutPlanActions";
-import { addExerciseToPlan } from "@/actions/trainer/workout/workoutExerciseActions";
+import { getWorkoutPlanById } from "@/actions/trainer/workout/workoutv1/workoutPlanActions";
+import { addExerciseToPlan } from "@/actions/trainer/workout/workoutv1/workoutExerciseActions";
 import { toast } from "@/components/ui/use-toast";
 import ExercisePicker from "@/app/trainer/_components/workout/ExercisePicker";
 import { DumbbellIcon, ChevronLeft } from "lucide-react";
@@ -134,7 +134,9 @@ export default function AddExercisePage({ params }) {
           title: "สำเร็จ",
           description: "เพิ่มท่าออกกำลังกายสำเร็จ",
         });
-        router.push(`/trainer/${trainerId}/members/[memberId]/workout-plan/${planId}`);
+        router.push(
+          `/trainer/${trainerId}/members/[memberId]/workout-plan/${planId}`
+        );
       } else {
         toast({
           title: "เกิดข้อผิดพลาด",

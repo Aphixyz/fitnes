@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getWorkoutTemplates } from "@/actions/trainer/workout/workoutTemplateActions";
+import { getWorkoutTemplates } from "@/actions/trainer/workout/workoutv1/workoutTemplateActions";
 import { toast } from "@/components/ui/use-toast";
 import WorkoutTemplateList from "@/app/trainer/_components/workout/WorkoutTemplateList";
 import { ChevronLeft, Search, Plus, Filter } from "lucide-react";

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { getAllExercises } from "@/actions/trainer/workout/workoutExerciseActions";
+import { getAllExercises } from "@/actions/trainer/workout/workoutv1/workoutExerciseActions";
 import { toast } from "@/components/ui/use-toast";
 import { Search, Filter, Dumbbell, ChevronRight } from "lucide-react";
 

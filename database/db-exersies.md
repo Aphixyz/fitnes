@@ -32,31 +32,3 @@
   // ท่าออกกำลังกายอื่นๆ
 ] 
 
-CREATE TABLE workout_exercise (
-    workout_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
-    workout_plan_id INT NOT NULL,
-    exercise_id VARCHAR(50) NOT NULL, -- รหัสท่าออกกำลังกายจาก exercises.json
-    exercise_day VARCHAR(20), -- วันในสัปดาห์ เช่น "Monday"
-    exercise_order INT NOT NULL,
-    sets INT DEFAULT 3,
-    repetitions VARCHAR(50), -- เช่น "12-15" หรือ "10,8,6"
-    duration_minutes INT,
-    rest_seconds INT DEFAULT 60,
-    weight_kg VARCHAR(50), -- เช่น "50,45,40" สำหรับแต่ละเซ็ต
-    notes TEXT,
-    FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE CASCADE
-);
-
-CREATE TABLE exercise_log (
-    exercise_log_id INT AUTO_INCREMENT PRIMARY KEY,
-    workout_log_id INT NOT NULL,
-    exercise_id VARCHAR(50) NOT NULL, -- รหัสท่าออกกำลังกายจาก exercises.json
-    exercise_order INT,
-    sets_completed INT,
-    reps_per_set VARCHAR(50), -- e.g. "12,10,8"
-    weight_per_set VARCHAR(50), -- e.g. "50,45,40"
-    duration_minutes INT,
-    notes TEXT,
-    difficulty_rating INT, -- 1-10
-    FOREIGN KEY (workout_log_id) REFERENCES workout_log(workout_log_id) ON DELETE CASCADE
-);
