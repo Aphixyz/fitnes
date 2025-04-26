@@ -6,7 +6,9 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Button } from "@/components/ui/button";
-import { createTrainer } from "@/actions/admin/createTrainer"; 
+import { createTrainer } from "@/actions/admin/createTrainer";
+import AddButton from "@/components/button/Add"
+import BackButton from "@/components/button/Back";
 
 
 const schema = yup.object().shape({
@@ -115,12 +117,8 @@ export default function TrainerAddPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Button type="submit" variant="default" disabled={isSubmitting}>
-            {isSubmitting ? "กำลังบันทึก..." : "เพิ่ม Trainer"}
-          </Button>
-          <Button variant="secondary" onClick={() => router.back()}>
-            กลับ
-          </Button>
+          <AddButton isSubmitting={isSubmitting} onClick={handleSubmit(onSubmit)} />
+          <BackButton />
         </div>
       </form>
 
