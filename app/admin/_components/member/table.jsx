@@ -1,25 +1,72 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { getInitials } from "@/utils/utils"; // ฟังก์ชันตัดชื่อย่อ เช่น A.P.
-import { useTransition } from "react";
+import { getInitials } from "@/utils/utils";
+import { useTransition, useState } from "react";
 import StatusBadge from "../common/Status";
 
 export default function MemberTable({ members = [], showActions = false }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [sortField, setSortField] = useState("member_id"); // Default sort by ID
+  const [sortOrder, setSortOrder] = useState("asc"); // Default sort order
 
-  // console.log("Members received:", members);
-  // console.log("Show actions:", showActions);
+  // Function to sort members
+  const sortMembers = (members) => {
+    return [...members].sort((a, b) => {
+      if (sortField === "member_firstname") {
+        // Sort by first name + last name
+        const nameA = `${a.member_firstname} ${a.member_lastname}`;
+        const nameB = `${b.member_firstname} ${b.member_lastname}`;
+        return sortOrder === "asc"
+          ? nameA.localeCompare(nameB, "th") // Thai locale for sorting
+          : nameB.localeCompare(nameA, "th");
+      } else if (sortField === "member_id") {
+        // Sort by member ID
+        return sortOrder === "asc"
+          ? a.member_id - b.member_id
+          : b.member_id - a.member_id;
+      }
+      return 0;
+    });
+  };
+
+  // Handle sort change
+  const handleSortChange = (field) => {
+    if (sortField === field) {
+      // Toggle sort order if same field
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      // Set new field and default to ascending
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  };
+
+  // Sort the members
+  const sortedMembers = sortMembers(members);
 
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-300 shadow-md">
-        <thead className="bg-gray-200">
+        <thead className="bg-blue-600 text-white">
           <tr>
-            <th className="px-4 py-2 border">รหัสสมาชิก</th>
+            <th
+              className="px-4 py-2 border cursor-pointer"
+              onClick={() => handleSortChange("member_id")}
+            >
+              รหัสสมาชิก{" "}
+              {sortField === "member_id" && (sortOrder === "asc" ? "↑" : "↓")}
+            </th>
             <th className="px-4 py-2 border">รูปภาพ</th>
-            <th className="px-4 py-2 border">ชื่อ-นามสกุล</th>
+            <th
+              className="px-4 py-2 border cursor-pointer"
+              onClick={() => handleSortChange("member_firstname")}
+            >
+              ชื่อ-นามสกุล{" "}
+              {sortField === "member_firstname" &&
+                (sortOrder === "asc" ? "↑" : "↓")}
+            </th>
             <th className="px-4 py-2 border">อีเมลล์</th>
             <th className="px-4 py-2 border">เทรนเนอร์</th>
             <th className="px-4 py-2 border">สถานะ</th>
@@ -27,13 +74,15 @@ export default function MemberTable({ members = [], showActions = false }) {
           </tr>
         </thead>
         <tbody>
-          {members.length > 0 ? (
-            members.map((member) => (
+          {sortedMembers.length > 0 ? (
+            sortedMembers.map((member) => (
               <tr
                 key={member.member_id}
                 className="hover:bg-gray-100 cursor-pointer"
                 onClick={() =>
-                  router.push(`/admin/members/${member.member_id}`)
+                  startTransition(() =>
+                    router.push(`/admin/members/${member.member_id}`)
+                  )
                 }
               >
                 <td className="px-4 py-2 border text-center">
@@ -69,13 +118,14 @@ export default function MemberTable({ members = [], showActions = false }) {
                 <td className="px-4 py-2 border text-center">
                   <StatusBadge status={member.member_status} />
                 </td>
-
                 {showActions && (
                   <td className="px-4 py-2 border text-center space-x-2">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        router.push(`/admin/members/edit/${member.member_id}`);
+                        startTransition(() =>
+                          router.push(`/admin/members/edit/${member.member_id}`)
+                        );
                       }}
                       className="px-2 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded"
                     >

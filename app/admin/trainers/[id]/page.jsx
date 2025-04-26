@@ -176,77 +176,7 @@ export default function TrainerDashboard() {
         </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>ข้อมูลวิชาชีพ</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  ความเชี่ยวชาญ:
-                </p>
-                <p className="text-lg">
-                  {trainer.trainer_specialization || "-"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  ใบรับรอง/วุฒิบัตร:
-                </p>
-                <p className="text-lg">
-                  {trainer.trainer_certification || "-"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  วันที่เริ่มงาน:
-                </p>
-                <p className="text-lg">
-                  {trainer.trainer_startdate
-                    ? formatDate(trainer.trainer_startdate)
-                    : "-"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  วันที่สิ้นสุด:
-                </p>
-                <p className="text-lg">
-                  {trainer.trainer_enddate
-                    ? formatDate(trainer.trainer_enddate)
-                    : "-"}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>ประวัติโดยย่อ</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="prose">
-              {trainer.trainer_bio ? (
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: trainer.trainer_bio.replace(/\n/g, "<br>"),
-                  }}
-                />
-              ) : (
-                <p className="text-muted-foreground">
-                  ไม่มีข้อมูลประวัติโดยย่อ
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      
 
       <div className="mt-6 bg-indigo-50 p-4 rounded-md">
         <p className="text-indigo-800 text-center font-medium">

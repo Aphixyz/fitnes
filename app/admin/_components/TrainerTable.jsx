@@ -2,14 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { deleteTrainer } from "@/actions/admin/deleteTrainer";
-import { useTransition, useState } from "react";
+import { useTransition, useState, useEffect } from "react";
 import { getInitials } from "@/utils/utils";
 import StatusBadge from "./common/Status";
 import Edit from "@/components/button/Edit";
 import Delete from "@/components/button/Delete";
 import Pagination from "./common/Paginate";
 import { paginate } from "@/utils/utils";
-import { useEffect } from "react";
 
 export default function TrainerTable({
   trainers,
@@ -18,28 +17,28 @@ export default function TrainerTable({
 }) {
   const [isPending, startTransition] = useTransition();
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);  // Add loading state
+  const [isLoading, setIsLoading] = useState(false);
+  const [sortField, setSortField] = useState("trainer_id"); // Default sort by ID
+  const [sortOrder, setSortOrder] = useState("asc"); // Default sort order
   const router = useRouter();
 
   useEffect(() => {
-    setIsLoading(true);  // Start loading when component mounts or data is refreshed
+    setIsLoading(true);
     const fetchData = async () => {
-      // You can add any logic here to fetch new data when the page is refreshed
-      // For example, calling an API to get fresh data
-      setIsLoading(false);  // Stop loading once the data is fetched
+      setIsLoading(false);
     };
     fetchData();
   }, [trainers]);
 
   const handleDelete = (id) => {
     if (confirm("ยืนยันการลบ?")) {
-      setIsLoading(true);  // Set loading state to true before the action
+      setIsLoading(true);
       startTransition(async () => {
         const success = await deleteTrainer(id);
-        setIsLoading(false);  // Set loading state back to false after the action
+        setIsLoading(false);
         if (success) {
           alert("ลบสำเร็จ ✅");
-          router.refresh(); // โหลดข้อมูลใหม่
+          router.refresh();
         } else {
           alert("เกิดข้อผิดพลาดในการลบ ❌");
         }
@@ -47,8 +46,42 @@ export default function TrainerTable({
     }
   };
 
+  // ฟังก์ชันสำหรับ sort ข้อมูล
+  const sortTrainers = (trainers) => {
+    return [...trainers].sort((a, b) => {
+      if (sortField === "trainer_firstname") {
+        // Sort โดยชื่อ-สกุล (ก-ฮ หรือ a-z)
+        const nameA = `${a.trainer_firstname} ${a.trainer_lastname}`;
+        const nameB = `${b.trainer_firstname} ${b.trainer_lastname}`;
+        return sortOrder === "asc"
+          ? nameA.localeCompare(nameB, "th") // ใช้ localeCompare สำหรับภาษาไทย
+          : nameB.localeCompare(nameA, "th");
+      } else if (sortField === "trainer_id") {
+        // Sort โดยรหัส
+        return sortOrder === "asc"
+          ? a.trainer_id - b.trainer_id
+          : b.trainer_id - a.trainer_id;
+      }
+      return 0;
+    });
+  };
 
-  const pagination = paginate(trainers || [], currentPage, perPage);
+  // Sort ข้อมูลก่อน paginate
+  const sortedTrainers = sortTrainers(trainers || []);
+  const pagination = paginate(sortedTrainers, currentPage, perPage);
+
+  // ฟังก์ชันจัดการการเปลี่ยน sort
+  const handleSortChange = (field) => {
+    if (sortField === field) {
+      // ถ้าคลิกฟิลด์เดิม สลับทิศทางการ sort
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      // ถ้าเปลี่ยนฟิลด์ เริ่มต้นที่ asc
+      setSortField(field);
+      setSortOrder("asc");
+    }
+    setCurrentPage(1); // รีเซ็ตหน้าเมื่อเปลี่ยนการ sort
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -58,12 +91,41 @@ export default function TrainerTable({
         </div>
       )}
 
+      {/* UI สำหรับเลือกการ sort */}
+      <div className="flex justify-end mb-4 space-x-2">
+        <select
+          value={sortField}
+          onChange={(e) => handleSortChange(e.target.value)}
+          className="px-2 py-1 border rounded"
+        >
+          <option value="trainer_id">รหัส</option>
+          <option value="trainer_firstname">ชื่อ-สกุล</option>
+        </select>
+        <button
+          onClick={() => handleSortChange(sortField)}
+          className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+        >
+          {sortOrder === "asc" ? "↑ น้อยไปมาก" : "↓ มากไปน้อย"}
+        </button>
+      </div>
+
       <table className="min-w-full bg-white border border-gray-300 shadow-md">
-        <thead className="bg-gray-200">
+        <thead className="bg-blue-600 text-white">
           <tr>
-            <th className="px-4 py-2 border">รหัส</th>
+            <th
+              className="px-4 py-2 border cursor-pointer"
+              onClick={() => handleSortChange("trainer_id")}
+            >
+              รหัส {sortField === "trainer_id" && (sortOrder === "asc" ? "↑" : "↓")}
+            </th>
             <th className="px-4 py-2 border">รูปภาพ</th>
-            <th className="px-4 py-2 border">ชื่อ-สกุล</th>
+            <th
+              className="px-4 py-2 border cursor-pointer"
+              onClick={() => handleSortChange("trainer_firstname")}
+            >
+              ชื่อ-สกุล{" "}
+              {sortField === "trainer_firstname" && (sortOrder === "asc" ? "↑" : "↓")}
+            </th>
             <th className="px-4 py-2 border">ประสบการณ์(ปี)</th>
             <th className="px-4 py-2 border">สถานะ</th>
             {showActions && <th className="px-4 py-2 border">การจัดการ</th>}
@@ -102,7 +164,6 @@ export default function TrainerTable({
                     </div>
                   )}
                 </td>
-
                 <td className="px-4 py-2 border">
                   {trainer.trainer_firstname} {trainer.trainer_lastname}
                 </td>
@@ -112,7 +173,6 @@ export default function TrainerTable({
                 <td className="px-4 py-2 border text-center">
                   <StatusBadge status={trainer.trainer_status} />
                 </td>
-
                 {showActions && (
                   <td className="px-4 py-2 border text-center space-x-2">
                     <button
@@ -141,7 +201,7 @@ export default function TrainerTable({
             ))
           ) : (
             <tr>
-              <td colSpan={showActions ? 7 : 6} className="text-center py-4">
+              <td colSpan={showActions ? 6 : 5} className="text-center py-4">
                 ไม่มีข้อมูลเทรนเนอร์
               </td>
             </tr>
