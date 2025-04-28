@@ -10,6 +10,7 @@ import Link from "next/link";
 import SearchFilter from "@/app/admin/_components/common/SearchFilter";
 import BackButton from "@/components/button/Back";
 import ManageUser from "@/components/button/ManageUser";
+import LoadingSpinner from "../../_components/common/loadingSpinner";
 
 export const dynamic = "force-dynamic";
 
@@ -137,9 +138,7 @@ export default function Page() {
       </div>
 
       {loading ? (
-        <div className="text-center text-gray-500 py-10">
-          กำลังโหลดข้อมูลผู้ฝึก...
-        </div>
+        <LoadingSpinner/>
       ) : (
         <>
           <TrainerTable trainers={filteredTrainers} showActions />

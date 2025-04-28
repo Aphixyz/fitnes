@@ -5,6 +5,7 @@ import { getTrainerById } from "@/actions/admin/getTrainerById";
 import { formatDate, calculateAge, getInitials } from "@/utils/utils";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import LoadingSpinner from "../../_components/common/loadingSpinner";
 
 export default function TrainerDashboard() {
   const params = useParams();
@@ -27,11 +28,7 @@ export default function TrainerDashboard() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <p className="text-lg text-gray-500">กำลังโหลดข้อมูล...</p>
-      </div>
-    );
+    return <LoadingSpinner message="กำลังโหลดข้อมูล" />;
   }
 
   if (!trainer) {

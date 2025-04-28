@@ -53,7 +53,7 @@ export default function TrainerAddPage() {
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div className="max-w-lg mx-auto bg-gray-200 p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-center mb-4">เพิ่ม Trainer</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

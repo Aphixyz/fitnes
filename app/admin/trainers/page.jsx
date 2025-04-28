@@ -9,6 +9,7 @@ import Link from "next/link";
 import SearchFilter from "../_components/common/SearchFilter";
 import ManageUser from "@/components/button/ManageUser";
 import BackButton from "@/components/button/Back";
+import LoadingSpinner from "@/app/admin/_components/common/loadingSpinner";
 
 export const dynamic = "force-dynamic";
 
@@ -71,14 +72,8 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 items-center mb-4 w-full">
-        {/* ซ้าย: ปุ่ม Back */}
-        <div>
-          <BackButton />
-        </div>
-
-        {/* กลาง: เว้นว่างไว้ให้บาลานซ์ */}
-        <div></div>
+      <div className="items-end mb-4 w-full">
+        
 
         {/* ขวา: ตัวกรองสถานะ */}
         <div className="flex justify-end">
@@ -99,9 +94,8 @@ export default function Page() {
       </div>
 
       {loading ? (
-        <div className="text-center text-gray-500 py-10">
-          กำลังโหลดข้อมูลผู้ฝึก...
-        </div>
+        <LoadingSpinner
+        message="กำลังโหลดข้อมูลผู้ฝึกสอน"/>
       ) : (
         <TrainerTable trainers={filteredTrainers} />
       )}
