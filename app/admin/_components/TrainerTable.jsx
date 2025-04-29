@@ -96,6 +96,7 @@ export default function TrainerTable({
   const [isLoading, setIsLoading] = useState(false);
   const [sortField, setSortField] = useState("trainer_id");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [localTrainers, setLocalTrainers] = useState([]);
   const router = useRouter();
   const tableRef = useRef(null);
   const scrollPositionRef = useRef(0);
@@ -103,6 +104,7 @@ export default function TrainerTable({
   useEffect(() => {
     setIsLoading(true);
     const fetchData = async () => {
+      setLocalTrainers(trainers || []);
       setIsLoading(false);
     };
     fetchData();
@@ -111,15 +113,24 @@ export default function TrainerTable({
   const handleDelete = (id) => {
     if (confirm("ยืนยันการลบ?")) {
       setIsLoading(true);
+      
       startTransition(async () => {
         const success = await deleteTrainer(id);
-        setIsLoading(false);
+        
         if (success) {
+          // อัพเดท localTrainers ทันทีเพื่อให้ UI แสดงข้อมูลที่เป็นปัจจุบัน
+          setLocalTrainers(prevTrainers => 
+            prevTrainers.filter(trainer => trainer.trainer_id !== id)
+          );
           alert("ลบสำเร็จ ✅");
+          
+          // ปรับปรุงหน้าแสดงผลด้วย router.refresh()
           router.refresh();
         } else {
           alert("เกิดข้อผิดพลาดในการลบ ❌");
         }
+        
+        setIsLoading(false);
       });
     }
   };
@@ -152,7 +163,8 @@ export default function TrainerTable({
     setCurrentPage(1);
   };
 
-  const sortedTrainers = useMemo(() => sortTrainers(trainers || []), [trainers, sortField, sortOrder]);
+  // ใช้ localTrainers แทน trainers เพื่อให้ UI อัพเดทเมื่อมีการลบ
+  const sortedTrainers = useMemo(() => sortTrainers(localTrainers), [localTrainers, sortField, sortOrder]);
   const pagination = useMemo(() => paginate(sortedTrainers, currentPage, perPage), [sortedTrainers, currentPage, perPage]);
 
   useEffect(() => {

@@ -50,9 +50,9 @@ export default function TrainerDashboard() {
         <h1 className="text-2xl font-bold tracking-tight">
           สวัสดี, คุณ {trainer.trainer_firstname} ID : {trainer.trainer_id}
         </h1>
-        <p className="text-muted-foreground">
+        {/* <p className="text-muted-foreground">
           หน้าทดสอบการแสดงข้อมูลจาก Server Action
-        </p>
+        </p> */}
       </div>
 
       <Card className="mb-6">

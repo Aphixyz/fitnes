@@ -46,7 +46,7 @@ export default function TrainerAddPage() {
     if (result.success) {
       setMessage("✅ เพิ่ม Trainer สำเร็จ! 🎉");
       reset(); // ล้างฟอร์ม
-      router.push("/admin/trainers"); // เปลี่ยนหน้าไปที่ /admin/trainers
+      router.push("/admin/trainers");
     } else {
       setMessage("❌ เกิดข้อผิดพลาด: " + result.error);
     }
