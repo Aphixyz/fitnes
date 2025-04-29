@@ -5,6 +5,7 @@ import { getTrainerById } from "@/actions/admin/getTrainerById";
 import { formatDate, calculateAge, getInitials } from "@/utils/utils";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import LoadingSpinner from "../../_components/common/loadingSpinner";
 
 export default function TrainerDashboard() {
   const params = useParams();
@@ -27,11 +28,7 @@ export default function TrainerDashboard() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <p className="text-lg text-gray-500">กำลังโหลดข้อมูล...</p>
-      </div>
-    );
+    return <LoadingSpinner message="กำลังโหลดข้อมูล" />;
   }
 
   if (!trainer) {
@@ -53,9 +50,9 @@ export default function TrainerDashboard() {
         <h1 className="text-2xl font-bold tracking-tight">
           สวัสดี, คุณ {trainer.trainer_firstname} ID : {trainer.trainer_id}
         </h1>
-        <p className="text-muted-foreground">
+        {/* <p className="text-muted-foreground">
           หน้าทดสอบการแสดงข้อมูลจาก Server Action
-        </p>
+        </p> */}
       </div>
 
       <Card className="mb-6">
@@ -176,77 +173,7 @@ export default function TrainerDashboard() {
         </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>ข้อมูลวิชาชีพ</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  ความเชี่ยวชาญ:
-                </p>
-                <p className="text-lg">
-                  {trainer.trainer_specialization || "-"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  ใบรับรอง/วุฒิบัตร:
-                </p>
-                <p className="text-lg">
-                  {trainer.trainer_certification || "-"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  วันที่เริ่มงาน:
-                </p>
-                <p className="text-lg">
-                  {trainer.trainer_startdate
-                    ? formatDate(trainer.trainer_startdate)
-                    : "-"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  วันที่สิ้นสุด:
-                </p>
-                <p className="text-lg">
-                  {trainer.trainer_enddate
-                    ? formatDate(trainer.trainer_enddate)
-                    : "-"}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>ประวัติโดยย่อ</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="prose">
-              {trainer.trainer_bio ? (
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: trainer.trainer_bio.replace(/\n/g, "<br>"),
-                  }}
-                />
-              ) : (
-                <p className="text-muted-foreground">
-                  ไม่มีข้อมูลประวัติโดยย่อ
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      
 
       <div className="mt-6 bg-indigo-50 p-4 rounded-md">
         <p className="text-indigo-800 text-center font-medium">

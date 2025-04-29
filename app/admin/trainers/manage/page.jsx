@@ -10,6 +10,7 @@ import Link from "next/link";
 import SearchFilter from "@/app/admin/_components/common/SearchFilter";
 import BackButton from "@/components/button/Back";
 import ManageUser from "@/components/button/ManageUser";
+import LoadingSpinner from "../../_components/common/loadingSpinner";
 
 export const dynamic = "force-dynamic";
 
@@ -100,7 +101,7 @@ export default function Page() {
 
         {/* กลาง: หัวข้อ */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold">รายชื่อผู้ฝึกสอนทั้งหมด</h1>
+          <h1 className="text-2xl font-bold">หน้าการจัดการผู้ฝึกสอน</h1>
         </div>
 
         {/* ขวา: ปุ่มการจัดการ */}
@@ -124,7 +125,7 @@ export default function Page() {
               <select
                 value={statusFilter}
                 onChange={handleStatusFilter}
-                className="text-center p-1 border rounded-md w-auto"
+                className="p-1 border rounded-md w-auto"
               >
                 <option value="">แสดงทั้งหมด</option>
                 <option value="active">ใช้งาน</option>
@@ -137,9 +138,7 @@ export default function Page() {
       </div>
 
       {loading ? (
-        <div className="text-center text-gray-500 py-10">
-          กำลังโหลดข้อมูลผู้ฝึก...
-        </div>
+        <LoadingSpinner/>
       ) : (
         <>
           <TrainerTable trainers={filteredTrainers} showActions />

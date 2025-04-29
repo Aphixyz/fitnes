@@ -8,6 +8,8 @@ import Pagination from "../_components/common/Paginate";
 import SearchFilter from "../_components/common/SearchFilter"; // หากมีฟังก์ชันค้นหาด้วย
 import { Button } from "@/components/ui/button"; // หากต้องการปุ่มการจัดการ
 import Link from "next/link"; // หากต้องการปุ่มลิงก์
+import LoadingSpinner from "@/app/admin/_components/common/loadingSpinner";
+
 
 export default function MemberPage() {
   const [members, setMembers] = useState([]);
@@ -49,13 +51,12 @@ export default function MemberPage() {
     setStatusFilter(value); // ปล่อยให้ useEffect ทำงาน fetch ใหม่ให้
     setCurrentPage(1);
   };
-  
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        {/* ซ้าย: ช่องค้นหาหรือกรอง */}
-        <div className="w-1/3">
+      <div className="flex items-center mb-4">
+        {/* ซ้าย: ช่องค้นหา */}
+        <div className="flex-1">
           <SearchFilter
             data={members}
             onFilter={setFilteredMembers}
@@ -65,12 +66,13 @@ export default function MemberPage() {
         </div>
 
         {/* กลาง: หัวข้อ */}
-        <div className="text-center w-1/3">
+        <div className="flex-1 text-center">
           <h1 className="text-2xl font-bold">รายชื่อสมาชิกทั้งหมด</h1>
         </div>
 
-        <div className="w-auto">
-          <label className="block mb-1 text-sm font-medium text-gray-700">
+        {/* ขวา: กรองตามสถานะ */}
+        <div className="flex-1 flex justify-end">
+          <label className="block text-sm font-medium text-gray-700">
             กรองตามสถานะ :
             <span className="ml-2">
               <select
@@ -86,24 +88,16 @@ export default function MemberPage() {
             </span>
           </label>
         </div>
-
-        
-      </div>
-
-      <div className="w-full flex justify-end mb-4">
-       
       </div>
 
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
       {loading ? (
-        <div className="text-center text-gray-500 py-10">
-          กำลังโหลดข้อมูลสมาชิก...
-        </div>
+        <LoadingSpinner
+        message="กำลังโหลดข้อมูลลูกค้า"/>
       ) : (
         <>
           <MemberTable members={filteredMembers} />
-
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
