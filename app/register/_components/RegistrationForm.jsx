@@ -1,16 +1,31 @@
 // components/RegistrationForm.jsx
 "use client";
 
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
-import { AlertCircle, User, Mail, Phone, Calendar, Eye, EyeOff } from "lucide-react";
+import {
+  AlertCircle,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { registerNewMember } from "@/actions/member/registerNewMember";
 import { getTrainerPackages } from "@/actions/member/getPackages";
+import AddButton from "@/components/button/Add";
 
 export default function RegistrationForm({ trainerId, trainerInfo }) {
   const [step, setStep] = useState(1);
@@ -67,9 +82,12 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.member_username.trim()) newErrors.member_username = "กรุณากรอกชื่อผู้ใช้";
-    if (!formData.member_firstname.trim()) newErrors.member_firstname = "กรุณากรอกชื่อจริง";
-    if (!formData.member_lastname.trim()) newErrors.member_lastname = "กรุณากรอกนามสกุล";
+    if (!formData.member_username.trim())
+      newErrors.member_username = "กรุณากรอกชื่อผู้ใช้";
+    if (!formData.member_firstname.trim())
+      newErrors.member_firstname = "กรุณากรอกชื่อจริง";
+    if (!formData.member_lastname.trim())
+      newErrors.member_lastname = "กรุณากรอกนามสกุล";
     if (!formData.member_email.trim()) {
       newErrors.member_email = "กรุณากรอกอีเมล";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.member_email)) {
@@ -83,7 +101,10 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
     if (formData.member_password !== formData.confirm_password) {
       newErrors.confirm_password = "รหัสผ่านไม่ตรงกัน";
     }
-    if (formData.member_phone && !/^\d{9,10}$/.test(formData.member_phone.replace(/[\s-]/g, ""))) {
+    if (
+      formData.member_phone &&
+      !/^\d{9,10}$/.test(formData.member_phone.replace(/[\s-]/g, ""))
+    ) {
       newErrors.member_phone = "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง";
     }
     setErrors(newErrors);
@@ -99,7 +120,10 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
 
   const handlePackageSelect = (pkg) => {
     setSelectedPackage(pkg.packages_id);
-    setFormData((prev) => ({ ...prev, packages_id: pkg.packages_id.toString() }));
+    setFormData((prev) => ({
+      ...prev,
+      packages_id: pkg.packages_id.toString(),
+    }));
     setErrors((prev) => ({ ...prev, packages_id: null }));
   };
 
@@ -155,8 +179,18 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="bg-green-100 p-3 rounded-full">
-              <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              <svg
+                className="h-8 w-8 text-green-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
           </div>
@@ -168,19 +202,25 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
         <CardContent className="text-center space-y-4">
           <p className="text-lg">ขอบคุณที่ลงทะเบียนใช้งานระบบ</p>
           <p className="text-gray-500">
-            กรุณารอการยืนยันจากเทรนเนอร์ คุณจะได้รับการติดต่อกลับเมื่อเทรนเนอร์ยืนยันการลงทะเบียนของคุณ
+            กรุณารอการยืนยันจากเทรนเนอร์
+            คุณจะได้รับการติดต่อกลับเมื่อเทรนเนอร์ยืนยันการลงทะเบียนของคุณ
           </p>
           <div className="bg-blue-50 p-4 rounded-md text-blue-800 mt-4 text-left">
             <p className="font-medium">ขั้นตอนต่อไป:</p>
             <ol className="list-decimal ml-5 mt-2 space-y-1">
               <li>เทรนเนอร์จะตรวจสอบข้อมูลการลงทะเบียนของคุณ</li>
               <li>เมื่อได้รับการยืนยัน คุณจะสามารถเข้าสู่ระบบได้</li>
-              <li>เทรนเนอร์จะติดต่อคุณเพื่อกำหนดแผนการออกกำลังกายและโภชนาการ</li>
+              <li>
+                เทรนเนอร์จะติดต่อคุณเพื่อกำหนดแผนการออกกำลังกายและโภชนาการ
+              </li>
             </ol>
           </div>
         </CardContent>
         <CardFooter className="justify-center">
-          <Button variant="outline" onClick={() => window.location.href = "/"}>
+          <Button
+            variant="outline"
+            onClick={() => (window.location.href = "/")}
+          >
             กลับสู่หน้าหลัก
           </Button>
         </CardFooter>
@@ -189,7 +229,7 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
   }
 
   return (
-    <Card className="w-full max-w-lg mx-auto">
+    <Card className="w-full  mx-auto">
       <CardHeader>
         <CardTitle>ลงทะเบียนสมาชิกใหม่</CardTitle>
         <CardDescription>
@@ -217,7 +257,9 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
                 className={errors.member_username ? "border-red-500" : ""}
               />
               {errors.member_username && (
-                <p className="text-red-500 text-xs mt-1">{errors.member_username}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.member_username}
+                </p>
               )}
             </div>
 
@@ -233,11 +275,15 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
                     value={formData.member_firstname}
                     onChange={handleChange}
                     placeholder="กรอกชื่อจริง"
-                    className={errors.member_firstname ? "border-red-500 pl-10" : "pl-10"}
+                    className={
+                      errors.member_firstname ? "border-red-500 pl-10" : "pl-10"
+                    }
                   />
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                   {errors.member_firstname && (
-                    <p className="text-red-500 text-xs mt-1">{errors.member_firstname}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.member_firstname}
+                    </p>
                   )}
                 </div>
               </div>
@@ -254,7 +300,9 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
                   className={errors.member_lastname ? "border-red-500" : ""}
                 />
                 {errors.member_lastname && (
-                  <p className="text-red-500 text-xs mt-1">{errors.member_lastname}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.member_lastname}
+                  </p>
                 )}
               </div>
             </div>
@@ -271,11 +319,15 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
                   value={formData.member_email}
                   onChange={handleChange}
                   placeholder="example@email.com"
-                  className={errors.member_email ? "border-red-500 pl-10" : "pl-10"}
+                  className={
+                    errors.member_email ? "border-red-500 pl-10" : "pl-10"
+                  }
                 />
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                 {errors.member_email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.member_email}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.member_email}
+                  </p>
                 )}
               </div>
             </div>
@@ -293,17 +345,25 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
                     value={formData.member_password}
                     onChange={handleChange}
                     placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร"
-                    className={errors.member_password ? "border-red-500 pr-10" : "pr-10"}
+                    className={
+                      errors.member_password ? "border-red-500 pr-10" : "pr-10"
+                    }
                   />
                   <button
                     type="button"
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                   {errors.member_password && (
-                    <p className="text-red-500 text-xs mt-1">{errors.member_password}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.member_password}
+                    </p>
                   )}
                 </div>
               </div>
@@ -319,17 +379,25 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
                     value={formData.confirm_password}
                     onChange={handleChange}
                     placeholder="กรอกรหัสผ่านอีกครั้ง"
-                    className={errors.confirm_password ? "border-red-500 pr-10" : "pr-10"}
+                    className={
+                      errors.confirm_password ? "border-red-500 pr-10" : "pr-10"
+                    }
                   />
                   <button
                     type="button"
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                   {errors.confirm_password && (
-                    <p className="text-red-500 text-xs mt-1">{errors.confirm_password}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.confirm_password}
+                    </p>
                   )}
                 </div>
               </div>
@@ -344,11 +412,15 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
                   value={formData.member_phone}
                   onChange={handleChange}
                   placeholder="0812345678"
-                  className={errors.member_phone ? "border-red-500 pl-10" : "pl-10"}
+                  className={
+                    errors.member_phone ? "border-red-500 pl-10" : "pl-10"
+                  }
                 />
                 <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                 {errors.member_phone && (
-                  <p className="text-red-500 text-xs mt-1">{errors.member_phone}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.member_phone}
+                  </p>
                 )}
               </div>
             </div>
@@ -360,7 +432,9 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
                   id="member_gender"
                   name="member_gender"
                   value={formData.member_gender}
-                  onChange={(e) => handleSelectChange("member_gender", e.target.value)}
+                  onChange={(e) =>
+                    handleSelectChange("member_gender", e.target.value)
+                  }
                   className="w-full p-2 border rounded"
                 >
                   <option value="">เลือกเพศ</option>
@@ -388,7 +462,10 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
             <div className="bg-blue-50 p-3 rounded-md flex items-start space-x-2 text-sm">
               <AlertCircle className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
               <div className="text-blue-700">
-                <p>การลงทะเบียนจะอยู่ในสถานะ "รอการยืนยัน" จนกว่าจะได้รับการยืนยันจากเทรนเนอร์</p>
+                <p>
+                  การลงทะเบียนจะอยู่ในสถานะ "รอการยืนยัน"
+                  จนกว่าจะได้รับการยืนยันจากเทรนเนอร์
+                </p>
               </div>
             </div>
           </CardContent>
@@ -401,45 +478,71 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
       ) : (
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>เลือกแพ็คเกจ <span className="text-red-500">*</span></Label>
-              <div className="grid grid-cols-1 gap-4">
-                {packages.map((pkg) => (
-                  <Card
-                    key={pkg.packages_id}
-                    className={`cursor-pointer transition-all ${
-                      selectedPackage === pkg.packages_id
-                        ? "border-2 border-blue-500 bg-blue-50"
-                        : "border"
-                    }`}
-                    onClick={() => handlePackageSelect(pkg)}
-                  >
-                    <CardHeader>
-                      <CardTitle>{pkg.packages_name}</CardTitle>
-                      <CardDescription>
-                        ระยะเวลา: {pkg.packages_duration_months} เดือน
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-lg font-semibold text-green-600">
-                        ราคา: {parseFloat(pkg.packages_price).toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}
-                      </p>
-                      <p className="mt-2 text-gray-600">
-                        รายละเอียด: {pkg.packages_description || "ไม่มีคำอธิบาย"}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
+            <div className="space-y-4">
+              <Label>
+                เลือกแพ็คเกจ <span className="text-red-500 ">*</span>
+              </Label>
+              <div className="overflow-x-auto">
+                <div className="flex justify-center gap-4 py-2 px-1">
+                  {packages.map((pkg) => (
+                    <Card
+                      key={pkg.packages_id}
+                      className={`w-72 h-64 flex-shrink-0 cursor-pointer transition-all ${
+                        selectedPackage === pkg.packages_id
+                          ? "border-2 border-blue-500 bg-blue-50"
+                          : "border"
+                      }`}
+                      onClick={() => handlePackageSelect(pkg)}
+                    >
+                      <CardHeader>
+                        <CardTitle>{pkg.packages_name}</CardTitle>
+                        <CardDescription>
+                          <span className="font-bold text-blue-700">
+                            ระยะเวลา:
+                          </span>{" "}
+                          {pkg.packages_duration_months} เดือน
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-lg font-semibold text-green-600">
+                          ราคา:{" "}
+                          {parseFloat(pkg.packages_price).toLocaleString(
+                            "th-TH",
+                            {
+                              style: "currency",
+                              currency: "THB",
+                            }
+                          )}
+                        </p>
+                        <p className="mt-2 text-gray-600 font-bold">
+                          รายละเอียด:{" "}
+                          <span className="font-normal">
+                            {pkg.packages_description || "ไม่มีคำอธิบาย"}
+                          </span>
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
               {errors.packages_id && (
-                <p className="text-red-500 text-xs mt-1">{errors.packages_id}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.packages_id}
+                </p>
               )}
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={() => setStep(1)}>
+          <CardFooter className="flex justify-center">
+            {/* <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                console.log("Back clicked");
+                setStep(1);
+              }}
+            >
               ย้อนกลับ
-            </Button>
+            </Button> */}
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
