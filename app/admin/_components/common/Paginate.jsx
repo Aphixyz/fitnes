@@ -4,7 +4,8 @@ export default function Pagination({
   currentPage, 
   totalPages, 
   onPageChange,
-  disableNavigation = false 
+  disableNavigation = false,
+  disableNextOnly = false
 }) {
   const handlePrevious = () => {
     if (disableNavigation) return;
@@ -14,7 +15,7 @@ export default function Pagination({
   };
 
   const handleNext = () => {
-    if (disableNavigation) return;
+    if (disableNavigation || disableNextOnly) return;
     if (currentPage < totalPages) {
       onPageChange(currentPage + 1);
     }

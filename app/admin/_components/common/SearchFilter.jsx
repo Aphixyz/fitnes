@@ -3,12 +3,19 @@
 import { useState } from "react";
 import SearchInput from "@/components/button/Search";
 
-const SearchFilter = ({ data, onFilter, placeholder, searchFields }) => {
+const SearchFilter = ({
+  data,
+  onFilter,
+  placeholder,
+  searchFields,
+  onSearchTermChange,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
+    onSearchTermChange?.(value); // ✅ ส่งค่ากลับไปยัง parent ถ้ามี
 
     const lowercasedSearchTerm = value.toLowerCase();
 
@@ -18,9 +25,7 @@ const SearchFilter = ({ data, onFilter, placeholder, searchFields }) => {
         if (!fieldValue) return false;
 
         const stringValue =
-          typeof fieldValue === "number"
-            ? fieldValue.toString()
-            : fieldValue;
+          typeof fieldValue === "number" ? fieldValue.toString() : fieldValue;
 
         return stringValue.toLowerCase().includes(lowercasedSearchTerm);
       })

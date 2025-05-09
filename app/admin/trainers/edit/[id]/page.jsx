@@ -328,8 +328,9 @@ export default function EditTrainerPage() {
             id="status"
             className="w-full p-2 border rounded"
           >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="active">ใช้งาน</option>
+            <option value="inactive">ไม่ได้ใช้งาน</option>
+            <option value="inactive">กำลังรอดำเนินการ</option>
           </select>
           {errors.trainer_status && (
             <p className="text-red-500 text-sm">
@@ -339,17 +340,16 @@ export default function EditTrainerPage() {
         </div>
 
         <div className="flex justify-between items-center mb-4">
+          
+          {/* ปุ่ม "ยกเลิก" */}
+          <BackButton />
+
           {/* ปุ่ม "บันทึกการแก้ไข" */}
           <AddButton
             type="submit"
             buttonText="บันทึกการแก้ไข"
             isSubmitting={false}
           />
-
-          
-
-          {/* ปุ่ม "ยกเลิก" */}
-          <BackButton />
         </div>
       </form>
 
