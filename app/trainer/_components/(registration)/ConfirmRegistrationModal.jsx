@@ -17,6 +17,7 @@ import { User, CheckCircle, XCircle } from "lucide-react";
 import {
   confirmRegistration,
   rejectRegistration,
+  getPackageDuration,
 } from "@/actions/trainer/registration/manageMemberRegistration";
 
 export default function ConfirmRegistrationModal({
@@ -30,11 +31,8 @@ export default function ConfirmRegistrationModal({
   const [startDate, setStartDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-  const [endDate, setEndDate] = useState(
-    new Date(new Date().setMonth(new Date().getMonth() + 1))
-      .toISOString()
-      .split("T")[0]
-  );
+  const [endDate, setEndDate] = useState("");
+  const [packageDuration, setPackageDuration] = useState(null); // ไม่ใช้ default 1 เดือน
 
   // ปิด scroll เมื่อ modal เปิด
   useEffect(() => {
@@ -49,23 +47,56 @@ export default function ConfirmRegistrationModal({
     };
   }, [isOpen]);
 
+  // ดึง package duration เมื่อโหลด modal
+  useEffect(() => {
+    const fetchPackageDuration = async () => {
+      if (isOpen && registration?.packages_id && trainerId) {
+        try {
+          const duration = await getPackageDuration(
+            registration.packages_id,
+            trainerId
+          );
+          setPackageDuration(duration);
+        } catch (error) {
+          console.error("Error fetching package duration:", error);
+          toast({
+            title: "เกิดข้อผิดพลาด",
+            description: "ไม่สามารถดึงระยะเวลาแพ็คเกจได้",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+    fetchPackageDuration();
+  }, [isOpen, registration?.packages_id, trainerId]);
+
+  // คำนวณ endDate เมื่อ startDate หรือ packageDuration เปลี่ยน
+  useEffect(() => {
+    if (startDate && packageDuration !== null) {
+      const end = new Date(startDate);
+      end.setMonth(end.getMonth() + packageDuration);
+      setEndDate(end.toISOString().split("T")[0]);
+    } else if (!packageDuration) {
+      setEndDate(""); // ไม่แสดง endDate ถ้าไม่มี packageDuration
+    }
+  }, [startDate, packageDuration]);
+
   if (!isOpen || !registration) return null;
 
   const handleConfirm = async () => {
-    if (!startDate || !endDate) {
+    if (!startDate) {
       toast({
         title: "กรุณากรอกข้อมูล",
-        description: "กรุณาระบุวันเริ่มต้นและวันสิ้นสุดการลงทะเบียน",
+        description: "กรุณาระบุวันเริ่มต้นการลงทะเบียน",
         variant: "destructive",
       });
       return;
     }
 
-    // ตรวจสอบว่าวันสิ้นสุดต้องมากกว่าวันเริ่มต้น
-    if (new Date(endDate) <= new Date(startDate)) {
+    if (!packageDuration) {
       toast({
-        title: "ข้อมูลไม่ถูกต้อง",
-        description: "วันสิ้นสุดต้องมากกว่าวันเริ่มต้น",
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถดึงข้อมูลระยะเวลาแพ็คเกจได้",
         variant: "destructive",
       });
       return;
@@ -73,11 +104,18 @@ export default function ConfirmRegistrationModal({
 
     setIsLoading(true);
     try {
+      console.log("Sending to confirmRegistration:", {
+        registrationId: registration.registration_id,
+        trainerId,
+        startDate,
+        packages_id: registration.packages_id,
+      });
+
       const result = await confirmRegistration({
         registrationId: registration.registration_id,
         trainerId,
         startDate,
-        endDate,
+        packages_id: registration.packages_id,
       });
 
       if (result.success) {
@@ -149,7 +187,7 @@ export default function ConfirmRegistrationModal({
           <CardHeader>
             <CardTitle>ยืนยันการลงทะเบียน</CardTitle>
             <CardDescription>
-              กรุณากำหนดวันเริ่มต้นและวันสิ้นสุดการลงทะเบียนสำหรับสมาชิกใหม่
+              กรุณาระบุวันเริ่มต้น วันสิ้นสุดจะคำนวณจากแพ็คเกจ
             </CardDescription>
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-500"
@@ -201,9 +239,10 @@ export default function ConfirmRegistrationModal({
                 <div className="relative">
                   <Input
                     id="end-date"
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
+                    type="text"
+                    value={endDate || ""}
+                    readOnly
+                    className="cursor-not-allowed bg-gray-100"
                   />
                 </div>
               </div>
@@ -212,7 +251,7 @@ export default function ConfirmRegistrationModal({
             <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-700 border border-blue-200">
               <p>
                 <strong>หมายเหตุ:</strong>{" "}
-                การยืนยันการลงทะเบียนจะทำให้สมาชิกสามารถเข้าใช้งานระบบได้ตามระยะเวลาที่กำหนด
+                วันสิ้นสุดจะคำนวณจากระยะเวลาแพ็คเกจที่เลือก
               </p>
             </div>
           </CardContent>

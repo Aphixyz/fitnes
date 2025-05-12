@@ -3,14 +3,14 @@
 import { useRouter } from "next/navigation";
 import { deleteTrainer } from "@/actions/admin/deleteTrainer";
 import { useTransition, useState, useEffect, useMemo, memo, useRef, useCallback } from "react";
-import { getInitials } from "@/utils/utils";
+import { getInitials, cn, paginate } from "@/utils/utils";
 import StatusBadge from "./common/Status";
 import Edit from "@/components/button/Edit";
 import Delete from "@/components/button/Delete";
 import Pagination from "./common/Paginate";
-import { paginate } from "@/utils/utils";
+import { Skeleton } from "@/components/ui/skeleton"; // นำเข้า Skeleton จาก components/ui
 
-// ฟังก์ชัน debounce แบบกำหนดเอง (ไม่ต้องติดตั้ง lodash)
+// ฟังก์ชัน debounce แบบกำหนดเอง
 function customDebounce(func, wait) {
   let timeout;
   return function (...args) {
@@ -23,7 +23,7 @@ function customDebounce(func, wait) {
 const TableHeader = memo(({ sortField, sortOrder, handleSortChange, showActions }) => {
   const debouncedSortChange = useCallback(
     customDebounce((field, event) => {
-      event.preventDefault(); // ป้องกัน default browser behavior
+      event.preventDefault();
       handleSortChange(field);
     }, 300),
     [handleSortChange]
@@ -56,36 +56,6 @@ const TableHeader = memo(({ sortField, sortOrder, handleSortChange, showActions 
   );
 });
 
-// คอมโพเนนต์ TableSkeleton
-const TableSkeleton = ({ perPage, showActions }) => (
-  <tbody>
-    {Array(perPage).fill().map((_, i) => (
-      <tr key={i} className="border-t border-gray-300">
-        <td className="px-4 py-2 border border-gray-300 w-[15%]">
-          <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-3/4"></div>
-        </td>
-        <td className="px-4 py-2 border border-gray-300 w-[15%]">
-          <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto animate-pulse"></div>
-        </td>
-        <td className="px-4 py-2 border border-gray-300 w-[25%]">
-          <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
-        </td>
-        <td className="px-4 py-2 border border-gray-300 w-[15%]">
-          <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-1/2"></div>
-        </td>
-        <td className="px-4 py-2 border border-gray-300 w-[15%]">
-          <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-1/2"></div>
-        </td>
-        {showActions && (
-          <td className="px-4 py-2 border border-gray-300 w-[15%]">
-            <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-3/4"></div>
-          </td>
-        )}
-      </tr>
-    ))}
-  </tbody>
-);
-
 export default function TrainerTable({
   trainers,
   showActions = false,
@@ -113,23 +83,17 @@ export default function TrainerTable({
   const handleDelete = (id) => {
     if (confirm("ยืนยันการลบ?")) {
       setIsLoading(true);
-      
       startTransition(async () => {
         const success = await deleteTrainer(id);
-        
         if (success) {
-          // อัพเดท localTrainers ทันทีเพื่อให้ UI แสดงข้อมูลที่เป็นปัจจุบัน
-          setLocalTrainers(prevTrainers => 
-            prevTrainers.filter(trainer => trainer.trainer_id !== id)
+          setLocalTrainers((prevTrainers) =>
+            prevTrainers.filter((trainer) => trainer.trainer_id !== id)
           );
           alert("ลบสำเร็จ ✅");
-          
-          // ปรับปรุงหน้าแสดงผลด้วย router.refresh()
           router.refresh();
         } else {
           alert("เกิดข้อผิดพลาดในการลบ ❌");
         }
-        
         setIsLoading(false);
       });
     }
@@ -153,7 +117,7 @@ export default function TrainerTable({
   };
 
   const handleSortChange = (field) => {
-    scrollPositionRef.current = window.scrollY; // บันทึกตำแหน่ง scroll
+    scrollPositionRef.current = window.scrollY;
     if (sortField === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
@@ -163,12 +127,11 @@ export default function TrainerTable({
     setCurrentPage(1);
   };
 
-  // ใช้ localTrainers แทน trainers เพื่อให้ UI อัพเดทเมื่อมีการลบ
   const sortedTrainers = useMemo(() => sortTrainers(localTrainers), [localTrainers, sortField, sortOrder]);
   const pagination = useMemo(() => paginate(sortedTrainers, currentPage, perPage), [sortedTrainers, currentPage, perPage]);
 
   useEffect(() => {
-    window.scrollTo(0, scrollPositionRef.current); // คืนค่าตำแหน่ง scroll
+    window.scrollTo(0, scrollPositionRef.current);
   }, [sortField, sortOrder, currentPage]);
 
   return (
@@ -214,7 +177,34 @@ export default function TrainerTable({
           showActions={showActions}
         />
         {isLoading ? (
-          <TableSkeleton perPage={perPage} showActions={showActions} />
+          <tbody>
+            {Array(perPage)
+              .fill()
+              .map((_, i) => (
+                <tr key={i} className="border-t border-gray-300">
+                  <td className="px-4 py-2 border border-gray-300 w-[15%]">
+                    <Skeleton className="h-4 w-3/4 mx-auto" />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300 w-[15%]">
+                    <Skeleton className="w-12 h-12 rounded-full mx-auto" />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300 w-[25%]">
+                    <Skeleton className="h-4 w-3/4" />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300 w-[15%]">
+                    <Skeleton className="h-4 w-1/2 mx-auto" />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300 w-[15%]">
+                    <Skeleton className="h-4 w-1/2 mx-auto" />
+                  </td>
+                  {showActions && (
+                    <td className="px-4 py-2 border border-gray-300 w-[15%]">
+                      <Skeleton className="h-4 w-3/4 mx-auto" />
+                    </td>
+                  )}
+                </tr>
+              ))}
+          </tbody>
         ) : (
           <tbody>
             {pagination.data.length > 0 ? (

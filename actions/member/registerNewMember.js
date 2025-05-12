@@ -13,8 +13,7 @@ import db from "@/lib/db";
  */
 export async function registerNewMember(data, trainerId) {
   try {
-    // ตรวจสอบข้อมูลที่จำเป็น
-    if (!data || !trainerId) {
+    if (!data || !trainerId || !data.packages_id) {
       throw new Error("ข้อมูลไม่ครบถ้วน");
     }
 
@@ -24,6 +23,7 @@ export async function registerNewMember(data, trainerId) {
       "member_firstname",
       "member_lastname",
       "member_email",
+      "packages_id",
     ];
     for (const field of requiredFields) {
       if (!data[field]) {
@@ -31,7 +31,6 @@ export async function registerNewMember(data, trainerId) {
       }
     }
 
-    // ตรวจสอบข้อมูลเทรนเนอร์
     const [trainerCheck] = await db.query(
       "SELECT trainer_id FROM trainer WHERE trainer_id = ? AND trainer_status = 'active'",
       [trainerId]
@@ -43,7 +42,20 @@ export async function registerNewMember(data, trainerId) {
       );
     }
 
-    // ตรวจสอบว่าอีเมลหรือชื่อผู้ใช้ซ้ำหรือไม่ (เช็คในตาราง pending_registration และ member)
+    const [packageCheck] = await db.query(
+      "SELECT packages_duration_months FROM packages WHERE packages_id = ? AND trainer_id = ?",
+      [data.packages_id, trainerId]
+    );
+
+    if (!packageCheck || packageCheck.length === 0) {
+      throw new Error("แพ็คเกจไม่ถูกต้องหรือไม่พร้อมใช้งาน");
+    }
+
+    const packageDuration = packageCheck[0].packages_duration_months; // หน่วยเป็นเดือน
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    // endDate.setDate(startDate.getDate() + packageDuration * 30); // คำนวณวันหมดอายุ (1 เดือน = 30 วัน)
+
     const [existingMember] = await db.query(
       "SELECT member_id FROM member WHERE member_email = ? OR member_username = ?",
       [data.member_email, data.member_username]
@@ -53,27 +65,22 @@ export async function registerNewMember(data, trainerId) {
       throw new Error("อีเมลหรือชื่อผู้ใช้นี้ถูกใช้งานแล้ว");
     }
 
-    // แปลงข้อมูลเป็น JSON string เพื่อเก็บในตาราง registration
-    const memberDataJson = JSON.stringify(data); // เก็บรหัสผ่านเป็น plaintext
+    const memberDataJson = JSON.stringify(data);
 
-    // เริ่ม transaction
     await db.query("START TRANSACTION");
 
     try {
-      // บันทึกข้อมูลลงในตาราง registration
-      // registration_status = 0 (รอการยืนยัน)
       const [registrationResult] = await db.query(
         `INSERT INTO registration 
-         (trainer_id, registration_status, member_data) 
-         VALUES (?, 0, ?)`,
-        [trainerId, memberDataJson]
+         (trainer_id, registration_status, member_data, packages_id) 
+         VALUES (?, 0, ?, ?)`,
+        [trainerId, memberDataJson, data.packages_id]
       );
 
       if (!registrationResult || !registrationResult.insertId) {
         throw new Error("ไม่สามารถลงทะเบียนได้");
       }
 
-      // Commit transaction
       await db.query("COMMIT");
 
       return {
@@ -82,7 +89,6 @@ export async function registerNewMember(data, trainerId) {
         message: "ลงทะเบียนสำเร็จ กรุณารอการยืนยันจากเทรนเนอร์",
       };
     } catch (error) {
-      // Rollback transaction ในกรณีที่เกิดข้อผิดพลาด
       await db.query("ROLLBACK");
       throw error;
     }

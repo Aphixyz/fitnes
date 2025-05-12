@@ -103,24 +103,33 @@ export async function getTrainerRegistrations(trainerId, status = null) {
  */
 export async function confirmRegistration(data) {
   try {
-    const { registrationId, trainerId, startDate, endDate } = data;
+    const { registrationId, trainerId, startDate } = data; // ลบ endDate ออก
 
     // ตรวจสอบข้อมูลที่จำเป็น
-    if (!registrationId || !trainerId || !startDate || !endDate) {
+    if (!registrationId || !trainerId || !startDate) {
       throw new Error("ข้อมูลไม่ครบถ้วน");
     }
 
-    // ตรวจสอบวันที่
+    // ดึงข้อมูลแพ็คเกจเพื่อคำนวณระยะเวลา
+    const [packageCheck] = await db.query(
+      "SELECT packages_duration_months FROM packages WHERE packages_id = ? AND trainer_id = ?",
+      [data.packages_id, trainerId]
+    );
+
+    if (!packageCheck || packageCheck.length === 0) {
+      throw new Error("ไม่พบข้อมูลแพ็คเกจหรือแพ็คเกจไม่ถูกต้อง");
+    }
+
+    // ตรวจสอบวันที่เริ่มต้น
+    const packageDuration = packageCheck[0].packages_duration_months;
     const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      throw new Error("รูปแบบวันที่ไม่ถูกต้อง");
+    if (isNaN(start.getTime())) {
+      throw new Error("รูปแบบวันที่เริ่มต้นไม่ถูกต้อง");
     }
 
-    if (end <= start) {
-      throw new Error("วันสิ้นสุดต้องมากกว่าวันเริ่มต้น");
-    }
+    // คำนวณวันที่สิ้นสุดจาก packageDuration (จำนวนเดือน)
+    const end = new Date(start);
+    end.setMonth(start.getMonth() + packageDuration);
 
     // ดึงข้อมูลการลงทะเบียนและตรวจสอบว่าเป็นของเทรนเนอร์คนนี้จริงหรือไม่
     const [registrationCheck] = await db.query(
@@ -163,7 +172,7 @@ export async function confirmRegistration(data) {
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
           [
             memberData.member_username,
-            memberData.member_password, // รหัสผ่านที่เข้ารหัสแล้วจาก registerNewMember
+            memberData.member_password,
             memberData.member_firstname,
             memberData.member_lastname,
             memberData.member_email,
@@ -201,7 +210,7 @@ export async function confirmRegistration(data) {
                registration_enddate = ?,
                member_id = ?
            WHERE registration_id = ?`,
-          [startDate, endDate, memberId, registrationId]
+          [startDate, end.toISOString().slice(0, 19).replace("T", " "), memberId, registrationId]
         );
 
         if (!updateResult2 || updateResult2.affectedRows === 0) {
@@ -229,7 +238,7 @@ export async function confirmRegistration(data) {
              registration_startdate = ?, 
              registration_enddate = ?
          WHERE registration_id = ?`,
-        [startDate, endDate, registrationId]
+        [startDate, end.toISOString().slice(0, 19).replace("T", " "), registrationId]
       );
 
       if (!result || result.affectedRows === 0) {
@@ -247,6 +256,24 @@ export async function confirmRegistration(data) {
       success: false,
       message: error.message || "เกิดข้อผิดพลาดในการยืนยันการลงทะเบียน",
     };
+  }
+}
+
+export async function getPackageDuration(packages_id, trainerId) {
+  try {
+    const [packageCheck] = await db.query(
+      "SELECT packages_duration_months FROM packages WHERE packages_id = ? AND trainer_id = ?",
+      [packages_id, trainerId]
+    );
+
+    if (!packageCheck || packageCheck.length === 0) {
+      throw new Error("ไม่พบข้อมูลแพ็คเกจ");
+    }
+
+    return packageCheck[0].packages_duration_months;
+  } catch (error) {
+    console.error("Error fetching package duration:", error);
+    throw error;
   }
 }
 

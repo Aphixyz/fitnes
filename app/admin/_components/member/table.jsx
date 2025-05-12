@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { getInitials } from "@/utils/utils";
-import { useTransition, useState, useMemo, memo, useRef, useEffect, useCallback } from "react";
+import { useTransition, useState, useRef, useEffect, useCallback } from "react";
 import StatusBadge from "../common/Status";
 
-// ฟังก์ชัน debounce แบบกำหนดเอง (ไม่ต้องติดตั้ง lodash)
+// ฟังก์ชัน debounce แบบกำหนดเอง
 function customDebounce(func, wait) {
   let timeout;
   return function (...args) {
@@ -15,10 +15,10 @@ function customDebounce(func, wait) {
 }
 
 // คอมโพเนนต์ TableHeader
-const TableHeader = memo(({ sortField, sortOrder, handleSortChange, showActions }) => {
+const TableHeader = ({ sortField, sortOrder, handleSortChange, showActions }) => {
   const debouncedSortChange = useCallback(
     customDebounce((field, event) => {
-      event.preventDefault(); // ป้องกัน default browser behavior
+      event.preventDefault();
       handleSortChange(field);
     }, 300),
     [handleSortChange]
@@ -51,47 +51,53 @@ const TableHeader = memo(({ sortField, sortOrder, handleSortChange, showActions 
       </tr>
     </thead>
   );
-});
+};
 
 // คอมโพเนนต์ TableSkeleton
 const TableSkeleton = ({ showActions }) => (
   <tbody>
-    {Array(5).fill().map((_, i) => (
-      <tr key={i} className="border-t border-gray-300">
-        <td className="px-4 py-2 border border-gray-300 w-[12%]">
-          <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-3/4"></div>
-        </td>
-        <td className="px-4 py-2 border border-gray-300 w-[12%]">
-          <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto animate-pulse"></div>
-        </td>
-        <td className="px-4 py-2 border border-gray-300 w-[20%]">
-          <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
-        </td>
-        <td className="px-4 py-2 border border-gray-300 w-[20%]">
-          <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
-        </td>
-        <td className="px-4 py-2 border border-gray-300 w-[20%]">
-          <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
-        </td>
-        <td className="px-4 py-2 border border-gray-300 w-[10%]">
-          <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-1/2"></div>
-        </td>
-        {showActions && (
-          <td className="px-4 py-2 border border-gray-300 w-[16%]">
+    {Array(5)
+      .fill()
+      .map((_, i) => (
+        <tr Hopkins className="border-t border-gray-300">
+          <td className="px-4 py-2 border border-gray-300 w-[12%]">
             <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-3/4"></div>
           </td>
-        )}
-      </tr>
-    ))}
+          <td className="px-4 py-2 border border-gray-300 w-[12%]">
+            <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto animate-pulse"></div>
+          </td>
+          <td className="px-4 py-2 border border-gray-300 w-[20%]">
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+          </td>
+          <td className="px-4 py-2 border border-gray-300 w-[20%]">
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+          </td>
+          <td className="px-4 py-2 border border-gray-300 w-[20%]">
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+          </td>
+          <td className="px-4 py-2 border border-gray-300 w-[10%]">
+            <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-1/2"></div>
+          </td>
+          {showActions && (
+            <td className="px-4 py-2 border border-gray-300 w-[16%]">
+              <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-3/4"></div>
+            </td>
+          )}
+        </tr>
+      ))}
   </tbody>
 );
 
-export default function MemberTable({ members = [], showActions = false }) {
+export default function MemberTable({
+  members = [],
+  showActions = false,
+  sortField,
+  sortOrder,
+  handleSortChange,
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(false);
-  const [sortField, setSortField] = useState("member_id");
-  const [sortOrder, setSortOrder] = useState("asc");
   const scrollPositionRef = useRef(0);
 
   useEffect(() => {
@@ -102,39 +108,6 @@ export default function MemberTable({ members = [], showActions = false }) {
     fetchData();
   }, [members]);
 
-  const sortMembers = (members) => {
-    return [...members].sort((a, b) => {
-      if (sortField === "member_firstname") {
-        const nameA = `${a.member_firstname} ${a.member_lastname}`;
-        const nameB = `${b.member_firstname} ${b.member_lastname}`;
-        return sortOrder === "asc"
-          ? nameA.localeCompare(nameB, "th")
-          : nameB.localeCompare(nameA, "th");
-      } else if (sortField === "member_id") {
-        return sortOrder === "asc"
-          ? a.member_id - b.member_id
-          : b.member_id - a.member_id;
-      }
-      return 0;
-    });
-  };
-
-  const handleSortChange = (field) => {
-    scrollPositionRef.current = window.scrollY; // บันทึกตำแหน่ง scroll
-    if (sortField === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortOrder("asc");
-    }
-  };
-
-  const sortedMembers = useMemo(() => sortMembers(members), [members, sortField, sortOrder]);
-
-  useEffect(() => {
-    window.scrollTo(0, scrollPositionRef.current); // คืนค่าตำแหน่ง scroll
-  }, [sortField, sortOrder]);
-
   return (
     <div className="overflow-x-auto">
       {isLoading && (
@@ -142,30 +115,6 @@ export default function MemberTable({ members = [], showActions = false }) {
           <div className="w-8 h-8 border-4 border-t-4 border-gray-500 rounded-full animate-spin"></div>
         </div>
       )}
-
-      <div className="flex justify-end mb-4 space-x-2">
-        <select
-          value={sortField}
-          onChange={(e) => {
-            e.preventDefault();
-            handleSortChange(e.target.value);
-          }}
-          onFocus={(e) => e.target.scrollIntoView({ block: "nearest" })}
-          className="px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
-        >
-          <option value="member_id">รหัสสมาชิก</option>
-          <option value="member_firstname">ชื่อ-สกุล</option>
-        </select>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            handleSortChange(sortField);
-          }}
-          className="px-2 py-1 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-        >
-          {sortOrder === "asc" ? "↑ น้อยไปมาก" : "↓ มากไปน้อย"}
-        </button>
-      </div>
 
       <table className="min-w-full bg-white border border-gray-300 shadow-md table-fixed">
         <TableHeader
@@ -178,8 +127,8 @@ export default function MemberTable({ members = [], showActions = false }) {
           <TableSkeleton showActions={showActions} />
         ) : (
           <tbody>
-            {sortedMembers.length > 0 ? (
-              sortedMembers.map((member) => (
+            {members.length > 0 ? (
+              members.map((member) => (
                 <tr
                   key={member.member_id}
                   className="hover:bg-gray-100 cursor-pointer border-t border-gray-300"

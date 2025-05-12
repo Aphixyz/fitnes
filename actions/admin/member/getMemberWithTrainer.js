@@ -40,7 +40,13 @@ export async function getMemberWithTrainer() {
 }
 
 
-export async function getMemberWithTrainerPaginated(page = 1, pageSize = 10, statusFilter = "") {
+export async function getMemberWithTrainerPaginated(
+  page = 1,
+  pageSize = 10,
+  statusFilter = "",
+  sortField = "member_id",
+  sortOrder = "asc"
+) {
   try {
     const offset = (page - 1) * pageSize;
 
@@ -49,10 +55,25 @@ export async function getMemberWithTrainerPaginated(page = 1, pageSize = 10, sta
       ${statusFilter ? `AND m.member_status = ?` : ""}
     `;
 
-    const queryParams = statusFilter ? [pageSize, offset, statusFilter] : [pageSize, offset];
+    // ป้องกัน SQL injection โดยตรวจสอบ sortField และ sortOrder
+    const validSortFields = ["member_id", "member_firstname"];
+    const validSortOrders = ["asc", "desc"];
+    const finalSortField = validSortFields.includes(sortField) ? sortField : "member_id";
+    const finalSortOrder = validSortOrders.includes(sortOrder) ? sortOrder : "asc";
+
+    // สร้าง ORDER BY clause
+    const orderByClause =
+      finalSortField === "member_firstname"
+        ? `ORDER BY m.member_firstname ${finalSortOrder}, m.member_lastname ${finalSortOrder}`
+        : `ORDER BY m.${finalSortField} ${finalSortOrder}`;
+
+    const queryParams = statusFilter
+      ? [statusFilter, pageSize, offset]
+      : [pageSize, offset];
 
     // 1. ดึงข้อมูลสมาชิกแบบแบ่งหน้า
-    const [members] = await db.query(`
+    const [members] = await db.query(
+      `
       SELECT 
         m.member_id,
         m.member_username,
@@ -68,9 +89,11 @@ export async function getMemberWithTrainerPaginated(page = 1, pageSize = 10, sta
       JOIN member m ON r.member_id = m.member_id
       LEFT JOIN trainer t ON r.trainer_id = t.trainer_id
       ${whereClause}
-      ORDER BY m.member_id
+      ${orderByClause}
       LIMIT ? OFFSET ?
-    `, statusFilter ? [statusFilter, pageSize, offset] : [pageSize, offset]);
+    `,
+      statusFilter ? [statusFilter, pageSize, offset] : [pageSize, offset]
+    );
 
     // 2. หาจำนวนรวม (ใช้สำหรับ pagination)
     const countQuery = `
