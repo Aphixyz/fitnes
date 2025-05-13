@@ -10,6 +10,8 @@ import SearchFilter from "../_components/common/SearchFilter";
 import ManageUser from "@/components/button/ManageUser";
 import BackButton from "@/components/button/Back";
 import LoadingSpinner from "@/app/admin/_components/common/loadingSpinner";
+import ViewButton from "@/components/button/Look";
+import { AcademicCapIcon } from "@heroicons/react/24/outline";
 
 export const dynamic = "force-dynamic";
 
@@ -72,9 +74,13 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="items-end mb-4 w-full">
-        
-
+      <div className="w-full flex justify-between items-center mb-4">
+        {/* ปุ่ม กูแพ็ตเกจนะจ๊ะ*/}
+        <ViewButton
+          route="/admin/packages"
+          buttonText="แพ็คเกจ"
+          icon={AcademicCapIcon}
+        />
         {/* ขวา: ตัวกรองสถานะ */}
         <div className="flex justify-end">
           <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
@@ -94,8 +100,7 @@ export default function Page() {
       </div>
 
       {loading ? (
-        <LoadingSpinner
-        message="กำลังโหลดข้อมูลผู้ฝึกสอน"/>
+        <LoadingSpinner message="กำลังโหลดข้อมูลผู้ฝึกสอน" />
       ) : (
         <TrainerTable trainers={filteredTrainers} />
       )}
