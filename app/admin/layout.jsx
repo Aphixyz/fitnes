@@ -1,4 +1,4 @@
-import AdminSidebar from "@/components/navigation/AdminNavbar";
+import AdminSidebar from "@/components/navigation/AdminSidebar";
 import { ThemeProvider } from "@/components/Theme/ThemeProvider";
 
 export const metadata = {
