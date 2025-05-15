@@ -142,7 +142,7 @@ export default function TrainerTable({
         </div>
       )}
 
-      <div className="flex justify-end mb-4 space-x-2">
+      {/* <div className="flex justify-end mb-4 space-x-2">
         <select
           value={sortField}
           onChange={(e) => {
@@ -164,7 +164,7 @@ export default function TrainerTable({
         >
           {sortOrder === "asc" ? "↑ น้อยไปมาก" : "↓ มากไปน้อย"}
         </button>
-      </div>
+      </div> */}
 
       <table
         ref={tableRef}

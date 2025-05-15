@@ -28,7 +28,7 @@ export default function MemberPage() {
   useEffect(() => {
     // ถ้ากำลังค้นหาอยู่ ไม่ต้องดึงข้อมูลใหม่
     if (isSearchActive) return;
-    
+
     const fetchPaginatedMembers = async () => {
       setLoading(true);
       try {
@@ -74,7 +74,7 @@ export default function MemberPage() {
     const value = e.target.value;
     setStatusFilter(value);
     setCurrentPage(1);
-    
+
     // รีเซ็ตการค้นหาเมื่อมีการเปลี่ยนตัวกรอง
     setSearchTerm("");
     setIsSearchActive(false);
@@ -92,24 +92,24 @@ export default function MemberPage() {
       setSortOrder("asc");
     }
     setCurrentPage(1);
-    
+
     // รีเซ็ตการค้นหาเมื่อมีการเปลี่ยนการเรียงลำดับ
     if (isSearchActive) {
       setSearchTerm("");
       setIsSearchActive(false);
     }
   };
-  
+
   // จัดการเมื่อมีการค้นหาจาก SearchFilter
   const handleFilter = (filtered) => {
     setFilteredMembers(filtered);
   };
-  
+
   // จัดการเมื่อมีการเปลี่ยนแปลง searchTerm จาก SearchFilter
   const handleSearchTermChange = (term) => {
     setSearchTerm(term);
     setIsSearchActive(term.length > 0);
-    
+
     // รีเซ็ตหน้าเมื่อเริ่มค้นหาใหม่
     if (term.length > 0 && !isSearchActive) {
       setCurrentPage(1);
@@ -117,10 +117,21 @@ export default function MemberPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center mb-4">
-        {/* ซ้าย: ช่องค้นหา */}
-        <div className="flex-1">
+    <div className="p-2">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+        {/* Mobile layout (กลางทั้งแนวตั้งแนวนอน) */}
+        <div className="flex flex-col items-center justify-center md:hidden w-full h-20">
+          <SearchFilter
+            data={allMembers}
+            onFilter={handleFilter}
+            onSearchTermChange={handleSearchTermChange}
+            placeholder="ค้นหาสมาชิก"
+            searchFields={["member_firstname", "member_lastname", "member_id"]}
+          />
+        </div>
+
+        {/* Desktop layout */}
+        <div className="hidden md:flex md:w-1/3 md:justify-start">
           <SearchFilter
             data={allMembers}
             onFilter={handleFilter}
@@ -131,26 +142,26 @@ export default function MemberPage() {
         </div>
 
         {/* กลาง: หัวข้อ */}
-        <div className="flex-1 text-center">
-          <h1 className="text-2xl font-bold">รายชื่อสมาชิกทั้งหมด</h1>
+        <div className="w-full md:w-1/3 text-center">
+          <h1 className="text-xl md:text-2xl font-bold">
+            รายชื่อสมาชิกทั้งหมด
+          </h1>
         </div>
 
         {/* ขวา: กรองตามสถานะ */}
-        <div className="flex-1 flex justify-end">
-          <label className="block text-sm font-medium text-gray-700">
-            กรองตามสถานะ :
-            <span className="ml-2">
-              <select
-                value={statusFilter}
-                onChange={handleStatusFilter}
-                className="p-1 border rounded-md w-auto"
-              >
-                <option value="">แสดงทั้งหมด</option>
-                <option value="active">ใช้งาน</option>
-                <option value="inactive">ไม่ได้ใช้งาน</option>
-                <option value="pending">กำลังรอดำเนินการ</option>
-              </select>
-            </span>
+        <div className="w-full md:w-1/3 flex justify-center md:justify-end">
+          <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
+            <span>กรองตามสถานะ:</span>
+            <select
+              value={statusFilter}
+              onChange={handleStatusFilter}
+              className="p-1 border rounded-md"
+            >
+              <option value="">แสดงทั้งหมด</option>
+              <option value="active">ใช้งาน</option>
+              <option value="inactive">ไม่ได้ใช้งาน</option>
+              <option value="pending">กำลังรอดำเนินการ</option>
+            </select>
           </label>
         </div>
       </div>

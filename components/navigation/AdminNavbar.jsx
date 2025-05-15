@@ -5,10 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/utils";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronRight, ChevronLeft } from "lucide-react";
 
-export const AdminNavbar = ({ user }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const AdminSidebar = ({ user }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
   const menuItems = [
@@ -17,7 +18,7 @@ export const AdminNavbar = ({ user }) => {
       href: "/admin",
       icon: (
         <svg
-          className="w-5 h-5 mr-1"
+          className="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -37,7 +38,7 @@ export const AdminNavbar = ({ user }) => {
       href: "/admin/trainers",
       icon: (
         <svg
-          className="w-5 h-5 mr-1"
+          className="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -57,7 +58,7 @@ export const AdminNavbar = ({ user }) => {
       href: "/admin/members",
       icon: (
         <svg
-          className="w-5 h-5 mr-1"
+          className="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -77,7 +78,7 @@ export const AdminNavbar = ({ user }) => {
       href: "/admin/finance",
       icon: (
         <svg
-          className="w-5 h-5 mr-1"
+          className="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -97,7 +98,7 @@ export const AdminNavbar = ({ user }) => {
       href: "/admin/reports",
       icon: (
         <svg
-          className="w-5 h-5 mr-1"
+          className="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -117,7 +118,7 @@ export const AdminNavbar = ({ user }) => {
       href: "/admin/settings",
       icon: (
         <svg
-          className="w-5 h-5 mr-1"
+          className="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -139,10 +140,11 @@ export const AdminNavbar = ({ user }) => {
       ),
     },
   ];
+
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 640) {
-        setIsOpen(false);
+      if (window.innerWidth >= 1024) {
+        setIsMobileMenuOpen(false);
       }
     };
 
@@ -151,17 +153,121 @@ export const AdminNavbar = ({ user }) => {
   }, []);
 
   return (
-    <nav className="bg-blue-600 text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Logo Section */}
-          <div className="flex items-center">
-            <Link
-              href="/admin"
-              className="text-white font-bold text-xl flex items-center"
+    <>
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-blue-600 text-white shadow-md">
+        <div className="flex justify-between items-center h-16 px-4">
+          <Link href="/admin" className="text-white font-bold text-xl flex items-center">
+            <svg
+              className="w-8 h-8 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
             >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              ></path>
+            </svg>
+            <span>FitTrack</span>
+          </Link>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-blue-700 focus:outline-none"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            <span className="sr-only">เปิดเมนูหลัก</span>
+            {isMobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Sidebar for desktop */}
+      <aside
+        className={cn(
+          "bg-blue-600 text-white h-screen transition-all duration-300 fixed top-0 left-0 z-40 lg:sticky",
+          isCollapsed ? "w-20" : "w-64",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between h-16 px-4">
+          <Link href="/admin" className="text-white font-bold flex items-center">
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              ></path>
+            </svg>
+            {!isCollapsed && <span className="ml-2 text-xl">FitTrack</span>}
+          </Link>
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1 rounded-full hover:bg-blue-700 hidden lg:block"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <ChevronLeft className="h-5 w-5" />
+            )}
+          </button>
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="p-1 rounded-full hover:bg-blue-700 lg:hidden"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Navigation Links */}
+        <div className="py-4 overflow-y-auto">
+          <ul className="space-y-2 px-3">
+            {menuItems.map((item, index) => (
+              <li key={index}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex items-center p-2 rounded-md transition-colors",
+                    pathname === item.href
+                      ? "bg-blue-700 text-white"
+                      : "text-white hover:bg-blue-700",
+                    isCollapsed ? "justify-center" : "justify-start"
+                  )}
+                  onClick={() => {
+                    if (window.innerWidth < 1024) {
+                      setIsMobileMenuOpen(false);
+                    }
+                  }}
+                >
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  {!isCollapsed && <span className="ml-3">{item.label}</span>}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* User Info & Logout */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-blue-500">
+          <div className={cn("flex items-center", isCollapsed && "flex-col justify-center")}>
+            <div className="flex-shrink-0">
               <svg
-                className="w-8 h-8 mr-2"
+                className="h-10 w-10 text-white bg-blue-300 rounded-full p-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -171,134 +277,37 @@ export const AdminNavbar = ({ user }) => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                 ></path>
               </svg>
-              <span>FitTrack | ผู้ดูแลระบบ</span>
-            </Link>
-          </div>
-
-          {/* Desktop Menu */}
-          <div className="hidden md:hidden lg:flex sm:items-center sm:ml-6 space-x-4">
-            {menuItems.map((item, index) => (
-              <Link
-                key={index}
-                href={item.href}
-                className={cn(
-                  "inline-flex items-center px-3 py-2 text-sm font-medium rounded-md",
-                  pathname === item.href
-                    ? "bg-blue-700 text-white"
-                    : "text-white hover:bg-blue-700"
-                )}
-              >
-                {item.icon}
-                {item.label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Desktop User Info & Logout */}
-          <div className="hidden lg:flex sm:items-center sm:ml-6">
-            <div className="flex items-center space-x-4">
-              <div className="text-sm font-medium">
-                {user?.name || "ผู้ดูแลระบบ"}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-white border-white hover:bg-blue-700"
-              >
-                ออกจากระบบ
-              </Button>
             </div>
-          </div>
-
-          {/* Mobile Menu Toggle */}
-          <div className="flex items-center md:hidden">
-            <button
-              type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-blue-700 focus:outline-none"
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              <span className="sr-only">เปิดเมนูหลัก</span>
-              {isOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="sm:hidden  bg-blue-600">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {menuItems.map((item, index) => (
-              <Link
-                key={index}
-                href={item.href}
-                className={cn(
-                  " px-3 py-2 rounded-md text-base font-medium flex items-center",
-                  pathname === item.href
-                    ? "bg-blue-700 text-white"
-                    : "text-white hover:bg-blue-700"
-                )}
-                onClick={() => setIsOpen(false)}
-              >
-                {item.icon}
-                {item.label}
-              </Link>
-            ))}
-          </div>
-          <div className="pt-4 pb-3 border-t border-blue-500">
-            <div className="flex items-center px-5">
-              <div className="flex-shrink-0">
-                <svg
-                  className="h-10 w-10 text-white bg-blue-300 rounded-full p-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  ></path>
-                </svg>
-              </div>
+            {!isCollapsed && (
               <div className="ml-3">
-                <div className="text-base font-medium text-white">
+                <div className="text-sm font-medium text-white truncate">
                   {user?.name || "ผู้ดูแลระบบ"}
                 </div>
-                <div className="text-sm font-medium text-blue-200">
-                  {user?.email || "admin@example.com"}
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 text-white border-white hover:bg-blue-700 w-full"
+                >
+                  ออกจากระบบ
+                </Button>
               </div>
-            </div>
-            <div className="mt-3 px-2 space-y-1">
-              <Link
-                href="/profile"
-                className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700"
-                onClick={() => setIsOpen(false)}
-              >
-                โปรไฟล์
-              </Link>
-              <button
-                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700"
-                onClick={() => setIsOpen(false)}
-              >
-                ออกจากระบบ
-              </button>
-            </div>
+            )}
           </div>
         </div>
+      </aside>
+
+      {/* Mobile menu backdrop */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        ></div>
       )}
-    </nav>
+    </>
   );
 };
 
-export default AdminNavbar;
+export default AdminSidebar;

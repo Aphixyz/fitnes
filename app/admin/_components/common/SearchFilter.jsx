@@ -15,7 +15,7 @@ const SearchFilter = ({
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-    onSearchTermChange?.(value); // ✅ ส่งค่ากลับไปยัง parent ถ้ามี
+    onSearchTermChange?.(value);
 
     const lowercasedSearchTerm = value.toLowerCase();
 
@@ -35,13 +35,11 @@ const SearchFilter = ({
   };
 
   return (
-    <div className="flex justify-start mb-4">
-      <SearchInput
-        value={searchTerm}
-        onChange={handleInputChange}
-        placeholder={placeholder || "ค้นหา..."}
-      />
-    </div>
+    <SearchInput
+      value={searchTerm}
+      onChange={handleInputChange}
+      placeholder={placeholder || "ค้นหา..."}
+    />
   );
 };
 
