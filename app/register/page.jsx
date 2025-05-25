@@ -50,7 +50,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm py-4 border-b">
+      {/* <header className="bg-white shadow-sm py-4 border-b">
         <div className="container mx-auto px-4 flex items-center">
           <Link href="/" className="flex items-center">
             <div className="relative h-8 w-8 mr-2">
@@ -64,7 +64,7 @@ export default function RegisterPage() {
             ลงทะเบียนสมาชิกใหม่
           </div>
         </div>
-      </header>
+      </header> */}
 
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-8">
