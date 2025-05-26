@@ -16,6 +16,7 @@ import { toast } from "@/components/ui/use-toast";
 import { getTrainerRegistrations } from "@/actions/trainer/registration/manageMemberRegistration";
 import { Clock, CheckCircle, XCircle, AlertTriangle, User } from "lucide-react";
 import ConfirmRegistrationModal from "./ConfirmRegistrationModal";
+import AddButton from "@/components/button/Add";
 
 export default function RegistrationList({ trainerId }) {
   const [loading, setLoading] = useState(true);
@@ -215,12 +216,11 @@ export default function RegistrationList({ trainerId }) {
                         </div>
                         <div className="ml-auto flex items-center gap-2">
                           {registration.is_pending && (
-                            <Button
-                              size="sm"
+                            <AddButton
+                              buttonText="ยืนยันการลงทะเบียน"
                               onClick={() => handleConfirmClick(registration)}
-                            >
-                              ยืนยันการลงทะเบียน
-                            </Button>
+                              showIcon={false}
+                            />
                           )}
                           {registration.is_active &&
                             !registration.is_expired && (

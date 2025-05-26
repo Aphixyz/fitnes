@@ -362,6 +362,7 @@ export default function TrainerMembersPage({ params }) {
                         <MemberActionMenu
                           member={member}
                           trainerId={trainerId}
+                          onMemberChanged={fetchMembers}
                         />
                       </TableCell>
                     </TableRow>

@@ -11,6 +11,7 @@ import SearchFilter from "@/app/admin/_components/common/SearchFilter";
 import BackButton from "@/components/button/Back";
 import ManageUser from "@/components/button/ManageUser";
 import LoadingSpinner from "../../_components/common/loadingSpinner";
+import AddButton from "@/components/button/Add";
 
 export const dynamic = "force-dynamic";
 
@@ -86,7 +87,7 @@ export default function Page() {
     <div className="p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
         {/* ซ้าย: ช่องค้นหา */}
-        <div className="w-full md:w-1/3">
+        <div className="w-full md:w-auto flex justify-center md:justify-end">
           <SearchFilter
             data={trainers}
             onFilter={setFilteredTrainers}
@@ -108,9 +109,10 @@ export default function Page() {
 
         {/* ขวา: ปุ่มเพิ่มผู้ฝึกสอน */}
         <div className="w-full md:w-1/3 flex justify-center md:justify-end">
-          <ManageUser
+          <AddButton
             route="/admin/trainers/create"
             buttonText="เพิ่มผู้ฝึกสอน"
+            
           />
         </div>
       </div>

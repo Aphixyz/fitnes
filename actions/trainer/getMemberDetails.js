@@ -88,3 +88,5 @@ export async function checkMemberAccess(trainerId, memberId) {
     return false;
   }
 }
+
+

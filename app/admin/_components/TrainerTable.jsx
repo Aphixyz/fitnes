@@ -79,6 +79,7 @@ export default function TrainerTable({
     };
     fetchData();
   }, [trainers]);
+  
 
   const handleDelete = (id) => {
     if (confirm("ยืนยันการลบ?")) {

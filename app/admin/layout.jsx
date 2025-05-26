@@ -19,7 +19,7 @@ export default function AdminLayout({ children }) {
           </div>
         </main>
 
-        <footer className="bg-blue-600 text-white py-4 mt-auto">
+        <footer className="bg-blue-800 text-white py-4 mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center text-sm">
               &copy; {new Date().getFullYear()} FitTrack -

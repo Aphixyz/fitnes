@@ -1,6 +1,7 @@
 'use server';
 
 import pool from "@/lib/db";
+// import { updateTrainer } from "../admin/updateTrainer";
 
 export async function getTrainerById(id) {
   try {
@@ -14,7 +15,7 @@ export async function getTrainerById(id) {
         trainer_id,
         trainer_username,
         trainer_firstname,
-        trainer_lastname,
+        trainer_lastname, 
         trainer_email,
         trainer_nickname,
         trainer_phone,
@@ -65,3 +66,5 @@ export async function getTrainerById(id) {
     throw new Error('ไม่สามารถดึงข้อมูลผู้ฝึกสอนได้');
   }
 }
+
+export default getTrainerById;

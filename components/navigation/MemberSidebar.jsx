@@ -7,18 +7,29 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/utils";
 import { Menu, X, ChevronRight, ChevronLeft } from "lucide-react";
 
-export const AdminSidebar = ({ user }) => {
+export const MemberSidebar = ({ user }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
+  const getMemberId = () => {
+    const pathParts = pathname.split("/");
+    const memberIdIndex = pathParts.findIndex((part) => part === "member") + 1;
+    if (memberIdIndex > 0 && memberIdIndex < pathParts.length) {
+      return pathParts[memberIdIndex];
+    }
+    return "";
+  };
+
+  const memberId = getMemberId();
+
   const menuItems = [
     {
       label: "แดชบอร์ด",
-      href: "/admin",
+      href: `/member/${memberId}`,
       icon: (
         <svg
-          className="w-5 h-5"
+          className="w-5 h-5 mr-1"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -34,11 +45,11 @@ export const AdminSidebar = ({ user }) => {
       ),
     },
     {
-      label: "ผู้ฝึกสอน",
-      href: "/admin/trainers",
+      label: "การออกกำลังกาย",
+      href: `/member/${memberId}/workout`,
       icon: (
         <svg
-          className="w-5 h-5"
+          className="w-5 h-5 mr-1"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -48,17 +59,17 @@ export const AdminSidebar = ({ user }) => {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="2"
-            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
           ></path>
         </svg>
       ),
     },
     {
-      label: "สมาชิก",
-      href: "/admin/members",
+      label: "โภชนาการ",
+      href: `/member/${memberId}/nutrition`,
       icon: (
         <svg
-          className="w-5 h-5"
+          className="w-5 h-5 mr-1"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -68,17 +79,17 @@ export const AdminSidebar = ({ user }) => {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="2"
-            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
           ></path>
         </svg>
       ),
     },
     {
-      label: "การเงิน",
-      href: "/admin/finance",
+      label: "บันทึกกิจกรรม",
+      href: `/member/${memberId}/health`,
       icon: (
         <svg
-          className="w-5 h-5"
+          className="w-5 h-5 mr-1"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -88,17 +99,17 @@ export const AdminSidebar = ({ user }) => {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="2"
-            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
           ></path>
         </svg>
       ),
     },
     {
-      label: "รายงาน",
-      href: "/admin/reports",
+      label: "ความท้าทาย",
+      href: "/member/challenges",
       icon: (
         <svg
-          className="w-5 h-5"
+          className="w-5 h-5 mr-1"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -108,17 +119,17 @@ export const AdminSidebar = ({ user }) => {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="2"
-            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
           ></path>
         </svg>
       ),
     },
     {
-      label: "ตั้งค่าระบบ",
-      href: "/admin/settings",
+      label: "ความก้าวหน้า",
+      href: "/member/progress",
       icon: (
         <svg
-          className="w-5 h-5"
+          className="w-5 h-5 mr-1"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -128,38 +139,37 @@ export const AdminSidebar = ({ user }) => {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="2"
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-          ></path>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
           ></path>
         </svg>
       ),
     },
   ];
-
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
         setIsMobileMenuOpen(false);
+        setIsCollapsed(false);
       }
     };
-
     window.addEventListener("resize", handleResize);
+    handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const handleLinkClick = () => {
+    if (window.innerWidth < 1024) {
+      setIsMobileMenuOpen(false);
+    }
+  };
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden bg-blue-600 text-white shadow-md">
-        <div className="flex gap-5 items-center h-16 px-4">
+      <div className="lg:hidden bg-emerald-600 text-white shadow-md">
+        <div className="flex gap-5  items-center h-16 px-4">
           <button
             type="button"
-            className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-blue-700 focus:outline-none"
+            className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-emerald-700 focus:outline-none"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <span className="sr-only">เปิดเมนูหลัก</span>
@@ -170,7 +180,7 @@ export const AdminSidebar = ({ user }) => {
             )}
           </button>
           <Link
-            href="/admin"
+            href={`/member/${memberId}`}
             className="text-white font-bold text-xl flex items-center"
           >
             <svg
@@ -195,7 +205,7 @@ export const AdminSidebar = ({ user }) => {
       {/* Sidebar for desktop */}
       <aside
         className={cn(
-          "bg-blue-600 text-white h-screen transition-all duration-300 fixed top-0 left-0 z-40 lg:sticky",
+          "bg-emerald-600 text-white h-screen transition-all duration-300 fixed top-0 left-0 z-40 lg:sticky",
           isCollapsed ? "w-20" : "w-64",
           isMobileMenuOpen
             ? "translate-x-0"
@@ -205,7 +215,7 @@ export const AdminSidebar = ({ user }) => {
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 px-4">
           <Link
-            href="/admin"
+            href={`/member/${memberId}`}
             className="text-white font-bold flex items-center"
           >
             <svg
@@ -226,7 +236,7 @@ export const AdminSidebar = ({ user }) => {
           </Link>
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 rounded-full hover:bg-blue-700 hidden lg:block"
+            className="p-1 rounded-full hover:bg-emerald-700 hidden lg:block"
           >
             {isCollapsed ? (
               <ChevronRight className="h-5 w-5" />
@@ -236,73 +246,63 @@ export const AdminSidebar = ({ user }) => {
           </button>
           <button
             onClick={() => setIsMobileMenuOpen(false)}
-            className="p-1 rounded-full hover:bg-blue-700 lg:hidden"
+            className="p-1 rounded-full hover:bg-emerald-700 lg:hidden"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Navigation Links */}
-        <div className="py-4 overflow-y-auto">
-          <ul className="space-y-2 px-3">
+        <nav className="px-3">
+          <ul className="space-y-2">
             {menuItems.map((item, index) => (
               <li key={index}>
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center p-2 rounded-md transition-colors",
+                    "flex items-center p-2 rounded-md transition",
                     pathname === item.href
-                      ? "bg-blue-700 text-white"
-                      : "text-white hover:bg-blue-700",
-                    isCollapsed ? "justify-center" : "justify-start"
+                      ? "bg-emerald-700 text-white"
+                      : "hover:bg-emerald-500 text-white",
+                    isCollapsed ? "justify-center" : ""
                   )}
-                  onClick={() => {
-                    if (window.innerWidth < 1024) {
-                      setIsMobileMenuOpen(false);
-                    }
-                  }}
+                  onClick={handleLinkClick}
                 >
-                  <span className="flex-shrink-0">{item.icon}</span>
+                  {item.icon}
                   {!isCollapsed && <span className="ml-3">{item.label}</span>}
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
+        </nav>
 
-        {/* User Info & Logout */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-blue-500">
+        <div className="absolute bottom-0 w-full p-4 border-t border-emerald-500">
           <div
-            className={cn(
-              "flex items-center",
-              isCollapsed && "flex-col justify-center"
-            )}
+            className={cn("flex items-center", isCollapsed && "justify-center")}
           >
-            <div className="flex-shrink-0">
+            <div className="rounded-full bg-emerald-300 p-1 text-white">
               <svg
-                className="h-10 w-10 text-white bg-blue-300 rounded-full p-1"
+                className="h-8 w-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                ></path>
+                />
               </svg>
             </div>
             {!isCollapsed && (
               <div className="ml-3">
-                <div className="text-sm font-medium text-white truncate">
-                  {user?.name || "ผู้ดูแลระบบ"}
-                </div>
+                <p className="text-sm font-medium truncate">
+                  {user?.name || "ผู้ฝึกสอน"}
+                </p>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-2 text-white border-white hover:bg-blue-700 w-full"
+                  className="mt-2 text-white border-white hover:bg-emerald-700 w-full"
                 >
                   ออกจากระบบ
                 </Button>
@@ -312,15 +312,15 @@ export const AdminSidebar = ({ user }) => {
         </div>
       </aside>
 
-      {/* Mobile menu backdrop */}
+      {/* Mobile backdrop */}
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
-        ></div>
+        />
       )}
     </>
   );
 };
 
-export default AdminSidebar;
+export default MemberSidebar;
