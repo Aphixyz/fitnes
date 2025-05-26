@@ -79,6 +79,13 @@ export async function registerNewMember(data, trainerId) {
 
       const memberId = memberResult.insertId;
 
+      await db.query(
+        `INSERT INTO registration 
+         (member_id, trainer_id, packages_id, registration_status) 
+         VALUES (?, ?, NULL, 'active')`,
+        [memberId, trainerId]
+      );
+
       await db.query("COMMIT");
 
       return {

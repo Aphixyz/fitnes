@@ -630,8 +630,10 @@ export default function RegisterPage() {
       const result = await registerNewMember(formData, trainerId);
 
       if (result.success) {
-        // Success - redirect to onboarding
-        router.push(`/member/${result.member_id}/onboarding`);
+        // Success - redirect to package selection
+        router.push(
+          `/member/${result.member_id}/signup/packageplan?trainer=${trainerId}`
+        );
       } else {
         setFormErrors({ submit: result.message });
       }
