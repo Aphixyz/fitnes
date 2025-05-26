@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import OnboardingWizard from "../_components/OnboardingWizard";
+import OnboardingWizard from "./_components/OnboardingWizard";
 import { getOnboardingStatus } from "@/actions/member/onboarding/onboarding";
 
 export default function OnboardingPage() {

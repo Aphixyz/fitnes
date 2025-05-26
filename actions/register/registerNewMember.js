@@ -4,26 +4,25 @@ import db from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 /**
- * ลงทะเบียนสมาชิกใหม่และสร้างความสัมพันธ์กับ trainer
- * สร้าง member record ทันทีพร้อมสถานะ active
+ * สร้างบัญชีสมาชิกใหม่
+ * สร้าง member record เท่านั้น โดยไม่มีการเลือกแพ็คเกจ
  *
  * @param {Object} data - ข้อมูลสมาชิกใหม่
- * @param {number} trainerId - รหัสเทรนเนอร์
- * @returns {Promise<Object>} - ผลลัพธ์การลงทะเบียน
+ * @param {number} trainerId - รหัสเทรนเนอร์ (สำหรับ reference)
+ * @returns {Promise<Object>} - ผลลัพธ์การสร้างบัญชี
  */
 export async function registerNewMember(data, trainerId) {
   try {
-    if (!data || !trainerId || !data.packages_id) {
+    if (!data || !trainerId) {
       throw new Error("ข้อมูลไม่ครบถ้วน");
     }
 
     const requiredFields = [
       "member_username",
       "member_password",
+      "member_email",
       "member_firstname",
       "member_lastname",
-      "member_email",
-      "packages_id",
     ];
     for (const field of requiredFields) {
       if (!data[field]) {
@@ -42,23 +41,6 @@ export async function registerNewMember(data, trainerId) {
         "ไม่พบข้อมูลเทรนเนอร์หรือเทรนเนอร์ไม่อยู่ในสถานะพร้อมให้บริการ"
       );
     }
-
-    // ตรวจสอบ package และดึงข้อมูล duration
-    const [packageCheck] = await db.query(
-      "SELECT packages_duration_months FROM packages WHERE packages_id = ? AND trainer_id = ?",
-      [data.packages_id, trainerId]
-    );
-
-    if (!packageCheck || packageCheck.length === 0) {
-      throw new Error("แพ็คเกจไม่ถูกต้องหรือไม่พร้อมใช้งาน");
-    }
-
-    const packageDuration = packageCheck[0].packages_duration_months; // หน่วยเป็นเดือน
-
-    // คำนวณวันเริ่มต้นและวันสิ้นสุด
-    const startDate = new Date();
-    const endDate = new Date(startDate);
-    endDate.setMonth(startDate.getMonth() + packageDuration); // เพิ่มเดือนตาม package duration
 
     // ตรวจสอบว่า email หรือ username ซ้ำหรือไม่
     const [existingMember] = await db.query(
@@ -97,45 +79,24 @@ export async function registerNewMember(data, trainerId) {
 
       const memberId = memberResult.insertId;
 
-      // สร้าง registration record พร้อมวันเริ่มต้นและสิ้นสุด
-      const [registrationResult] = await db.query(
-        `INSERT INTO registration 
-         (member_id, trainer_id, packages_id, registration_startdate, 
-          registration_enddate, registration_status) 
-         VALUES (?, ?, ?, ?, ?, 'active')`,
-        [
-          memberId,
-          trainerId,
-          data.packages_id,
-          startDate.toISOString().split("T")[0], // แปลงเป็น YYYY-MM-DD
-          endDate.toISOString().split("T")[0],
-        ]
-      );
-
-      // // สร้าง member_health record เบื้องต้น (ค่าว่าง)
-      // await db.query(
-      //   `INSERT INTO member_health (member_id, measurement_date)
-      //    VALUES (?, CURDATE())`,
-      //   [memberId]
-      // );
-
       await db.query("COMMIT");
 
       return {
         success: true,
         member_id: memberId,
-        registration_id: registrationResult.insertId,
-        message: "ลงทะเบียนสำเร็จ คุณสามารถเข้าสู่ระบบได้ทันที",
+        trainer_id: trainerId,
+        message:
+          "สร้างบัญชีสำเร็จ กรุณาทำการ Onboarding เพื่อตั้งค่าเป้าหมายของคุณ",
       };
     } catch (error) {
       await db.query("ROLLBACK");
       throw error;
     }
   } catch (error) {
-    console.error("Error registering new member:", error);
+    console.error("Error creating new member:", error);
     return {
       success: false,
-      message: error.message || "เกิดข้อผิดพลาดในการลงทะเบียน",
+      message: error.message || "เกิดข้อผิดพลาดในการสร้างบัญชี",
     };
   }
 }
