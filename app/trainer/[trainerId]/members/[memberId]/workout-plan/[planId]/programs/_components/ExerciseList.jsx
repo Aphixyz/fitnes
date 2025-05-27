@@ -1,110 +1,80 @@
 "use client";
 
-import { memo, useRef } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { Loader2 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import ExerciseCard from "./ExerciseCard";
+import { Loader2 } from "lucide-react";
 
-const ExerciseList = memo(
-  ({
-    exercises,
-    isLoading,
-    hasMore,
-    totalCount,
-    isLoadingMore,
-    loaderRef,
-    onSelectExercise,
-    height = "calc(100vh - 200px)",
-  }) => {
-    const parentRef = useRef(null);
+export default function ExerciseList({
+  exercises = [],
+  isLoading = false,
+  isLoadingMore = false,
+  hasMore = false,
+  loaderRef,
+  totalCount = 0,
+  onSelectExercise,
+  height,
+}) {
+  const scrollContainerRef = useRef(null);
 
-    // ตั้งค่า virtualizer
-    const rowVirtualizer = useVirtualizer({
-      count: exercises.length,
-      getScrollElement: () => parentRef.current,
-      estimateSize: () => 72,
-      overscan: 5,
-    });
-
-    // กรณีไม่มีข้อมูล
-    if (exercises.length === 0 && !isLoading) {
-      return (
-        <div className="text-center py-8 text-muted-foreground border rounded-md h-full flex items-center justify-center">
-          <p>ไม่พบท่าออกกำลังกาย</p>
-        </div>
-      );
+  // ตั้งค่า loader สำหรับ infinite scroll
+  const loadMoreRef = useRef(null);
+  useEffect(() => {
+    if (loaderRef) {
+      loadMoreRef.current = loaderRef.current;
     }
+  }, [loaderRef]);
 
+  // แสดงข้อความเวลาไม่มีข้อมูล
+  if (!isLoading && (!exercises || exercises.length === 0)) {
     return (
-      <div
-        ref={parentRef}
-        className="overflow-auto border rounded-md flex-1"
-        style={{ height }}
-      >
-        {isLoading && exercises.length === 0 ? (
-          <div className="flex justify-center items-center py-8 h-full">
-            <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>กำลังโหลด...</span>
-          </div>
-        ) : (
-          <>
-            <div
-              style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
-                width: "100%",
-                position: "relative",
-              }}
-            >
-              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                const exercise = exercises[virtualRow.index];
-                return (
-                  <div
-                    key={`${exercise.id}-${virtualRow.index}`}
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: `${virtualRow.size}px`,
-                      transform: `translateY(${virtualRow.start}px)`,
-                    }}
-                  >
-                    <ExerciseCard
-                      exercise={exercise}
-                      onSelect={() => onSelectExercise(exercise)}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Loader for infinite scrolling */}
-            {hasMore && (
-              <div
-                ref={loaderRef}
-                className="flex justify-center items-center p-4"
-              >
-                {isLoadingMore ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    <span className="text-sm text-muted-foreground">
-                      กำลังโหลดเพิ่มเติม...
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-sm text-muted-foreground">
-                    เลื่อนลงเพื่อโหลดเพิ่มเติม
-                  </span>
-                )}
-              </div>
-            )}
-          </>
-        )}
+      <div className="flex flex-col items-center justify-center py-10 text-center">
+        <p className="text-muted-foreground">ไม่พบท่าออกกำลังกาย</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          ลองเปลี่ยนคำค้นหาหรือตัวกรองใหม่
+        </p>
       </div>
     );
   }
-);
 
-ExerciseList.displayName = "ExerciseList";
+  return (
+    <div
+      className="flex-1 overflow-y-auto pr-1 min-h-0"
+      style={{ height: height || "auto" }}
+      ref={scrollContainerRef}
+    >
+      {/* Loading state */}
+      {isLoading && (
+        <div className="flex justify-center items-center py-10">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <span className="ml-2">กำลังโหลดข้อมูล...</span>
+        </div>
+      )}
 
-export default ExerciseList;
+      {/* Exercise grid */}
+      {!isLoading && exercises.length > 0 && (
+        <div className="grid grid-cols-1 gap-3">
+          {exercises.map((exercise) => (
+            <ExerciseCard
+              key={exercise.id}
+              exercise={exercise}
+              onSelectExercise={() => onSelectExercise(exercise)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Load more indicator */}
+      {hasMore && (
+        <div ref={loaderRef} className="flex justify-center items-center py-4">
+          {isLoadingMore ? (
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              เลื่อนลงเพื่อโหลดเพิ่ม
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

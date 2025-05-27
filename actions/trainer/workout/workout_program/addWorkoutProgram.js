@@ -24,7 +24,7 @@ export async function addWorkoutProgram({ workout_plan_id, trainer_id }) {
     const [res] = await conn.query(
       `INSERT INTO workout_program
          (workout_plan_id, program_name, program_note, order_index)
-       VALUES (?, 'Untitled Program', '', ?)`,
+       VALUES (?, 'โปรแกรมใหม่', '', ?)`,
       [validated.workout_plan_id, order_index]
     );
     const newId = res.insertId;

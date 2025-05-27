@@ -13,16 +13,6 @@ import { Copy, Edit, MoreVertical, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { deleteWorkoutProgram } from "@/actions/trainer/workout/workout_program/deleteWorkoutProgram";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/use-toast";
 
 export default function ProgramList({ programs, trainerId, memberId, planId }) {
@@ -38,7 +28,7 @@ export default function ProgramList({ programs, trainerId, memberId, planId }) {
   // ฟังก์ชันสำหรับการนำทางไปยังหน้าเพิ่มโปรแกรม
   const handleAddProgram = () => {
     router.push(
-      `/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}/add-program`
+      `/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}/`
     );
   };
 
@@ -78,7 +68,6 @@ export default function ProgramList({ programs, trainerId, memberId, planId }) {
 function ProgramCard({ program, trainerId, memberId, planId, onClick }) {
   const router = useRouter();
   const programId = program.workout_program_id;
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // นำทางไปหน้าแก้ไขโปรแกรม
@@ -89,28 +78,20 @@ function ProgramCard({ program, trainerId, memberId, planId, onClick }) {
     );
   };
 
-  // เปิด dialog ยืนยันการลบ
-  const handleDeleteClick = (e) => {
+  // ลบโปรแกรมโดยตรงเมื่อคลิกเมนู
+  const handleDelete = async (e) => {
     e.stopPropagation(); // ป้องกันการ trigger onClick ของ card
-    setIsDeleteDialogOpen(true);
-  };
-
-  // ดำเนินการลบโปรแกรม
-  const handleDeleteConfirm = async () => {
     try {
       setIsDeleting(true);
       const result = await deleteWorkoutProgram({
         workout_program_id: programId,
       });
-
       if (result.deleted) {
         toast({
           title: "ลบโปรแกรมสำเร็จ",
           description: `โปรแกรม "${program.program_name}" ถูกลบออกแล้ว`,
           variant: "default",
         });
-        // เนื่องจาก server action เรียก revalidatePath อยู่แล้ว
-        // เราไม่จำเป็นต้อง refresh หน้าเอง
       } else {
         throw new Error("ไม่สามารถลบโปรแกรมได้");
       }
@@ -123,7 +104,6 @@ function ProgramCard({ program, trainerId, memberId, planId, onClick }) {
       });
     } finally {
       setIsDeleting(false);
-      setIsDeleteDialogOpen(false);
     }
   };
 
@@ -159,10 +139,11 @@ function ProgramCard({ program, trainerId, memberId, planId, onClick }) {
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer text-red-600 focus:text-red-600"
-                onClick={handleDeleteClick}
+                onClick={handleDelete}
+                disabled={isDeleting}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                <span>ลบโปรแกรม</span>
+                <span>{isDeleting ? "กำลังลบ..." : "ลบโปรแกรม"}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -191,33 +172,6 @@ function ProgramCard({ program, trainerId, memberId, planId, onClick }) {
           </div>
         </CardContent>
       </Card>
-
-      {/* Dialog ยืนยันการลบ */}
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>ยืนยันการลบโปรแกรม</AlertDialogTitle>
-            <AlertDialogDescription>
-              คุณต้องการลบโปรแกรม "{program.program_name}" ใช่หรือไม่?
-              การดำเนินการนี้ไม่สามารถย้อนกลับได้
-              และท่าออกกำลังกายทั้งหมดในโปรแกรมนี้จะถูกลบไปด้วย
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>ยกเลิก</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {isDeleting ? "กำลังลบ..." : "ลบโปรแกรม"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

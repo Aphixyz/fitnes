@@ -1,10 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { formatDate } from "@/utils/utils";
 import {
   Table,
   TableBody,
@@ -14,289 +11,159 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { toast } from "@/components/ui/use-toast";
-import { updateWorkoutPlanStatus } from "@/schemas/workoutv2/Workout-Plan-Management/updateWorkoutPlanStatus";
-import { deleteWorkoutPlan } from "@/schemas/workoutv2/Workout-Plan-Management/deleteWorkoutPlan";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
-  MoreHorizontal,
-  CheckCircle,
-  XCircle,
-  Edit,
-  Trash2,
-  Eye,
-  Archive,
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar, CheckCircle, Clock, FileText, XCircle } from "lucide-react";
 
-export default function WorkoutPlanTable({ plans, trainerId, memberId }) {
-  const router = useRouter();
-  const [modifiedPlans, setModifiedPlans] = useState(plans);
-
-  const getStatusBadge = (status) => {
+export default function WorkoutPlanTable({
+  plans,
+  trainerId,
+  memberId,
+  onStatusChange,
+}) {
+  // สีของ Badge ตามสถานะ
+  const getStatusColor = (status) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-500">ใช้งาน</Badge>;
-      case "inactive":
-        return <Badge variant="outline">ไม่ใช้งาน</Badge>;
+        return "bg-green-100 text-green-800 hover:bg-green-200";
       case "completed":
-        return <Badge className="bg-blue-500">เสร็จสิ้น</Badge>;
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+      case "inactive":
+      case "paused":
+        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+      case "draft":
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
       default:
-        return <Badge>{status}</Badge>;
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
   };
 
-  const handleStatusChange = async (planId, newStatus) => {
-    try {
-      // เรียกใช้ updateWorkoutPlanStatus สำหรับทุกสถานะ
-      const result = await updateWorkoutPlanStatus(
-        planId,
-        trainerId,
-        newStatus
-      );
-
-      if (result.success) {
-        toast({
-          title: "สำเร็จ",
-          description: result.message,
-        });
-
-        // อัพเดตสถานะในรายการ
-        setModifiedPlans(
-          modifiedPlans.map((plan) =>
-            plan.workout_plan_id === planId
-              ? { ...plan, plan_status: newStatus }
-              : plan
-          )
-        );
-
-        // รีเฟรชหน้าเพื่อให้แสดงข้อมูลล่าสุด
-        router.refresh();
-      } else {
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: result.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Error changing plan status:", error);
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถเปลี่ยนสถานะแผนได้",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeletePlan = async (planId) => {
-    if (!confirm("คุณแน่ใจหรือไม่ที่ต้องการลบแผนออกกำลังกายนี้?")) {
-      return;
-    }
-
-    try {
-      // ใช้ deleteWorkoutPlan ซึ่งรับพารามิเตอร์เป็นออบเจ็กต์
-      const result = await deleteWorkoutPlan({
-        workout_plan_id: planId,
-        trainer_id: Number(trainerId),
-        force_delete: false, // ไม่บังคับลบข้อมูลที่เกี่ยวข้อง
-      });
-
-      if (result.success) {
-        toast({
-          title: "สำเร็จ",
-          description: result.message,
-        });
-
-        // ลบแผนออกจากรายการ
-        setModifiedPlans(
-          modifiedPlans.filter((plan) => plan.workout_plan_id !== planId)
-        );
-
-        // รีเฟรชหน้าเพื่อให้แสดงข้อมูลล่าสุด
-        router.refresh();
-      } else {
-        // กรณีมีข้อมูลการบันทึกผลการออกกำลังกายที่เชื่อมโยง
-        if (result.error === "has_related_data" && result.has_logs) {
-          if (
-            confirm(
-              `แผนนี้มีการบันทึกผลการออกกำลังกาย ${result.log_count} รายการที่เกี่ยวข้อง ต้องการลบทั้งหมดหรือไม่?`
-            )
-          ) {
-            // ลองลบอีกครั้งโดยบังคับลบ
-            const forceResult = await deleteWorkoutPlan({
-              workout_plan_id: planId,
-              trainer_id: Number(trainerId),
-              force_delete: true, // บังคับลบข้อมูลที่เกี่ยวข้อง
-            });
-
-            if (forceResult.success) {
-              toast({
-                title: "สำเร็จ",
-                description:
-                  "ลบแผนการออกกำลังกายและข้อมูลที่เกี่ยวข้องทั้งหมดสำเร็จ",
-              });
-
-              // ลบแผนออกจากรายการ
-              setModifiedPlans(
-                modifiedPlans.filter((plan) => plan.workout_plan_id !== planId)
-              );
-
-              // รีเฟรชหน้าเพื่อให้แสดงข้อมูลล่าสุด
-              router.refresh();
-            } else {
-              toast({
-                title: "เกิดข้อผิดพลาด",
-                description: forceResult.message,
-                variant: "destructive",
-              });
-            }
-          }
-        } else {
-          toast({
-            title: "เกิดข้อผิดพลาด",
-            description: result.message,
-            variant: "destructive",
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Error deleting workout plan:", error);
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถลบแผนออกกำลังกายได้",
-        variant: "destructive",
-      });
+  // แสดงข้อความสถานะเป็นภาษาไทย
+  const getStatusText = (status) => {
+    switch (status) {
+      case "active":
+        return "กำลังใช้งาน";
+      case "completed":
+        return "สำเร็จแล้ว";
+      case "inactive":
+      case "paused":
+        return "ไม่ได้ใช้งาน";
+      case "draft":
+        return "แบบร่าง";
+      default:
+        return status;
     }
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>ชื่อแผน</TableHead>
-          <TableHead>วันที่เริ่มต้น</TableHead>
-          <TableHead>วันที่สิ้นสุด</TableHead>
-          <TableHead>จำนวนวันฝึก/สัปดาห์</TableHead>
-          <TableHead>สถานะ</TableHead>
-          <TableHead className="text-right">จัดการ</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {modifiedPlans.map((plan) => (
-          <TableRow key={plan.workout_plan_id}>
-            <TableCell className="font-medium">
-              <Link
-                href={`/trainer/${trainerId}/members/${memberId}/workout-plan/${plan.workout_plan_id}`}
-                className="hover:underline"
-              >
-                {plan.plan_name}
-              </Link>
-            </TableCell>
-            <TableCell>
-              {new Date(plan.plan_startdate).toLocaleDateString("th-TH")}
-            </TableCell>
-            <TableCell>
-              {plan.plan_enddate
-                ? new Date(plan.plan_enddate).toLocaleDateString("th-TH")
-                : "-"}
-            </TableCell>
-            <TableCell>
-              {plan.workout_days
-                ? plan.workout_days.split(",").length
-                : "ไม่ระบุ"}
-            </TableCell>
-            <TableCell>{getStatusBadge(plan.plan_status)}</TableCell>
-            <TableCell className="text-right">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">เปิดเมนู</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() =>
-                      router.push(
-                        `/trainer/${trainerId}/members/${memberId}/workout-plan/${plan.workout_plan_id}`
-                      )
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle>ประวัติแผนการออกกำลังกาย</CardTitle>
+        <CardDescription>
+          แผนการออกกำลังกายทั้งหมด {plans.length} แผน
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ชื่อแผน</TableHead>
+              <TableHead>วันที่สร้าง</TableHead>
+              <TableHead>ระยะเวลา</TableHead>
+              <TableHead>โปรแกรม</TableHead>
+              <TableHead>สถานะ</TableHead>
+              <TableHead>การจัดการ</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {plans.map((plan) => (
+              <TableRow key={plan.workout_plan_id}>
+                <TableCell>
+                  <Link
+                    href={`/trainer/${trainerId}/members/${memberId}/workout-plan/${plan.workout_plan_id}`}
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    {plan.plan_name}
+                  </Link>
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3 text-muted-foreground" />
+                    <span>{formatDate(plan.created_at)}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span>{plan.plan_duration || "-"} สัปดาห์</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <FileText className="h-3 w-3 text-muted-foreground" />
+                    <span>{plan.program_count || 0}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge className={getStatusColor(plan.plan_status)}>
+                    {getStatusText(plan.plan_status)}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Select
+                    defaultValue={plan.plan_status}
+                    onValueChange={(value) =>
+                      onStatusChange(plan.workout_plan_id, value)
                     }
                   >
-                    <Eye className="mr-2 h-4 w-4" />
-                    ดูรายละเอียด
-                  </DropdownMenuItem>
-
-                  {plan.plan_status !== "completed" && (
-                    <>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          router.push(
-                            `/trainer/${trainerId}/members/${memberId}/workout-plan/${plan.workout_plan_id}/edit`
-                          )
-                        }
-                      >
-                        <Edit className="mr-2 h-4 w-4" />
-                        แก้ไข
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
-
-                  {/* แสดงเมนูเปลี่ยนสถานะเฉพาะเมื่อแผนไม่ใช่สถานะ completed */}
-                  {plan.plan_status !== "completed" && (
-                    <>
-                      {plan.plan_status !== "active" && (
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleStatusChange(plan.workout_plan_id, "active")
-                          }
-                        >
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          เปิดใช้งาน
-                        </DropdownMenuItem>
-                      )}
-
-                      {plan.plan_status !== "inactive" && (
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleStatusChange(plan.workout_plan_id, "inactive")
-                          }
-                        >
-                          <XCircle className="mr-2 h-4 w-4" />
-                          ปิดใช้งาน
-                        </DropdownMenuItem>
-                      )}
-
-                      <DropdownMenuItem
-                        onClick={() =>
-                          handleStatusChange(plan.workout_plan_id, "completed")
-                        }
-                      >
-                        <Archive className="mr-2 h-4 w-4" />
-                        ทำเครื่องหมายว่าเสร็จสิ้น
-                      </DropdownMenuItem>
-                    </>
-                  )}
-
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => handleDeletePlan(plan.workout_plan_id)}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    ลบแผน
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+                    <SelectTrigger className="w-32">
+                      <SelectValue placeholder="เลือกสถานะ" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                          <span>กำลังใช้งาน</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="completed">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-3.5 w-3.5 text-blue-500" />
+                          <span>สำเร็จแล้ว</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="inactive">
+                        <div className="flex items-center gap-2">
+                          <XCircle className="h-3.5 w-3.5 text-yellow-500" />
+                          <span>ไม่ได้ใช้งาน</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="draft">
+                        <div className="flex items-center gap-2">
+                          <XCircle className="h-3.5 w-3.5 text-gray-500" />
+                          <span>แบบร่าง</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

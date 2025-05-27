@@ -1,36 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 
 export default function ExerciseImage({
-  id,
+  exerciseId,
   name,
-  width = 60,
-  height = 60,
-  className = "",
+  width = "100%",
+  height = "100%",
 }) {
-  const [error, setError] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [imageSrc, setImageSrc] = useState(`/exercises/${exerciseId}/0.jpg`);
 
-  // สร้าง path ของรูปภาพ
-  const imageSrc = `/exercises/${id}/0.jpg`;
-
-  // Fallback image เมื่อไม่พบรูปภาพ
-  const fallbackSrc = "/images/exercise-placeholder.png";
+  const handleError = () => {
+    // ถ้าโหลดรูปหลักไม่ได้ ให้ใช้ fallback
+    if (!hasError) {
+      setHasError(true);
+      setImageSrc("/placeholder-exercise.png");
+    }
+  };
 
   return (
-    <div
+    <img
+      src={imageSrc}
+      alt={name || "Exercise Image"}
+      onError={handleError}
+      className="object-cover w-full h-full"
       style={{ width, height }}
-      className={`overflow-hidden bg-gray-100 flex items-center justify-center relative ${className}`}
-    >
-      <Image
-        src={error ? fallbackSrc : imageSrc}
-        alt={name}
-        width={width}
-        height={height}
-        onError={() => setError(true)}
-        className="object-cover"
+      width={56}
+      height={56}
+      loading="lazy"
       />
-    </div>
   );
 }
