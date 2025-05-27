@@ -1,18 +1,34 @@
 "use client";
 
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { addWorkoutProgram } from "@/actions/trainer/workout/workout_program/addWorkoutProgram";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 
-export default function ProgramHeader({ programCount, trainerId, memberId, planId }) {
+export default function ProgramHeader({
+  programCount,
+  trainerId,
+  memberId,
+  planId,
+}) {
   const router = useRouter();
-  
+  const [isPending, start] = useTransition();
+
   const handleAddProgram = () => {
-    // นำทางไปยังหน้าสำหรับการเพิ่มโปรแกรมใหม่
-    router.push(`/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}/add-program`);
-    // หรือสามารถเปิด Modal สำหรับเพิ่มโปรแกรมได้
+    start(async () => {
+      const result = await addWorkoutProgram({
+        workout_plan_id: planId,
+        trainer_id: trainerId,
+      });
+      if (result.success) {
+        router.push(
+          `/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}/programs/${result.data.workout_program_id}?isNewProgram=true`
+        );
+      }
+    });
   };
-  
+
   return (
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-2">
@@ -21,10 +37,15 @@ export default function ProgramHeader({ programCount, trainerId, memberId, planI
           {programCount}
         </span>
       </div>
-      
-      <Button onClick={handleAddProgram} size="sm" className="gap-1">
+
+      <Button
+        onClick={handleAddProgram}
+        size="sm"
+        className="gap-1"
+        disabled={isPending}
+      >
         <Plus className="h-4 w-4" />
-        เพิ่มโปรแกรมย่อย
+        {isPending ? "กำลังโหลด..." : "เพิ่มโปรแกรมย่อย"}
       </Button>
     </div>
   );
