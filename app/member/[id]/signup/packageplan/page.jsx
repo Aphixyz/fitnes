@@ -73,7 +73,7 @@ export default function PackagePlanPage() {
       );
 
       if (result.success) {
-        router.push(`/member/${memberId}/onboarding`);
+        router.push(`/member/${memberId}/signup/payment`);
       } else {
         setError(result.message);
       }

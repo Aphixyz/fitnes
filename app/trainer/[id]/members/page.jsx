@@ -355,7 +355,7 @@ export default function TrainerMembersPage({ params }) {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          {getStatusBadge(member.registration_status_text)}
+                          {getStatusBadge(member.registration_status)}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
