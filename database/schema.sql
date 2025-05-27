@@ -120,6 +120,8 @@ CREATE TABLE program_exercise_set (
   program_exercise_set_id INT AUTO_INCREMENT PRIMARY KEY,
   program_exercise_id INT NOT NULL,
   set_order INT NOT NULL,
+  note TEXT,
+  rest TIME DEFAULT NULL,
   weight FLOAT DEFAULT NULL,
   reps INT DEFAULT NULL,
   time TIME DEFAULT NULL,        -- สำหรับ cardio หรือ mobility

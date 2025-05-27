@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# FitTrack - Fitness Center Management System
 
-## Getting Started
+FitTrack is a comprehensive fitness and nutrition tracking system built with Next.js 15, designed specifically for fitness centers. It enables trainers to manage clients, create customized workout and nutrition plans, and track progress while engaging members through gamification features.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Trainer Management
+
+- Invite members via unique registration links
+- Approve or reject member sign-ups
+- Manage member profiles and progress
+
+### Member Management
+
+- Streamlined registration process
+- Profile management
+- Health metric tracking
+- Progress monitoring
+
+### Workout & Nutrition Planning
+
+- Create and edit workout plans
+- Design nutrition macros
+- Set-by-set workout logging
+- Comprehensive exercise library
+
+### Activity Logging
+
+- Workout logging (reps, weight, duration)
+- Nutrition tracking (calories, macros)
+- Progress visualization
+
+### Gamification
+
+- Challenges and competitions
+- Achievement badges
+- Point system
+- Leaderboards
+
+### Reporting
+
+- Trainer dashboards
+- Admin analytics
+- Member progress reports
+- Financial tracking
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15 (React 19)
+- **Language**: JavaScript (ES2024)
+- **Database**: MySQL (Docker)
+- **DB Library**: mysql2/promise
+- **Styling**:
+  - Tailwind CSS
+  - shadcn/ui
+  - lucide-react icons
+- **Testing**: Jest + Testing Library
+- **CI/CD**: GitHub Actions
+
+## 📁 Project Structure
+
+```
+fittrack/
+├── app/                 # Next.js app router pages
+├── components/         # React components
+├── actions/           # Server actions
+├── lib/              # Utility functions and DB
+├── hooks/            # Custom React hooks
+├── data/             # Static data (exercises)
+├── public/           # Static assets
+├── schemas/          # Data validation schemas
+└── docs/             # Project documentation
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+5. Start MySQL container:
+   ```bash
+   docker-compose up -d
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📚 Documentation
 
-## Learn More
+Detailed documentation is available in the `docs` directory:
 
-To learn more about Next.js, take a look at the following resources:
+- [Architecture Overview](docs/architecture.md)
+- [API Documentation](docs/api.md)
+- [Database Schema](docs/database.md)
+- [Component Library](docs/components.md)
+- [Authentication](docs/auth.md)
+- [Deployment Guide](docs/deployment.md)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🤝 Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-## Deploy on Vercel
+## 📝 License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
