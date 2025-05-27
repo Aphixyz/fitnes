@@ -1,63 +1,29 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { getMemberDetails } from "@/actions/trainer/getMemberDetails";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import WorkoutPlanForm from "@/app/trainer/_components/workout/WorkoutPlanForm";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export default function CreateWorkoutPlanPage() {
-  const params = useParams();
-  const router = useRouter();
-  const trainerId = params.id;
-  const memberId = params.memberId;
+import WorkoutPlanForm from "./_components/WorkoutPlanForm";
+import { createWorkoutPlanForMember } from "@/actions/trainer/workout/workout_plan/createWorkoutPlanForMember";
+import { getMemberDetails } from "@/actions/trainer/getMemberDetails";
 
-  const [memberName, setMemberName] = useState("");
+export default async function CreateWorkoutPlanPage({ params }) {
+  const { id: trainerId, memberId } = await params;
+  // const { trainerId, memberId } =  params;
 
-  // ดึงข้อมูลสมาชิก
-  useEffect(() => {
-    const fetchMemberDetails = async () => {
-      try {
-        const result = await getMemberDetails(trainerId, memberId);
-        if (result.success) {
-          setMemberName(
-            `${result.member.member_firstname} ${result.member.member_lastname}`
-          );
-        }
-      } catch (error) {
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: "ไม่สามารถดึงข้อมูลสมาชิกได้",
-          variant: "destructive",
-        });
-      }
-    };
-
-    fetchMemberDetails();
-  }, [trainerId, memberId]);
+  // ดึงข้อมูลสมาชิกที่ฝั่ง server
+  const memberResult = await getMemberDetails(trainerId, memberId);
+  const memberName = memberResult.success
+    ? `${memberResult.member.member_firstname} ${memberResult.member.member_lastname}`
+    : "ไม่พบข้อมูลสมาชิก";
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-1">
-            สร้างโปรแกรมการฝึกใหม่
-          </h1>
-          <p className="text-muted-foreground">สำหรับ {memberName}</p>
-        </div>
-        <Link href={`/trainer/${trainerId}/members/${memberId}/workout-plan`}>
-          <Button variant="outline">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            กลับ
-          </Button>
-        </Link>
-      </div>
-
-      {/* ใช้ WorkoutPlanForm และส่ง memberId เพื่อระบุสมาชิกโดยอัตโนมัติ */}
-      <WorkoutPlanForm trainerId={trainerId} memberId={memberId} />
-    </div>
+    <form action={createWorkoutPlanForMember} className="container py-6">
+      <input type="hidden" name="trainer_id" value={trainerId} />
+      <input type="hidden" name="member_id" value={memberId} />
+      <WorkoutPlanForm
+        memberName={memberName}
+        title="สร้างโปรแกรมการออกกำลังกาย"
+      />
+    </form>
   );
 }

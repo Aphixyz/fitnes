@@ -3,7 +3,7 @@ CREATE DATABASE fitness_tracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 USE fitness_tracker;
 
 -- Trainer Table - เก็บข้อมูลเทรนเนอร์
-CREATE TABLE trainer (
+TABLE trainer (
     trainer_id INT AUTO_INCREMENT PRIMARY KEY,
     trainer_username VARCHAR(50) NOT NULL UNIQUE,
     trainer_password VARCHAR(255) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE trainer (
 );
 
 -- Member Table - เก็บข้อมูลสมาชิก
-CREATE TABLE member (
+TABLE member (
     member_id INT AUTO_INCREMENT PRIMARY KEY,
     member_username VARCHAR(50) NOT NULL UNIQUE,
     member_password VARCHAR(255) NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE member (
 );
 
 -- Health Metrics Table - เก็บข้อมูลสุขภาพของสมาชิก
-CREATE TABLE member_health (
+TABLE member_health (
     health_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
     weight DECIMAL(5,2),
@@ -56,7 +56,7 @@ CREATE TABLE member_health (
 );
 
 -- Fitness Goals Table - เก็บเป้าหมายการออกกำลังกาย
-CREATE TABLE fitness_goal (
+TABLE fitness_goal (
     goal_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
     goal_type VARCHAR(50) NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE fitness_goal (
 );
 
 -- Registration Table - เก็บข้อมูลการลงทะเบียนระหว่างเทรนเนอร์และสมาชิก
-CREATE TABLE registration (
+TABLE registration (
     registration_id INT AUTO_INCREMENT PRIMARY KEY,
     trainer_id INT NOT NULL,
     member_id INT,
@@ -83,76 +83,51 @@ CREATE TABLE registration (
     FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
 );
-CREATE TABLE workout_template (
-  trainer_id INT NOT NULL,
-  template_id INT AUTO_INCREMENT PRIMARY KEY,
-  template_name VARCHAR(100) NOT NULL,
-  description TEXT,
-  difficulty_level VARCHAR(20),
-  is_public TINYINT(1) DEFAULT 0,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE
-);
-
-CREATE TABLE template_session (
-  session_id INT AUTO_INCREMENT PRIMARY KEY,
-  template_id INT NOT NULL,
-  session_name VARCHAR(100),
-  day_of_week VARCHAR(20),
-  order_index INT,
-  FOREIGN KEY (template_id) REFERENCES workout_template(template_id) ON DELETE CASCADE
-);
-
-CREATE TABLE template_exercise (
-  template_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
-  session_id INT NOT NULL,
-  exercise_id VARCHAR(50),
-  order_index INT,
-  sets INT,
-  reps VARCHAR(50),
-  rest_seconds INT,
-  weight_suggestion VARCHAR(50),
-  FOREIGN KEY (session_id) REFERENCES template_session(session_id) ON DELETE CASCADE
-);
 
 CREATE TABLE workout_plan (
   workout_plan_id INT AUTO_INCREMENT PRIMARY KEY,
-  template_id INT,
   trainer_id INT NOT NULL,
   member_id INT NOT NULL,
-  plan_name VARCHAR(100) NOT NULL,
-  plan_startdate DATE,
-  plan_enddate DATE,
-  plan_status VARCHAR(20) DEFAULT 'active',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (template_id) REFERENCES workout_template(template_id) ON DELETE SET NULL,
-  FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE,
-  FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
+  plan_name VARCHAR(255) NOT NULL,
+  plan_duration INT NOT NULL,
+  plan_startdate DATE NOT NULL,
+  plan_enddate DATE NOT NULL,
+  plan_note TEXT,
+  plan_status VARCHAR DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE workout_session (
-  session_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE workout_program (
+  workout_program_id INT AUTO_INCREMENT PRIMARY KEY,
   workout_plan_id INT NOT NULL,
-  session_name VARCHAR(100),
-  day_of_week VARCHAR(20),
-  order_index INT,
+  program_name VARCHAR(255) NOT NULL,
+  program_note TEXT,
+  order_index INT NOT NULL,
   FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE CASCADE
 );
 
-CREATE TABLE workout_exercise (
-  workout_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
-  session_id INT NOT NULL,
-  exercise_id VARCHAR(50),
-  order_index INT,
-  sets INT,
-  reps VARCHAR(50),
-  weight_kg VARCHAR(50),
-  rest_seconds INT,
+CREATE TABLE program_exercise (
+  program_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
+  workout_program_id INT NOT NULL,
+  exercise_id VARCHAR(100) NOT NULL,
+  order_index INT NOT NULL,
+  rest TIME DEFAULT NULL,
   notes TEXT,
-  FOREIGN KEY (session_id) REFERENCES workout_session(session_id) ON DELETE CASCADE
+  FOREIGN KEY (workout_program_id) REFERENCES workout_program(workout_program_id) ON DELETE CASCADE
 );
 
-CREATE TABLE workout_log (
+CREATE TABLE program_exercise_set (
+  program_exercise_set_id INT AUTO_INCREMENT PRIMARY KEY,
+  program_exercise_id INT NOT NULL,
+  set_order INT NOT NULL,
+  weight FLOAT DEFAULT NULL,
+  reps INT DEFAULT NULL,
+  time TIME DEFAULT NULL,        -- สำหรับ cardio หรือ mobility
+  distance FLOAT DEFAULT NULL,   -- km หรือ m
+  FOREIGN KEY (program_exercise_id) REFERENCES program_exercise(program_exercise_id) ON DELETE CASCADE
+);
+
+TABLE workout_log (
   workout_log_id INT AUTO_INCREMENT PRIMARY KEY,
   member_id INT NOT NULL,
   workout_plan_id INT,
@@ -166,7 +141,7 @@ CREATE TABLE workout_log (
   FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE SET NULL
 );
 
-CREATE TABLE exercise_log (
+TABLE exercise_log (
   exercise_log_id INT AUTO_INCREMENT PRIMARY KEY,
   workout_log_id INT NOT NULL,
   exercise_id VARCHAR(50),
@@ -181,7 +156,7 @@ CREATE TABLE exercise_log (
 );
 
 -- Food Table - ข้อมูลอาหาร
-CREATE TABLE food (
+TABLE food (
     food_id INT AUTO_INCREMENT PRIMARY KEY,
     trainer_id INT,
     food_name VARCHAR(100) NOT NULL,
@@ -198,7 +173,7 @@ CREATE TABLE food (
 );
 
 -- Nutrition Plan Table - แผนโภชนาการ
-CREATE TABLE nutrition_plan (
+TABLE nutrition_plan (
     nutrition_plan_id INT AUTO_INCREMENT PRIMARY KEY,
     trainer_id INT NOT NULL,
     member_id INT NOT NULL,
@@ -217,7 +192,7 @@ CREATE TABLE nutrition_plan (
 );
 
 -- Meal Plan Table - แผนมื้ออาหาร
-CREATE TABLE meal_plan (
+TABLE meal_plan (
     meal_plan_id INT AUTO_INCREMENT PRIMARY KEY,
     nutrition_plan_id INT NOT NULL,
     meal_name VARCHAR(50) NOT NULL, -- Breakfast, Lunch, Dinner, Snack
@@ -228,7 +203,7 @@ CREATE TABLE meal_plan (
 );
 
 -- Meal Food Table - อาหารในแต่ละมื้อ
-CREATE TABLE meal_food (
+TABLE meal_food (
     meal_food_id INT AUTO_INCREMENT PRIMARY KEY,
     meal_plan_id INT NOT NULL,
     food_id INT NOT NULL,
@@ -240,7 +215,7 @@ CREATE TABLE meal_food (
 );
 
 -- Nutrition Log Table - บันทึกการบริโภค
-CREATE TABLE nutrition_log (
+TABLE nutrition_log (
     nutrition_log_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
     log_date DATE NOT NULL,
@@ -252,7 +227,7 @@ CREATE TABLE nutrition_log (
 );
 
 -- Food Log Table - บันทึกอาหารที่บริโภค
-CREATE TABLE food_log (
+TABLE food_log (
     food_log_id INT AUTO_INCREMENT PRIMARY KEY,
     nutrition_log_id INT NOT NULL,
     food_id INT,
@@ -268,7 +243,7 @@ CREATE TABLE food_log (
 );
 
 -- Challenge Table - ความท้าทายเพื่อกระตุ้นการออกกำลังกาย
-CREATE TABLE challenge (
+TABLE challenge (
     challenge_id INT AUTO_INCREMENT PRIMARY KEY,
     trainer_id INT NOT NULL,
     challenge_name VARCHAR(100) NOT NULL,
@@ -282,7 +257,7 @@ CREATE TABLE challenge (
 );
 
 -- Member Challenge Table - ความท้าทายที่สมาชิกเข้าร่วม
-CREATE TABLE member_challenge (
+TABLE member_challenge (
     member_challenge_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
     challenge_id INT NOT NULL,
@@ -296,7 +271,7 @@ CREATE TABLE member_challenge (
 );
 
 -- Payment Table - ข้อมูลการชำระเงิน
-CREATE TABLE payment (
+TABLE payment (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     registration_id INT NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
@@ -309,7 +284,7 @@ CREATE TABLE payment (
 );
 
 -- Payment Plan Table - แผนการชำระเงิน
-CREATE TABLE payment_plan (
+TABLE payment_plan (
     plan_id INT AUTO_INCREMENT PRIMARY KEY,
     plan_name VARCHAR(100) NOT NULL,
     plan_description TEXT,
