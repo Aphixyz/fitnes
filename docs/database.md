@@ -216,19 +216,15 @@ CREATE TABLE macro_plan (
   macro_plan_id   INT AUTO_INCREMENT PRIMARY KEY,
   trainer_id      INT        NOT NULL,
   member_id       INT        NOT NULL,
-
   -- สัดส่วน P/C/F ที่ Trainer กำหนด (% ต้อง >=0 และรวมกัน =100)
   protein_ratio   DECIMAL(5,2) NOT NULL,
   carb_ratio      DECIMAL(5,2) NOT NULL,
   fat_ratio       DECIMAL(5,2) NOT NULL,
-
   -- ช่วงเวลาของแผน
   start_date      DATE       NOT NULL,
   end_date        DATE       NOT NULL,
-
   -- สถานะของแผน (active/inactive)
-  plan_status     VARCHAR(20)
-                               NOT NULL DEFAULT 'active',
+  plan_status     VARCHAR(20) NOT NULL DEFAULT 'active',
   created_at      DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 ```

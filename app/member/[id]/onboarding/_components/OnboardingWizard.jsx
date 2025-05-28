@@ -32,14 +32,14 @@ import {
   savePersonalProfile,
   saveLifestyleProfile,
   saveFitnessGoals,
-  suggestMacroPlan,
 } from "@/actions/member/onboarding/onboarding";
+import { suggestMacroPlan } from "@/actions/member/macro-engine/suggestMacroPlan";
 import {
   calcAge,
   calcBMR,
   calcTDEE,
   translateExperienceLevel,
-} from "@/utils/nutrition-utils";
+} from "@/utils/macro-utils";
 import { getMemberById } from "@/actions/member/getMemberData";
 
 // กำหนด Steps และ Sub-steps ใหม่
