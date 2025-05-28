@@ -22,11 +22,7 @@ import {
 import {
   getActiveWorkoutPlan,
   getActiveNutritionPlan,
-} from "@/actions/trainer/workout/workoutv1/workoutPlanActions";
-import { deleteMember } from "@/actions/member/deleteMember";
-import { useState } from "react";
-
-export const dynamic = "force-dynamic";
+} from "@/schemas/workoutv1/workoutPlanActions";
 
 export function toast({ title, description, variant = "default" }) {
   return <Toast title={title} description={description} variant={variant} />;

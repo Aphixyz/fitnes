@@ -304,3 +304,74 @@ export function paginate(items, currentPage = 1, perPage = 10) {
   };
 }
 
+/**
+ * แปลงค่าเวลาเป็นวินาที (เช่น "2:30" เป็น 150 วินาที)
+ * @param {string} timeString - เวลาในรูปแบบ "M:S"
+ * @returns {number} เวลาในรูปแบบวินาที
+ */
+export function timeToSeconds(timeString) {
+  if (!timeString) return 0;
+
+  const [minutes, seconds] = timeString.split(":").map(Number);
+  return minutes * 60 + (seconds || 0);
+}
+
+/**
+ * แปลงวินาทีเป็นรูปแบบเวลา "M:S"
+ * @param {number} seconds - เวลาในรูปแบบวินาที
+ * @returns {string} เวลาในรูปแบบ "M:S"
+ */
+export function secondsToTime(seconds) {
+  if (!seconds && seconds !== 0) return "";
+
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+/**
+ * แปลงค่าระยะทางเป็นเมตร (เช่น "1:500" เป็น 1500 เมตร)
+ * @param {string} distanceString - ระยะทางในรูปแบบ "KM:M"
+ * @returns {number} ระยะทางในรูปแบบเมตร
+ */
+export function distanceToMeters(distanceString) {
+  if (!distanceString) return 0;
+
+  const [kilometers, meters] = distanceString.split(":").map(Number);
+  return kilometers * 1000 + (meters || 0);
+}
+
+/**
+ * แปลงเมตรเป็นรูปแบบระยะทาง "KM:M"
+ * @param {number} meters - ระยะทางในรูปแบบเมตร
+ * @returns {string} ระยะทางในรูปแบบ "KM:M"
+ */
+export function metersToDistance(meters) {
+  if (!meters && meters !== 0) return "";
+
+  const kms = Math.floor(meters / 1000);
+  const m = meters % 1000;
+  return `${kms}:${m.toString().padStart(3, "0")}`;
+}
+
+// สร้างตัวเลือกเวลาพักเป็นช่วง 5 วินาที ตั้งแต่ 0 ถึง 5 นาที
+export function getRestTimeOptions() {
+  const options = [];
+
+  // เพิ่มตัวเลือก "ไม่กำหนด"
+  options.push({ value: "0", label: "ไม่กำหนด" });
+
+  // เพิ่มตัวเลือกทุก 5 วินาที จาก 5 วินาที ถึง 5 นาที
+  for (let i = 5; i <= 300; i += 5) {
+    const mins = Math.floor(i / 60);
+    const secs = i % 60;
+    const label =
+      mins > 0
+        ? `${mins}:${secs.toString().padStart(2, "0")}`
+        : `0:${secs.toString().padStart(2, "0")}`;
+
+    options.push({ value: i.toString(), label });
+  }
+
+  return options;
+}

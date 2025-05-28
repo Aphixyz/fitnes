@@ -1,0 +1,144 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Rules for FitTrack Development
+
+description: "Cursor Project Rules for FitTrack project"
+globs:
+
+* "\*\*/\*.js"
+* "\*\*/\*.jsx"
+* "**/*.css"
+---
+
+## 1. JavaScript Only
+
+**Helps tasks:** Writing components, utilities, Server Actions
+**Files:** @app/**/\*, @components/**/\*
+
+* ใช้ JavaScript (ES2024) เท่านั้น ห้ามใช้ TypeScript
+
+## 2. Database Access
+
+**Helps tasks:** CRUD operations, data fetching, migrations
+**Files:** @lib/db.js, @app/api/\*\*/\*
+
+* ทุกการเชื่อมต่อกับ MySQL ให้ใช้ `mysql2/promise` ผ่าน `lib/db.js`
+* ห้ามใช้ ORM หรือไลบรารีอื่นในการจัดการ DB
+
+## 3. Styling & UI Components
+
+**Helps tasks:** สร้าง/รีแฟคเตอร์ UI, layout, theme
+**Files:** @components/**/\*, @app/**/\*
+
+* ใช้ Tailwind CSS utility classes และ `shadcn/ui`, `lucide-react`
+* ห้ามใช้ inline styles หรือ CSS modules นอก Tailwind
+* สามารถใช้ lib อื่นในการทำ styling & ui components มาได้กรณีจำเป็นในการต้อง install or import มาใช้ แต่ต้องถามก่อนเสมอ
+
+## 4. Server vs Client Components
+
+**Helps tasks:** Performance optimization, SEO
+**Files:** @app/**/\*.jsx, @components/**/\*
+
+* ค่า default ใน `app/` เป็น Server Component
+* เพิ่ม `'use client'` สำหรับ state, event handler, browser-only API
+
+## 5.  Server Actions & API Routes
+
+**Helps tasks:** สร้าง endpoint, backend logic, routing
+**Server Action Files:** @action/\*\*/\*/serveractionname.js
+**Files:** @app/api/\*\*/\*/route.js
+
+* วาง Server Actions ใน `action/*/action.js`
+* ใช้ server action ในการทำ backend logic เป็นหลัก CRUD กับฐานข้อมูล database
+* การสร้าง server action จะอยู่ใน folder actions และ function จะอยู่ตามว่า features นี้เป็นของ role ไหน คือการแยก concern ที่ชัดเจนสำหรับ function 
+* ตั้งชื่อฟังก์ชันชัดเจน เช่น `createWorkout`, `getMemberLogs`
+
+## 6. Code Conventions
+
+**Helps tasks:** Linting, code review, maintainability
+**Files:** @\*\*/\*
+
+* 2-space indentation, single quotes, semicolons ทุกบรรทัด
+* Inline comments สั้น ๆ (ไทย/อังกฤษผสม) เพื่ออธิบาย logic
+* แบ่ง sections ในไฟล์ด้วย comment headers (`// =====`)
+
+## 7. Documentation & Context
+
+**Helps tasks:** Onboarding, AI context, design review
+**Files:** @docs/\*\*/\*, README.md
+
+* เก็บ docs ใน `docs/` และอัปเดต README.md เสมอ
+* folder docs เก็บข้อมูลสำหรับ context of project นี้อธิบายว่าต้องการอะไร
+* ออกแบบระบบตามฐานข้อมูลเป็นหลักจากไฟล์ `@docs/database.md`
+* ใช้ `@files(path/to/doc)` ใน Chat เพื่อโหลด context เพิ่มเติม
+
+<!-- ## 8. Testing
+
+**Helps tasks:** Unit/integration tests, regression prevention
+**Files:** @**tests**/**/\*, @app/**/*.{js,jsx}, @lib/\*\*/*
+
+* ใช้ Jest + Testing Library
+* ตั้งชื่อไฟล์ `*.test.js` หรือ `*.spec.js`
+* ครอบคลุม Server Actions และ critical UI components -->
+
+## 8. Utility of function
+
+**Helps tasks:** สำหรับเก็บ function ที่ต้องใช้บ่อย เช่น function คำนวณวัน , คำนวณอายุ. สามารถสร้าง utils function เพิ่มได้
+**Files:** **@utils/utils.js**
+
+<!-- ## 9. Logging & Error Handling
+
+**Helps tasks:** Debugging, monitoring, UX stability
+**Files:** @lib/**/\*, @app/api/**/\*
+
+* สร้าง `lib/logger.js` สำหรับ log แบบ structured
+* Server Actions ต้อง catch errors และ return standardized response
+* UI: ใช้ Error Boundaries พร้อมข้อความช่วยเหลือผู้ใช้ -->
+
+## 10. Environment Variables
+
+**Helps tasks:** Configuration, deployment, security
+**Files:** @app/api/\*\*/\*, @lib/db.js, @next.config.js
+
+* ทุกค่า config ให้ใช้ `process.env` และอธิบายใน `.env.example`
+* ห้าม hardcode ค่า secrets ในโค้ด
+
+## 11. Performance & Caching
+
+**Helps tasks:** Optimize data fetching, SSR, response time
+**Files:** @app/\*\*/\*, @lib/db.js
+
+* ใช้ Next.js caching options (`fetch(..., { next: { revalidate: 60 } })`)
+* Server Components สำหรับ content ที่ไม่เปลี่ยนบ่อย
+* Batch DB queries ใน `lib/db.js` เพื่อลด round trip
+
+## 12. Accessibility
+
+**Helps tasks:** UI component development, compliance
+**Files:** @components/**/\*, @app/**/\*
+
+* ใช้ semantic HTML และ aria attributes
+* ปุ่ม, form fields ต้องมี accessible labels
+
+## 13. Git & Commit Conventions
+
+**Helps tasks:** Branching, code review, history clarity
+**Files:** ทุกไฟล์
+
+* Branch names: `feature/`, `bugfix/`, `chore/`
+* Commit messages ตาม Conventional Commits (feat:, fix:, refactor:, docs:, chore:)
+
+## 14. CI/CD
+
+**Helps tasks:** Automated lint/test/deploy
+**Files:** .github/workflows/\*\*/\*.yml
+
+* GitHub Actions: รัน lint, test ใน push to `develop` และ `main`
+* Build artifacts ต้องผ่านทุกขั้นตอนก่อน deploy
+
+---
+
+*ไฟล์นี้ใช้เป็น Project Rules โดย Cursor AI และทีมพัฒนา FitTrack เพื่อให้ทุกคนปฏิบัติตามมาตรฐานเดียวกัน*

@@ -40,8 +40,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# docs
+docs/
+
+# readme
+readme.md
+
+.vscode/
 .cursor/
 /rules/
 /docs/
-
-.vscode/
