@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { DatePicker } from "@/components/ui/date-picker";
 import { verifyRegistrationParams } from "@/actions/trainer/registration/generateRegistrationLink";
-import { registerNewMember } from "@/actions/register/registerNewMember";
+import { createMemberAndRegistration } from "@/actions/register/registerNewMember";
 
 // Modern Registration Form Component
 function RegistrationForm({
@@ -627,12 +627,12 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const result = await registerNewMember(formData, trainerId);
+      const result = await createMemberAndRegistration(formData, trainerId);
 
       if (result.success) {
-        // Success - redirect to package selection
+        // Success - redirect to package selection page
         router.push(
-          `/member/${result.member_id}/signup/packageplan?trainer=${trainerId}`
+          `/payment/${result.registration_id}/packages?trainer=${trainerId}&member=${result.member_id}`
         );
       } else {
         setFormErrors({ submit: result.message });

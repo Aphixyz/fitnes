@@ -4,14 +4,14 @@ import db from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 /**
- * สร้างบัญชีสมาชิกใหม่
- * สร้าง member record เท่านั้น โดยไม่มีการเลือกแพ็คเกจ
+ * สร้างบัญชีสมาชิกใหม่และลงทะเบียน
+ * สร้าง member record และ registration record โดยตั้งสถานะเป็น 'pending'
  *
  * @param {Object} data - ข้อมูลสมาชิกใหม่
  * @param {number} trainerId - รหัสเทรนเนอร์ (สำหรับ reference)
- * @returns {Promise<Object>} - ผลลัพธ์การสร้างบัญชี
+ * @returns {Promise<Object>} - ผลลัพธ์การสร้างบัญชีและการลงทะเบียน
  */
-export async function registerNewMember(data, trainerId) {
+export async function createMemberAndRegistration(data, trainerId) {
   try {
     if (!data || !trainerId) {
       throw new Error("ข้อมูลไม่ครบถ้วน");
@@ -59,12 +59,11 @@ export async function registerNewMember(data, trainerId) {
     await db.query("START TRANSACTION");
 
     try {
-      // สร้าง member record ด้วยสถานะ active
+      // สร้าง member record ด้วยสถานะ registered
       const [memberResult] = await db.query(
         `INSERT INTO member 
-         (member_username, member_password, member_firstname, member_lastname, 
-          member_email, member_phone, member_gender, member_dob, member_status) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
+         (member_username, member_password, member_firstname, member_lastname, member_email, member_phone, member_gender, member_dob) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           data.member_username,
           hashedPassword,
@@ -79,21 +78,22 @@ export async function registerNewMember(data, trainerId) {
 
       const memberId = memberResult.insertId;
 
-      await db.query(
+      const [registrationResult] = await db.query(
         `INSERT INTO registration 
-         (member_id, trainer_id, packages_id, registration_status) 
-         VALUES (?, ?, NULL, 'active')`,
+        (member_id, trainer_id, packages_id, registration_startdate, registration_enddate, registration_status) 
+         VALUES (?, ?, NULL, NULL, NULL, 'pending')`,
         [memberId, trainerId]
       );
+
+      const registrationId = registrationResult.insertId;
 
       await db.query("COMMIT");
 
       return {
         success: true,
         member_id: memberId,
-        trainer_id: trainerId,
-        message:
-          "สร้างบัญชีสำเร็จ กรุณาทำการ Onboarding เพื่อตั้งค่าเป้าหมายของคุณ",
+        registration_id: registrationId,
+        message: "สร้างบัญชีสำเร็จ",
       };
     } catch (error) {
       await db.query("ROLLBACK");
