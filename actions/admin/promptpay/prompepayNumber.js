@@ -22,13 +22,13 @@ export async function savePromptPayNumber(promptpayId) {
       // มี admin อยู่แล้ว -> อัปเดต
       const adminId = adminRows[0].account_id;
       await db.query(
-        "UPDATE promptpay_account SET promptpay_id = ?, updated_at = NOW() WHERE account_id = ?",
+        "UPDATE promptpay_account SET promptpay_number = ?, updated_at = NOW() WHERE account_id = ?",
         [promptpayId, adminId]
       );
     } else {
       // ยังไม่มี -> แทรกใหม่
       await db.query(
-        "INSERT INTO promptpay_account (promptpay_id, account_type, created_at, updated_at) VALUES (?, 'admin', NOW(), NOW())",
+        "INSERT INTO promptpay_account (promptpay_number, account_type, created_at, updated_at) VALUES (?, 'admin', NOW(), NOW())",
         [promptpayId]
       );
     }

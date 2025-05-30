@@ -35,6 +35,7 @@ export default function PackageSelectionPage() {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [price, setPrice] = useState(0);
 
   // โหลดแพ็คเกจเมื่อหน้าเริ่มต้น
   useEffect(() => {
@@ -76,7 +77,7 @@ export default function PackageSelectionPage() {
 
       if (result.success) {
         // Redirect ไปหน้าชำระเงิน
-        router.push(`/payment/${registrationId}/payment`);
+        router.push(`/payment/${registrationId}/payment/${price}`);
       } else {
         setError(result.message);
       }
@@ -86,6 +87,12 @@ export default function PackageSelectionPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const selectThod = async (p) => {
+    console.log("params ", Number(p.packages_price));
+    const p_ = Number(p.packages_price);
+    setPrice(p_);
   };
 
   // Loading state
@@ -148,7 +155,12 @@ export default function PackageSelectionPage() {
                         ? "ring-2 ring-blue-500 shadow-xl shadow-blue-200 scale-105"
                         : "hover:shadow-lg hover:scale-102 border-gray-200"
                     }`}
-                    onClick={() => setSelectedPackage(pkg)}
+                    // thod
+                    // onClick={() => setSelectedPackage(pkg)}
+                    onClick={(e) => {
+                      selectThod(pkg);
+                      setSelectedPackage(pkg);
+                    }}
                   >
                     {/* Selection Indicator */}
                     {isSelected && (
@@ -224,6 +236,7 @@ export default function PackageSelectionPage() {
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
+                          selectThod(pkg);
                           setSelectedPackage(pkg);
                         }}
                       >
