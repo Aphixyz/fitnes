@@ -12,7 +12,8 @@ export async function getTrainerPackages(trainerId) {
     const [packages] = await db.query(
       `SELECT packages_id, packages_name, packages_duration_months, packages_price, packages_description 
          FROM packages 
-         WHERE trainer_id = ?`,
+         WHERE trainer_id = ?
+         ORDER BY packages_price ASC`,
       [trainerId]
     );
 
