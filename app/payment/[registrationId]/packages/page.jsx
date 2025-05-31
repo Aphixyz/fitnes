@@ -77,7 +77,11 @@ export default function PackageSelectionPage() {
 
       if (result.success) {
         // Redirect ไปหน้าชำระเงิน
-        router.push(`/payment/${registrationId}/payment/${price}`);
+        router.push(
+          `/payment/${registrationId}/payment/${price}?name=${encodeURIComponent(
+            selectedPackage.packages_name
+          )}`
+        );
       } else {
         setError(result.message);
       }
@@ -118,7 +122,7 @@ export default function PackageSelectionPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         {/* Header Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12"> 
           <h1 className="md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4">
             เลือกเอาเองดิ รอไร
           </h1>

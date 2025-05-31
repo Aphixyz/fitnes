@@ -12,6 +12,7 @@ export default function OnboardingPage() {
   const params = useParams();
   const router = useRouter();
   const memberId = params.id;
+  
 
   const [loading, setLoading] = useState(true);
   const [onboardingStatus, setOnboardingStatus] = useState(null);
