@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getPackages } from "@/actions/admin/getPackages";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LoadingSpinner from "../_components/common/loadingSpinner";
+import BackButton from "@/components/button/Back";
 
 // 🔁 ฟังก์ชันจัดกลุ่มแพ็คเกจตาม trainer_id
 function groupByTrainer(packages) {
@@ -48,7 +49,17 @@ export default function PackageListPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">รายการแพ็คเกจทั้งหมด</h1>
+      <div className="relative py-6">
+        {/* ปุ่มย้อนกลับอยู่ซ้ายแบบ absolute */}
+        {/* <div className="absolute left-4 top-1/2 -translate-y-1/2">
+          <BackButton />
+        </div> */}
+
+        {/* หัวข้อจะอยู่กลางจริง ๆ */}
+        <h1 className="text-xl sm:text-2xl font-bold text-center">
+          รายการแพ็คเกจทั้งหมด
+        </h1>
+      </div>
 
       {loading ? (
         <div className="flex justify-center items-center h-40">
@@ -62,7 +73,8 @@ export default function PackageListPage() {
         Object.entries(groupedPackages).map(([trainerId, group]) => (
           <div key={trainerId} className="mb-8">
             <h2 className="text-xl font-semibold mb-2">
-              เทรนเนอร์: <span className="text-blue-600">{group.trainerName}</span>
+              เทรนเนอร์:{" "}
+              <span className="text-blue-600">{group.trainerName}</span>
             </h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {group.packages.map((pkg) => (
@@ -75,9 +87,11 @@ export default function PackageListPage() {
                       <strong>ระยะเวลา: </strong> {pkg.packages_duration_months}{" "}
                       เดือน
                     </p>
-                    <p >
-                      <strong>ราคา: </strong> 
-                      <span className="text-green-500">฿{Number(pkg.packages_price).toLocaleString()}</span>
+                    <p>
+                      <strong>ราคา: </strong>
+                      <span className="text-green-500">
+                        ฿{Number(pkg.packages_price).toLocaleString()}
+                      </span>
                     </p>
                     <p>
                       <strong>รายละเอียด: </strong> {pkg.packages_description}

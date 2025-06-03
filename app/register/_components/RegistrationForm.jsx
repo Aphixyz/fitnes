@@ -480,51 +480,62 @@ export default function RegistrationForm({ trainerId, trainerInfo }) {
           <CardContent className="space-y-4">
             <div className="space-y-4">
               <Label>
-                เลือกแพ็คเกจ <span className="text-red-500 ">*</span>
+                เลือกแพ็คเกจที่ต้องการ <span className="text-red-500 ">*</span>
               </Label>
               <div className="overflow-x-auto">
                 <div className="flex justify-center gap-4 py-2 px-1">
                   {packages.map((pkg) => (
                     <Card
                       key={pkg.packages_id}
-                      className={`w-72 h-64 flex-shrink-0 cursor-pointer transition-all ${
+                      onClick={() => handlePackageSelect(pkg)}
+                      className={`w-72 flex-shrink-0 cursor-pointer transition-all rounded-lg border ${
                         selectedPackage === pkg.packages_id
                           ? "border-2 border-blue-500 bg-blue-50"
-                          : "border"
+                          : "hover:shadow"
                       }`}
-                      onClick={() => handlePackageSelect(pkg)}
                     >
-                      <CardHeader>
-                        <CardTitle>{pkg.packages_name}</CardTitle>
-                        <CardDescription>
-                          <span className="font-bold text-blue-700">
-                            ระยะเวลา:
-                          </span>{" "}
-                          {pkg.packages_duration_months} เดือน
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-lg font-semibold text-green-600">
-                          ราคา:{" "}
-                          {parseFloat(pkg.packages_price).toLocaleString(
-                            "th-TH",
-                            {
-                              style: "currency",
-                              currency: "THB",
-                            }
-                          )}
-                        </p>
-                        <p className="mt-2 text-gray-600 font-bold">
-                          รายละเอียด:{" "}
-                          <span className="font-normal">
+                      <div className="p-4 space-y-2">
+                        <h3 className="text-lg font-bold text-blue-800">
+                          {pkg.packages_name}
+                        </h3>
+
+                        <hr />
+                        <div>
+                          <p className="text-gray-500 font-semibold">
+                            ระยะเวลา
+                          </p>
+                          <p>{pkg.packages_duration_months} เดือน</p>
+                        </div>
+
+                        <hr />
+                        <div>
+                          <p className=" font-semibold text-gray-500">ราคา</p>
+                          <p className="text-green-500 font-bold">
+                            {parseFloat(pkg.packages_price).toLocaleString(
+                              "th-TH",
+                              {
+                                style: "currency",
+                                currency: "THB",
+                              }
+                            )}
+                          </p>
+                        </div>
+
+                        <hr />
+                        <div>
+                          <p className="text-gray-500 font-semibold">
+                            รายละเอียด
+                          </p>
+                          <p>
                             {pkg.packages_description || "ไม่มีคำอธิบาย"}
-                          </span>
-                        </p>
-                      </CardContent>
+                          </p>
+                        </div>
+                      </div>
                     </Card>
                   ))}
                 </div>
               </div>
+
               {errors.packages_id && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.packages_id}

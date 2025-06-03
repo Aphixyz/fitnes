@@ -25,6 +25,7 @@ export default async function MemberDashboard({ params }) {
       </div>
     );
   }
+  console.log(member);
 
   return (
     <div>
@@ -47,8 +48,8 @@ export default async function MemberDashboard({ params }) {
               <div className="flex items-center justify-center mb-6">
                 <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center">
                   <span className="text-emerald-700 text-2xl font-bold">
-                    {member.member_firstname ? member.member_firstname.charAt(0) : ""}
-                    {member.member_lastname ? member.member_lastname.charAt(0) : ""}
+                    {member.firstName ? member.firstName.charAt(0) : ""}
+                    {member.lastName ? member.lastName.charAt(0) : ""}
                   </span>
                 </div>
               </div>

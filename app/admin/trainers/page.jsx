@@ -47,10 +47,40 @@ export default function Page() {
   };
 
   return (
-    <div className="p-6">
-      <div className="grid grid-cols-3 items-center mb-4">
-        {/* ซ้าย: ช่องค้นหา */}
-        <div>
+    <div className="p-4 sm:p-6">
+      {/* หัวข้อใหญ่ */}
+      <div className="text-center mb-4">
+        <h1 className="text-xl sm:text-2xl font-bold">
+          รายชื่อผู้ฝึกสอนทั้งหมด
+        </h1>
+      </div>
+
+      {/* ปุ่มจัดการผู้ใช้ */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+        <ViewButton
+          route="/admin/packages"
+          buttonText="แพ็คเกจ"
+          icon={AcademicCapIcon}
+        />
+        <ManageUser route="/admin/trainers/manage" />
+      </div>
+
+      <div className="flex flex-col items-center gap-4 mb-4 md:flex-row md:items-center md:justify-between">
+        <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
+          <span>กรองตามสถานะ:</span>
+          <select
+            value={statusFilter}
+            onChange={handleStatusFilter}
+            className="p-2 border rounded-md"
+          >
+            <option value="">แสดงทั้งหมด</option>
+            <option value="active">ใช้งาน</option>
+            <option value="inactive">ไม่ได้ใช้งาน</option>
+            <option value="pending">กำลังรอดำเนินการ</option>
+          </select>
+        </label>
+
+        <div className="w-full md:w-auto flex justify-center md:justify-end">
           <SearchFilter
             data={trainers}
             onFilter={setFilteredTrainers}
@@ -62,47 +92,15 @@ export default function Page() {
             ]}
           />
         </div>
-
-        {/* กลาง: หัวข้อ */}
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">รายชื่อผู้ฝึกสอนทั้งหมด</h1>
-        </div>
-
-        {/* ขวา: ปุ่มการจัดการ */}
-        <div className="flex justify-end">
-          <ManageUser route="/admin/trainers/manage" />
-        </div>
       </div>
 
-      <div className="w-full flex justify-between items-center mb-4">
-        {/* ปุ่ม กูแพ็ตเกจนะจ๊ะ*/}
-        <ViewButton
-          route="/admin/packages"
-          buttonText="แพ็คเกจ"
-          icon={AcademicCapIcon}
-        />
-        {/* ขวา: ตัวกรองสถานะ */}
-        <div className="flex justify-end">
-          <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-            <span>กรองตามสถานะ :</span>
-            <select
-              value={statusFilter}
-              onChange={handleStatusFilter}
-              className="p-2 border rounded-md"
-            >
-              <option value="">แสดงทั้งหมด</option>
-              <option value="active">ใช้งาน</option>
-              <option value="inactive">ไม่ได้ใช้งาน</option>
-              <option value="pending">กำลังรอดำเนินการ</option>
-            </select>
-          </label>
-        </div>
-      </div>
-
+      {/* ตาราง */}
       {loading ? (
         <LoadingSpinner message="กำลังโหลดข้อมูลผู้ฝึกสอน" />
       ) : (
-        <TrainerTable trainers={filteredTrainers} />
+        <div className="overflow-x-auto">
+          <TrainerTable trainers={filteredTrainers} />
+        </div>
       )}
     </div>
   );
