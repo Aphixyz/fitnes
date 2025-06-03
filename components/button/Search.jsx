@@ -1,9 +1,8 @@
-// components/button/SearchInput.jsx (หรือ SearchBox.jsx ก็ได้)
 import { Search as SearchIcon } from "lucide-react";
 
 const SearchInput = ({ value, onChange, placeholder }) => {
   return (
-    <div className="relative w-64">
+    <div className="relative w-full max-w-xs">
       <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
         <SearchIcon size={16} />
       </span>

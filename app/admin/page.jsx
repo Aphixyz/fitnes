@@ -8,16 +8,6 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import {
-  ResponsiveContainer,
-  LineChart,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Line,
-  BarChart,
-  Bar,
-} from "recharts";
 import Chart from "chart.js/auto";
 import LoadingSpinner from "./_components/common/loadingSpinner";
 import { getTrainerData } from "@/actions/admin/getTrainer";

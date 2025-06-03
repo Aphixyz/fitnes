@@ -7,9 +7,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Button } from "@/components/ui/button";
 import { createTrainer } from "@/actions/admin/createTrainer";
-import AddButton from "@/components/button/Add"
+import AddButton from "@/components/button/Add";
 import BackButton from "@/components/button/Back";
-
 
 const schema = yup.object().shape({
   trainer_username: yup.string().required("กรุณากรอกชื่อผู้ใช้"),
@@ -117,7 +116,11 @@ export default function TrainerAddPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <AddButton isSubmitting={isSubmitting} onClick={handleSubmit(onSubmit)} />
+          <AddButton
+            isSubmitting={isSubmitting}
+            showIcon={false}
+            onClick={handleSubmit(onSubmit)}
+          />
           <BackButton />
         </div>
       </form>

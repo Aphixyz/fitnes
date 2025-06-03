@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Undo2 } from "lucide-react";
 
-const BackButton = ({ onClick }) => {
+const BackButton = ({ onClick, buttonText = "" }) => {
   const router = useRouter();
 
   return (
@@ -15,7 +15,7 @@ const BackButton = ({ onClick }) => {
     >
       <Undo2 className="h-5 w-5 transition-all duration-300 group-hover:text-white group-hover:scale-110" />
       <span className="text-sm font-semibold text-white group-hover:text-white transition-all duration-300">
-        ย้อนกลับ
+        {buttonText}
       </span>
     </Button>
   );

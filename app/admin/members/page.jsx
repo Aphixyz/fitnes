@@ -117,10 +117,21 @@ export default function MemberPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center mb-4">
-        {/* ซ้าย: ช่องค้นหา */}
-        <div className="flex-1">
+    <div className="p-2">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+        {/* Mobile layout (กลางทั้งแนวตั้งแนวนอน) */}
+        <div className="flex flex-col items-center justify-center md:hidden w-full h-20">
+          <SearchFilter
+            data={allMembers}
+            onFilter={handleFilter}
+            onSearchTermChange={handleSearchTermChange}
+            placeholder="ค้นหาสมาชิก"
+            searchFields={["member_firstname", "member_lastname", "member_id"]}
+          />
+        </div>
+
+        {/* Desktop layout */}
+        <div className="hidden md:flex md:w-1/3 md:justify-start">
           <SearchFilter
             data={allMembers}
             onFilter={handleFilter}
@@ -131,8 +142,10 @@ export default function MemberPage() {
         </div>
 
         {/* กลาง: หัวข้อ */}
-        <div className="flex-1 text-center">
-          <h1 className="text-2xl font-bold">รายชื่อสมาชิกทั้งหมด</h1>
+        <div className="w-full md:w-1/3 text-center">
+          <h1 className="text-xl md:text-2xl font-bold">
+            รายชื่อสมาชิกทั้งหมด
+          </h1>
         </div>
 
         {/* ขวา: กรองตามสถานะ */}

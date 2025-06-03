@@ -16,6 +16,7 @@ import { toast } from "@/components/ui/use-toast";
 import { getTrainerRegistrations } from "@/actions/trainer/registration/manageMemberRegistration";
 import { Clock, CheckCircle, XCircle, AlertTriangle, User } from "lucide-react";
 import ConfirmRegistrationModal from "./ConfirmRegistrationModal";
+import AddButton from "@/components/button/Add";
 
 export default function RegistrationList({ trainerId }) {
   const [loading, setLoading] = useState(true);
@@ -231,9 +232,8 @@ export default function RegistrationList({ trainerId }) {
                             <Button
                               size="sm"
                               onClick={() => handleConfirmClick(registration)}
-                            >
-                              ยืนยันการลงทะเบียน
-                            </Button>
+                              showIcon={false}
+                            />
                           )}
                           {/* {registration.is_active &&
                             !registration.is_expired && (
