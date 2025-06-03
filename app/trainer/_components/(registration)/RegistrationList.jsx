@@ -232,8 +232,9 @@ export default function RegistrationList({ trainerId }) {
                             <Button
                               size="sm"
                               onClick={() => handleConfirmClick(registration)}
-                              showIcon={false}
-                            />
+                            >
+                              ยืนยันการใช้งาน
+                            </Button>
                           )}
                           {registration.is_active &&
                             !registration.is_expired && (
