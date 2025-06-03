@@ -241,11 +241,11 @@ export default function RegistrationList({ trainerId }) {
                                 ดูข้อมูล
                               </Button>
                             )} */}
-                          {/* {registration.is_expired && (
+                          {registration.is_expired && (
                             <Button variant="outline" size="sm">
                               ต่ออายุ
                             </Button>
-                          )} */}
+                          )}
                         </div>
                       </div>
                     </CardContent>
