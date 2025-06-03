@@ -2,13 +2,13 @@
 
 import pool from '@/lib/db'; // ใช้ mysql2
 
-export async function getMemberByStatus(status) {
+export async function getregitrationByStatus(status) {
   try {
-    let query = "SELECT * FROM member";
+    let query = "SELECT * FROM regitration";
     let values = [];
 
     if (status) {
-      query += " WHERE member_status = ?";
+      query += " WHERE regitration_status = ?";
       values.push(status);
     }
 
@@ -20,7 +20,7 @@ export async function getMemberByStatus(status) {
       data: rows,
     };
   } catch (error) {
-    console.error("Error fetching member by status:", error);
+    console.error("Error fetching regitration by status:", error);
 
     // ส่งผลลัพธ์เมื่อเกิดข้อผิดพลาด
     return {

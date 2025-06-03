@@ -14,15 +14,19 @@ export async function getMemberWithTrainer() {
         m.member_firstname,
         m.member_lastname,
         m.member_email,
-        m.member_status,
+        r.registration_status,
         t.trainer_id,
         t.trainer_firstname,
         t.trainer_lastname,
-        t.trainer_status
-      FROM registration r
-      JOIN member m ON r.member_id = m.member_id
+        t.trainer_status,
+        r.registration_startdate,
+        r.registration_enddate,
+        r.payment_time,
+        r.slip_image
+      FROM member m
+      JOIN registration r ON m.member_id = r.member_id
       LEFT JOIN trainer t ON r.trainer_id = t.trainer_id
-      WHERE r.registration_status IN (1, 2, 3)
+      WHERE r.registration_status IN ('pending', 'paid', 'active', 'expired')
       ORDER BY m.member_id
     `);
 
@@ -39,7 +43,6 @@ export async function getMemberWithTrainer() {
   }
 }
 
-
 export async function getMemberWithTrainerPaginated(
   page = 1,
   pageSize = 10,
@@ -51,27 +54,28 @@ export async function getMemberWithTrainerPaginated(
     const offset = (page - 1) * pageSize;
 
     const whereClause = `
-      WHERE r.registration_status IN (1, 2, 3)
-      ${statusFilter ? `AND m.member_status = ?` : ""}
+      WHERE r.registration_status IN ('pending', 'paid', 'active', 'expired')
+      ${statusFilter ? `AND r.registration_status = ?` : ""}
     `;
 
-    // ป้องกัน SQL injection โดยตรวจสอบ sortField และ sortOrder
     const validSortFields = ["member_id", "member_firstname"];
     const validSortOrders = ["asc", "desc"];
-    const finalSortField = validSortFields.includes(sortField) ? sortField : "member_id";
-    const finalSortOrder = validSortOrders.includes(sortOrder) ? sortOrder : "asc";
+    const finalSortField = validSortFields.includes(sortField)
+      ? sortField
+      : "member_id";
+    const finalSortOrder = validSortOrders.includes(sortOrder)
+      ? sortOrder
+      : "asc";
 
-    // สร้าง ORDER BY clause
     const orderByClause =
       finalSortField === "member_firstname"
-        ? `ORDER BY m.member_firstname ${finalSortOrder}, m.member_lastname ${finalSortOrder}`
+        ? ` Next navigation ORDER BY m.member_firstname ${finalSortOrder}, m.member_lastname ${finalSortOrder}`
         : `ORDER BY m.${finalSortField} ${finalSortOrder}`;
 
     const queryParams = statusFilter
       ? [statusFilter, pageSize, offset]
       : [pageSize, offset];
 
-    // 1. ดึงข้อมูลสมาชิกแบบแบ่งหน้า
     const [members] = await db.query(
       `
       SELECT 
@@ -80,11 +84,12 @@ export async function getMemberWithTrainerPaginated(
         m.member_firstname,
         m.member_lastname,
         m.member_email,
-        m.member_status,
+        r.registration_status,
         t.trainer_id,
         t.trainer_firstname,
         t.trainer_lastname,
-        t.trainer_status
+        t.trainer_status,
+        r.slip_image
       FROM registration r
       JOIN member m ON r.member_id = m.member_id
       LEFT JOIN trainer t ON r.trainer_id = t.trainer_id
@@ -92,19 +97,21 @@ export async function getMemberWithTrainerPaginated(
       ${orderByClause}
       LIMIT ? OFFSET ?
     `,
-      statusFilter ? [statusFilter, pageSize, offset] : [pageSize, offset]
+      queryParams
     );
 
-    // 2. หาจำนวนรวม (ใช้สำหรับ pagination)
     const countQuery = `
       SELECT COUNT(*) AS total
       FROM registration r
       JOIN member m ON r.member_id = m.member_id
-      WHERE r.registration_status IN (1, 2, 3)
-      ${statusFilter ? `AND m.member_status = ?` : ""}
+      WHERE r.registration_status IN ('pending', 'paid', 'active', 'expired')
+      ${statusFilter ? `AND r.registration_status = ?` : ""}
     `;
 
-    const [[{ total }]] = await db.query(countQuery, statusFilter ? [statusFilter] : []);
+    const [[{ total }]] = await db.query(
+      countQuery,
+      statusFilter ? [statusFilter] : []
+    );
 
     return {
       success: true,

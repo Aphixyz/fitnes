@@ -13,10 +13,9 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { User, CheckCircle, XCircle } from "lucide-react";
+import { User, CheckCircle } from "lucide-react";
 import {
   confirmRegistration,
-  rejectRegistration,
   getPackageDuration,
 } from "@/actions/trainer/registration/manageMemberRegistration";
 
@@ -32,7 +31,7 @@ export default function ConfirmRegistrationModal({
     new Date().toISOString().split("T")[0]
   );
   const [endDate, setEndDate] = useState("");
-  const [packageDuration, setPackageDuration] = useState(null); // ไม่ใช้ default 1 เดือน
+  const [packageDuration, setPackageDuration] = useState(null);
 
   // ปิด scroll เมื่อ modal เปิด
   useEffect(() => {
@@ -118,25 +117,29 @@ export default function ConfirmRegistrationModal({
         packages_id: registration.packages_id,
       });
 
+      console.log("Result from confirmRegistration:", result); // ดีบักผลลัพธ์
+
       if (result.success) {
         toast({
           title: "ยืนยันการลงทะเบียนสำเร็จ",
           description: "ลงทะเบียนสมาชิกเรียบร้อยแล้ว",
         });
-        if (onSuccess) onSuccess();
+        if (onSuccess) onSuccess(); // เรียกฟังก์ชันเพื่อรีเฟรชข้อมูล
         onClose();
       } else {
         toast({
           title: "เกิดข้อผิดพลาด",
-          description: result.message,
+          description: result.message || "การยืนยันการลงทะเบียนล้มเหลว",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error in confirmRegistration:", error);
       toast({
         title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถยืนยันการลงทะเบียนได้",
+        description:
+          error.message ||
+          "เกิดข้อผิดพลาดในการยืนยันการลงทะเบียน กรุณาลองใหม่อีกครั้ง",
         variant: "destructive",
       });
     } finally {
@@ -144,39 +147,15 @@ export default function ConfirmRegistrationModal({
     }
   };
 
-  const handleReject = async () => {
-    if (!confirm("คุณต้องการปฏิเสธการลงทะเบียนนี้ใช่หรือไม่?")) return;
-
-    setIsLoading(true);
-    try {
-      const result = await rejectRegistration(
-        registration.registration_id,
-        trainerId
-      );
-
-      if (result.success) {
-        toast({
-          title: "ปฏิเสธการลงทะเบียนสำเร็จ",
-          description: "ปฏิเสธการลงทะเบียนเรียบร้อยแล้ว",
-        });
-        if (onSuccess) onSuccess();
-        onClose();
-      } else {
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: result.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error(error);
+  const handleViewSlip = () => {
+    if (registration.slip_image) {
+      window.open(registration.slip_image, "_blank");
+    } else {
       toast({
-        title: "เกิดข้อผิดพลาด",
-        description: "ไม่สามารถปฏิเสธการลงทะเบียนได้",
+        title: "ไม่พบข้อมูล",
+        description: "ไม่มีภาพใบสลิปสำหรับการลงทะเบียนนี้",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -260,12 +239,11 @@ export default function ConfirmRegistrationModal({
             <Button
               type="button"
               variant="outline"
-              onClick={handleReject}
-              disabled={isLoading}
-              className="border-red-300 text-red-600 hover:bg-red-50"
+              onClick={handleViewSlip}
+              disabled={!registration.slip_image || isLoading}
+              className="border-blue-300 text-blue-600 hover:bg-blue-50"
             >
-              <XCircle className="mr-2 h-4 w-4" />
-              ปฏิเสธ
+              ดูใบสลิป
             </Button>
             <Button type="button" onClick={handleConfirm} disabled={isLoading}>
               {isLoading ? (

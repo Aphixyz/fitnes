@@ -28,7 +28,7 @@ export default function MemberPage() {
   useEffect(() => {
     // ถ้ากำลังค้นหาอยู่ ไม่ต้องดึงข้อมูลใหม่
     if (isSearchActive) return;
-    
+
     const fetchPaginatedMembers = async () => {
       setLoading(true);
       try {
@@ -74,7 +74,7 @@ export default function MemberPage() {
     const value = e.target.value;
     setStatusFilter(value);
     setCurrentPage(1);
-    
+
     // รีเซ็ตการค้นหาเมื่อมีการเปลี่ยนตัวกรอง
     setSearchTerm("");
     setIsSearchActive(false);
@@ -92,24 +92,24 @@ export default function MemberPage() {
       setSortOrder("asc");
     }
     setCurrentPage(1);
-    
+
     // รีเซ็ตการค้นหาเมื่อมีการเปลี่ยนการเรียงลำดับ
     if (isSearchActive) {
       setSearchTerm("");
       setIsSearchActive(false);
     }
   };
-  
+
   // จัดการเมื่อมีการค้นหาจาก SearchFilter
   const handleFilter = (filtered) => {
     setFilteredMembers(filtered);
   };
-  
+
   // จัดการเมื่อมีการเปลี่ยนแปลง searchTerm จาก SearchFilter
   const handleSearchTermChange = (term) => {
     setSearchTerm(term);
     setIsSearchActive(term.length > 0);
-    
+
     // รีเซ็ตหน้าเมื่อเริ่มค้นหาใหม่
     if (term.length > 0 && !isSearchActive) {
       setCurrentPage(1);
@@ -146,9 +146,10 @@ export default function MemberPage() {
                 className="p-1 border rounded-md w-auto"
               >
                 <option value="">แสดงทั้งหมด</option>
+                <option value="pending">ยังไม่จ่าย</option>
+                <option value="paid">จ่ายแล้ว</option>
                 <option value="active">ใช้งาน</option>
-                <option value="inactive">ไม่ได้ใช้งาน</option>
-                <option value="pending">กำลังรอดำเนินการ</option>
+                <option value="expired">หมดอายุ</option>
               </select>
             </span>
           </label>
