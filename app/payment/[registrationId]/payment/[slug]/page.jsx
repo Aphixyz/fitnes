@@ -15,7 +15,8 @@ export default function PaymentPage() {
   const price = Number(r?.slug);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { registrationId } = useParams();
+  const { registrationId } = useParams(); // ดึง registrationId จากเส้นทาง
+  const memberId = searchParams.get("memberId");
   const packageName = searchParams.get("name"); // ✅ ดึงชื่อแพ็คเกจ
 
   const [qr, setQrDataURL] = useState("");
@@ -46,8 +47,8 @@ export default function PaymentPage() {
 
       // ✅ เปลี่ยนเส้นทางไปหน้า onboarding
       setTimeout(() => {
-        router.push(`/member/${registrationId}/onboarding`);
-      }, 1000); 
+        router.push(`/member/${memberId}/onboarding`);
+      }, 1000);
     } else {
       setMessage(result.message || "เกิดข้อผิดพลาด");
     }

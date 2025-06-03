@@ -27,11 +27,11 @@ export async function uploadSlip(formData) {
     }
 
     // ตรวจสอบประเภทไฟล์
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp','image/jfif'];
     if (!allowedTypes.includes(file.type)) {
       return { 
         success: false, 
-        message: "ประเภทไฟล์ไม่ถูกต้อง กรุณาอัพโหลดไฟล์ภาพ (JPG, PNG, WebP)" 
+        message: "ประเภทไฟล์ไม่ถูกต้อง กรุณาอัพโหลดไฟล์ภาพ (JPG, PNG, WebP ,JFIF)" 
       };
     }
 
