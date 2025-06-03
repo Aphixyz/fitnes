@@ -19,14 +19,14 @@ export default function TrainerLayout({ children, params }) {
           </div>
         </main>
 
-        <footer className="bg-indigo-800 text-white py-4">
+        {/* <footer className="bg-indigo-800 text-white py-4">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center text-sm">
               &copy; {new Date().getFullYear()} FitTrack -
               ระบบติดตามการออกกำลังกายและโภชนาการส่วนบุคคล
             </div>
           </div>
-        </footer>
+        </footer> */}
       </div>
     </div>
   );

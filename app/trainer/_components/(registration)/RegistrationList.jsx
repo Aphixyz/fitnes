@@ -235,12 +235,12 @@ export default function RegistrationList({ trainerId }) {
                               showIcon={false}
                             />
                           )}
-                          {/* {registration.is_active &&
+                          {registration.is_active &&
                             !registration.is_expired && (
                               <Button variant="outline" size="sm">
                                 ดูข้อมูล
                               </Button>
-                            )} */}
+                            )}
                           {registration.is_expired && (
                             <Button variant="outline" size="sm">
                               ต่ออายุ
