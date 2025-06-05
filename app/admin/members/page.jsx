@@ -149,19 +149,22 @@ export default function MemberPage() {
         </div>
 
         {/* ขวา: กรองตามสถานะ */}
-        <div className="w-full md:w-1/3 flex justify-center md:justify-end">
-          <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-            <span>กรองตามสถานะ:</span>
-            <select
-              value={statusFilter}
-              onChange={handleStatusFilter}
-              className="p-1 border rounded-md"
-            >
-              <option value="">แสดงทั้งหมด</option>
-              <option value="active">ใช้งาน</option>
-              <option value="inactive">ไม่ได้ใช้งาน</option>
-              <option value="pending">กำลังรอดำเนินการ</option>
-            </select>
+        <div className="flex-1 flex justify-end">
+          <label className="block text-sm font-medium text-gray-700">
+            กรองตามสถานะ :
+            <span className="ml-2">
+              <select
+                value={statusFilter}
+                onChange={handleStatusFilter}
+                className="p-1 border rounded-md w-auto"
+              >
+                <option value="">แสดงทั้งหมด</option>
+                <option value="pending">ยังไม่จ่าย</option>
+                <option value="paid">จ่ายแล้ว</option>
+                <option value="active">ใช้งาน</option>
+                <option value="expired">หมดอายุ</option>
+              </select>
+            </span>
           </label>
         </div>
       </div>

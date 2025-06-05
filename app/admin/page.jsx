@@ -141,17 +141,17 @@ export default function AdminDashboard() {
 
         const members = membersResponse.success ? membersResponse.data : [];
 
-        const currentMonth = new Date().toISOString().slice(0, 7);
+        const currentMonth = new Date().toISOString().slice(0, 7); // "2025-06"
         const filteredRevenue = revenueResponse.success
           ? revenueResponse.data.filter(
               (item) => item.revenue_month === currentMonth
             )
           : [];
         const currentMonthRevenue = revenueResponse.success
-          ? filteredRevenue.reduce((sum, item) => {
-              const revenue = Number(item.monthly_revenue) || 0;
-              return sum + revenue;
-            }, 0)
+          ? filteredRevenue.reduce(
+              (sum, item) => sum + (Number(item.total_monthly_revenue) || 0),
+              0
+            )
           : 0;
 
         // ดึงข้อมูลก่อนหน้าจาก localStorage
@@ -160,19 +160,13 @@ export default function AdminDashboard() {
         ) || {
           trainers: 0,
           members: 0,
-          revenue: 0, // ตั้งค่าเริ่มต้นเป็น 0 ถ้าไม่มีข้อมูล
+          revenue: 0,
         };
 
-        // คำนวณการเปลี่ยนแปลงของรายได้ โดยแปลงเป็นตัวเลขให้ชัดเจน
-        const previousRevenue = Number(previousData.revenue) || 0; // แปลงเป็นตัวเลขถ้าเป็น undefined
+        const previousRevenue = Number(previousData.revenue) || 0;
         const revenueChange = currentMonthRevenue - previousRevenue;
 
-        // ดีบักเพื่อตรวจสอบค่า
-        console.log("currentMonthRevenue:", currentMonthRevenue);
-        console.log("previousRevenue:", previousRevenue);
-        console.log("revenueChange:", revenueChange);
-
-        // อัปเดต localStorage ด้วยข้อมูลปัจจุบัน
+        // อัปเดต localStorage
         localStorage.setItem(
           "previousData",
           JSON.stringify({
@@ -248,6 +242,13 @@ export default function AdminDashboard() {
                 : "neutral",
           };
 
+          newStats[3] = {
+            ...newStats[3],
+            value: "874", // ค่าเริ่มต้นจากโค้ดเดิม
+            change: "+54", // ค่าเริ่มต้นจากโค้ดเดิม
+            changeType: "increase",
+          };
+
           return newStats;
         });
 
@@ -268,8 +269,14 @@ export default function AdminDashboard() {
     const ctx = document.getElementById("acquisitions");
     if (!ctx) return;
 
+    // เรียงลำดับ newMembers จากเก่าไปใหม่ตาม registration_startdate
+    const sortedMembers = [...newMembers].sort(
+      (a, b) =>
+        new Date(a.registration_startdate) - new Date(b.registration_startdate)
+    );
+
     const chartData = {
-      labels: newMembers.map((row) =>
+      labels: sortedMembers.map((row) =>
         new Date(row.registration_startdate).toLocaleDateString("th-TH", {
           day: "2-digit",
           month: "short",
@@ -278,8 +285,8 @@ export default function AdminDashboard() {
       datasets: [
         {
           label: "สมาชิกใหม่",
-          data: newMembers.map((row) => row.member_id), // หรือคุณจะใช้ field อื่นที่แทนจำนวนก็ได้
-          backgroundColor: ["#4f46e5", "#DCDCDCFF", "#0000000"],
+          data: sortedMembers.map((row) => row.member_id), // หรือ field อื่นที่แทนจำนวน
+          backgroundColor: "#4f46e5",
           borderRadius: 10,
         },
       ],
@@ -299,6 +306,14 @@ export default function AdminDashboard() {
         scales: {
           y: {
             beginAtZero: true,
+            ticks: {
+              display: false, // ปิดการแสดง labels บนแกน Y
+            },
+          },
+          x: {
+            ticks: {
+              display: true, // คงการตั้งค่าเดิมที่ปิดแกน X
+            },
           },
         },
       },

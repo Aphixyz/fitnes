@@ -5,7 +5,7 @@ import db from "@/lib/db";
 /**
  * ดึงรายการลงทะเบียนทั้งหมดของเทรนเนอร์
  * @param {number} trainerId - รหัสเทรนเนอร์
- * @param {number|null} status - สถานะการลงทะเบียนที่ต้องการดึง (optional)
+ * @param {string|null} status - สถานะการลงทะเบียนที่ต้องการดึง (optional: 'pending', 'paid', 'active', 'expired')
  * @returns {Promise<Object>} - รายการลงทะเบียน
  */
 export async function getTrainerRegistrations(trainerId, status = null) {
@@ -35,9 +35,10 @@ export async function getTrainerRegistrations(trainerId, status = null) {
 
     query += ` ORDER BY 
       CASE 
-        WHEN r.registration_status = 0 THEN 1 /* pending */
-        WHEN r.registration_status = 1 THEN 2 /* active */
-        ELSE 3
+        WHEN r.registration_status = 'pending' THEN 1
+        WHEN r.registration_status = 'paid' THEN 2
+        WHEN r.registration_status = 'active' THEN 3
+        ELSE 4
       END, 
       r.registration_id DESC`;
 
@@ -45,34 +46,21 @@ export async function getTrainerRegistrations(trainerId, status = null) {
 
     return {
       success: true,
-      registrations: registrations.map((reg) => {
-        let memberData = {};
-        if (!reg.member_id && reg.member_data) {
-          try {
-            memberData = JSON.parse(reg.member_data);
-          } catch (error) {
-            console.error("Error parsing member_data:", error);
-          }
-        }
-        return {
-          ...reg,
-          member_name: reg.member_id
-            ? `${reg.member_firstname} ${reg.member_lastname}`
-            : `${memberData.member_firstname || ""} ${
-                memberData.member_lastname || ""
-              }`.trim(),
-          member_email: reg.member_id
-            ? reg.member_email
-            : memberData.member_email || "",
-          is_active: reg.registration_status === 1,
-          is_pending: reg.registration_status === 0,
-          is_expired:
-            reg.registration_status === 2 ||
-            (reg.registration_status === 1 &&
-              reg.registration_enddate &&
-              new Date(reg.registration_enddate) < new Date()),
-        };
-      }),
+      registrations: registrations.map((reg) => ({
+        ...reg,
+        member_name: reg.member_id
+          ? `${reg.member_firstname || ""} ${reg.member_lastname || ""}`.trim()
+          : "ไม่ทราบชื่อ", // ถ้าไม่มี member_id ให้ใช้ค่าเริ่มต้น
+        member_email: reg.member_id ? reg.member_email || "" : "",
+        is_pending: reg.registration_status === "pending",
+        is_paid: reg.registration_status === "paid",
+        is_active: reg.registration_status === "active",
+        is_expired:
+          reg.registration_status === "expired" ||
+          (reg.registration_status === "active" &&
+            reg.registration_enddate &&
+            new Date(reg.registration_enddate) < new Date()),
+      })),
     };
   } catch (error) {
     console.error("Error fetching trainer registrations:", error);
@@ -84,36 +72,88 @@ export async function getTrainerRegistrations(trainerId, status = null) {
 }
 
 /**
- * ยืนยันการลงทะเบียนของสมาชิก
- * @param {Object} data - ข้อมูลการยืนยัน
+ * อัปเดตสถานะการลงทะเบียน
+ * @param {Object} data - ข้อมูลการอัปเดต
  * @param {number} data.registrationId - รหัสการลงทะเบียน
  * @param {number} data.trainerId - รหัสเทรนเนอร์
- * @param {string} data.startDate - วันเริ่มต้นสัญญา
- * @param {string} data.endDate - วันสิ้นสุดสัญญา
- * @returns {Promise<Object>} - ผลลัพธ์การยืนยัน
+ * @param {string} data.newStatus - สถานะใหม่ ('pending', 'paid', 'active', 'expired')
+ * @returns {Promise<Object>} - ผลลัพธ์การอัปเดต
  */
+export async function updateRegistrationStatus(data) {
+  try {
+    const { registrationId, trainerId, newStatus } = data;
+
+    // ตรวจสอบข้อมูลที่จำเป็น
+    if (!registrationId || !trainerId || !newStatus) {
+      throw new Error("ข้อมูลไม่ครบถ้วน");
+    }
+
+    // ตรวจสอบสถานะใหม่ที่ระบุ
+    const validStatuses = ["pending", "paid", "active", "expired"];
+    if (!validStatuses.includes(newStatus)) {
+      throw new Error(
+        "สถานะไม่ถูกต้อง ต้องเป็น 'pending', 'paid', 'active', หรือ 'expired'"
+      );
+    }
+
+    // ตรวจสอบว่าการลงทะเบียนนี้เป็นของเทรนเนอร์คนนี้จริงหรือไม่
+    const [registrationCheck] = await db.query(
+      `SELECT registration_id FROM registration 
+       WHERE registration_id = ? AND trainer_id = ?`,
+      [registrationId, trainerId]
+    );
+
+    if (!registrationCheck || registrationCheck.length === 0) {
+      throw new Error("ไม่พบข้อมูลการลงทะเบียนหรือไม่มีสิทธิ์ในการอัปเดต");
+    }
+
+    // อัปเดตสถานะ
+    const [result] = await db.query(
+      `UPDATE registration 
+       SET registration_status = ? 
+       WHERE registration_id = ?`,
+      [newStatus, registrationId]
+    );
+
+    if (!result || result.affectedRows === 0) {
+      throw new Error("ไม่สามารถอัปเดตสถานะการลงทะเบียนได้");
+    }
+
+    return {
+      success: true,
+      message: `อัปเดตสถานะการลงทะเบียนเป็น '${newStatus}' สำเร็จ`,
+    };
+  } catch (error) {
+    console.error("Error updating registration status:", error);
+    return {
+      success: false,
+      message: error.message || "เกิดข้อผิดพลาดในการอัปเดตสถานะการลงทะเบียน",
+    };
+  }
+}
+
 /**
  * ยืนยันการลงทะเบียนของสมาชิก และสร้างบัญชีสมาชิกในตาราง member
  * @param {Object} data - ข้อมูลการยืนยัน
  * @param {number} data.registrationId - รหัสการลงทะเบียน
  * @param {number} data.trainerId - รหัสเทรนเนอร์
  * @param {string} data.startDate - วันเริ่มต้นสัญญา
- * @param {string} data.endDate - วันสิ้นสุดสัญญา
+ * @param {number} data.packages_id - รหัสแพ็คเกจ
  * @returns {Promise<Object>} - ผลลัพธ์การยืนยัน
  */
 export async function confirmRegistration(data) {
   try {
-    const { registrationId, trainerId, startDate } = data; // ลบ endDate ออก
+    const { registrationId, trainerId, startDate, packages_id } = data;
 
     // ตรวจสอบข้อมูลที่จำเป็น
-    if (!registrationId || !trainerId || !startDate) {
+    if (!registrationId || !trainerId || !startDate || !packages_id) {
       throw new Error("ข้อมูลไม่ครบถ้วน");
     }
 
     // ดึงข้อมูลแพ็คเกจเพื่อคำนวณระยะเวลา
     const [packageCheck] = await db.query(
       "SELECT packages_duration_months FROM packages WHERE packages_id = ? AND trainer_id = ?",
-      [data.packages_id, trainerId]
+      [packages_id, trainerId]
     );
 
     if (!packageCheck || packageCheck.length === 0) {
@@ -133,8 +173,8 @@ export async function confirmRegistration(data) {
 
     // ดึงข้อมูลการลงทะเบียนและตรวจสอบว่าเป็นของเทรนเนอร์คนนี้จริงหรือไม่
     const [registrationCheck] = await db.query(
-      `SELECT registration_id, member_data, member_id FROM registration 
-       WHERE registration_id = ? AND trainer_id = ? AND registration_status = 0`,
+      `SELECT registration_id, member_id FROM registration 
+       WHERE registration_id = ? AND trainer_id = ? AND registration_status IN ('pending', 'paid')`,
       [registrationId, trainerId]
     );
 
@@ -146,110 +186,27 @@ export async function confirmRegistration(data) {
 
     // ถ้าไม่มีข้อมูล member_id ในตาราง registration แสดงว่าต้องสร้างสมาชิกใหม่
     if (!registrationData.member_id) {
-      // ตรวจสอบว่ามีข้อมูล member_data
-      if (!registrationData.member_data) {
-        throw new Error("ไม่พบข้อมูลการลงทะเบียน");
-      }
-
-      // แปลงข้อมูล JSON เป็น object
-      let memberData;
-      try {
-        memberData = JSON.parse(registrationData.member_data);
-      } catch (e) {
-        throw new Error("ข้อมูลการลงทะเบียนไม่ถูกต้อง");
-      }
-
-      // เริ่ม transaction
-      await db.query("START TRANSACTION");
-
-      try {
-        // บันทึกข้อมูลสมาชิกใหม่ลงในตาราง member
-        const [memberResult] = await db.query(
-          `INSERT INTO member 
-           (member_username, member_password, member_firstname, member_lastname, 
-            member_email, member_phone, member_gender, member_dob, 
-            member_profileimage, member_status) 
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
-          [
-            memberData.member_username,
-            memberData.member_password,
-            memberData.member_firstname,
-            memberData.member_lastname,
-            memberData.member_email,
-            memberData.member_phone || null,
-            memberData.member_gender || null,
-            memberData.member_dob || null,
-            memberData.memberprofile_image || null,
-          ]
-        );
-
-        if (!memberResult || !memberResult.insertId) {
-          throw new Error("ไม่สามารถสร้างบัญชีสมาชิกได้");
-        }
-
-        const memberId = memberResult.insertId;
-
-        // อัปเดต member_id ในตาราง registration
-        const [updateResult] = await db.query(
-          `UPDATE registration 
-           SET member_id = ? 
-           WHERE registration_id = ?`,
-          [memberId, registrationId]
-        );
-
-        if (!updateResult || updateResult.affectedRows === 0) {
-          throw new Error("ไม่สามารถอัปเดต member_id ในตาราง registration ได้");
-        }
-
-        // อัพเดต member_id, สถานะ และวันที่เริ่มต้น-สิ้นสุดในตาราง registration
-        // registration_status: 1 = active
-        const [updateResult2] = await db.query(
-          `UPDATE registration 
-           SET registration_status = 1, 
-               registration_startdate = ?, 
-               registration_enddate = ?,
-               member_id = ?
-           WHERE registration_id = ?`,
-          [startDate, end.toISOString().slice(0, 19).replace("T", " "), memberId, registrationId]
-        );
-
-        if (!updateResult2 || updateResult2.affectedRows === 0) {
-          throw new Error("ไม่สามารถอัพเดตข้อมูลการลงทะเบียนได้");
-        }
-
-        // Commit transaction
-        await db.query("COMMIT");
-
-        return {
-          success: true,
-          message: "ยืนยันการลงทะเบียนสำเร็จ บัญชีสมาชิกถูกสร้างแล้ว",
-        };
-      } catch (error) {
-        // Rollback transaction ในกรณีที่เกิดข้อผิดพลาด
-        await db.query("ROLLBACK");
-        throw error;
-      }
-    } else {
-      // กรณีที่มี member_id อยู่แล้ว (กรณีมีการปรับปรุงระบบใหม่)
-      // อัพเดตสถานะและวันที่เริ่มต้น-สิ้นสุด
-      const [result] = await db.query(
-        `UPDATE registration 
-         SET registration_status = 1, 
-             registration_startdate = ?, 
-             registration_enddate = ?
-         WHERE registration_id = ?`,
-        [startDate, end.toISOString().slice(0, 19).replace("T", " "), registrationId]
-      );
-
-      if (!result || result.affectedRows === 0) {
-        throw new Error("ไม่สามารถยืนยันการลงทะเบียนได้");
-      }
-
-      return {
-        success: true,
-        message: "ยืนยันการลงทะเบียนสำเร็จ",
-      };
+      throw new Error("ไม่พบ member_id ในข้อมูลการลงทะเบียน กรุณาตรวจสอบข้อมูล");
     }
+
+    // อัปเดตสถานะและวันที่เริ่มต้น-สิ้นสุดในตาราง registration
+    const [result] = await db.query(
+      `UPDATE registration 
+       SET registration_status = 'active', 
+           registration_startdate = ?, 
+           registration_enddate = ?
+       WHERE registration_id = ?`,
+      [startDate, end.toISOString().slice(0, 19).replace("T", " "), registrationId]
+    );
+
+    if (!result || result.affectedRows === 0) {
+      throw new Error("ไม่สามารถยืนยันการลงทะเบียนได้");
+    }
+
+    return {
+      success: true,
+      message: "ยืนยันการลงทะเบียนสำเร็จ",
+    };
   } catch (error) {
     console.error("Error confirming registration:", error);
     return {
@@ -292,7 +249,7 @@ export async function rejectRegistration(registrationId, trainerId) {
     // ตรวจสอบว่าการลงทะเบียนนี้เป็นของเทรนเนอร์คนนี้จริงหรือไม่
     const [registrationCheck] = await db.query(
       `SELECT registration_id, member_id FROM registration 
-       WHERE registration_id = ? AND trainer_id = ? AND registration_status = 0`,
+       WHERE registration_id = ? AND trainer_id = ? AND registration_status IN ('pending', 'paid')`,
       [registrationId, trainerId]
     );
 
@@ -300,11 +257,10 @@ export async function rejectRegistration(registrationId, trainerId) {
       throw new Error("ไม่พบข้อมูลการลงทะเบียนหรือไม่มีสิทธิ์ในการปฏิเสธ");
     }
 
-    // อัพเดตสถานะ
-    // registration_status: 3 = rejected
+    // อัปเดตสถานะเป็น rejected
     const [result] = await db.query(
       `UPDATE registration 
-       SET registration_status = 3
+       SET registration_status = 'rejected'
        WHERE registration_id = ?`,
       [registrationId]
     );
@@ -345,7 +301,6 @@ export async function renewRegistration(data) {
 
     // ตรวจสอบวันที่
     const end = new Date(endDate);
-
     if (isNaN(end.getTime())) {
       throw new Error("รูปแบบวันที่ไม่ถูกต้อง");
     }
@@ -367,19 +322,16 @@ export async function renewRegistration(data) {
     }
 
     if (registrationCheck[0].registration_enddate) {
-      const currentEndDate = new Date(
-        registrationCheck[0].registration_enddate
-      );
+      const currentEndDate = new Date(registrationCheck[0].registration_enddate);
       if (end <= currentEndDate) {
         throw new Error("วันสิ้นสุดใหม่ต้องมากกว่าวันสิ้นสุดเดิม");
       }
     }
 
-    // อัพเดตวันที่สิ้นสุดและสถานะ
-    // registration_status: 1 = active
+    // อัปเดตวันที่สิ้นสุดและสถานะ
     const [result] = await db.query(
       `UPDATE registration 
-       SET registration_status = 1, 
+       SET registration_status = 'active', 
            registration_enddate = ?
        WHERE registration_id = ?`,
       [endDate, registrationId]
@@ -416,12 +368,13 @@ export async function getRegistrationCountsByStatus(trainerId) {
     const [result] = await db.query(
       `SELECT 
         COUNT(*) as total,
-        SUM(CASE WHEN registration_status = 0 THEN 1 ELSE 0 END) as pending,
-        SUM(CASE WHEN registration_status = 1 THEN 1 ELSE 0 END) as active,
-        SUM(CASE WHEN registration_status = 2 OR 
-                 (registration_status = 1 AND registration_enddate < NOW()) 
+        SUM(CASE WHEN registration_status = 'pending' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN registration_status = 'paid' THEN 1 ELSE 0 END) as paid,
+        SUM(CASE WHEN registration_status = 'active' THEN 1 ELSE 0 END) as active,
+        SUM(CASE WHEN registration_status = 'expired' OR 
+                 (registration_status = 'active' AND registration_enddate < NOW()) 
             THEN 1 ELSE 0 END) as expired,
-        SUM(CASE WHEN registration_status = 3 THEN 1 ELSE 0 END) as rejected
+        SUM(CASE WHEN registration_status = 'rejected' THEN 1 ELSE 0 END) as rejected
        FROM registration
        WHERE trainer_id = ?`,
       [trainerId]
@@ -433,6 +386,7 @@ export async function getRegistrationCountsByStatus(trainerId) {
         counts: {
           total: 0,
           pending: 0,
+          paid: 0,
           active: 0,
           expired: 0,
           rejected: 0,
@@ -459,12 +413,11 @@ export async function getRegistrationCountsByStatus(trainerId) {
  */
 export async function checkAndUpdateExpiredRegistrations() {
   try {
-    // อัพเดตสถานะของการลงทะเบียนที่หมดอายุ (registration_status = 1 แต่เลย registration_enddate)
-    // เปลี่ยนให้เป็น registration_status = 2 (expired)
+    // อัพเดตสถานะของการลงทะเบียนที่หมดอายุ (registration_status = 'active' แต่เลย registration_enddate)
     const [result] = await db.query(
       `UPDATE registration 
-       SET registration_status = 2
-       WHERE registration_status = 1 
+       SET registration_status = 'expired'
+       WHERE registration_status = 'active' 
        AND registration_enddate < NOW()`
     );
 

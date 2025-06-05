@@ -1,0 +1,109 @@
+"use server";
+
+import db from "@/lib/db";
+import bcrypt from "bcryptjs";
+
+/**
+ * สร้างบัญชีสมาชิกใหม่และลงทะเบียน
+ * สร้าง member record และ registration record โดยตั้งสถานะเป็น 'pending'
+ *
+ * @param {Object} data - ข้อมูลสมาชิกใหม่
+ * @param {number} trainerId - รหัสเทรนเนอร์ (สำหรับ reference)
+ * @returns {Promise<Object>} - ผลลัพธ์การสร้างบัญชีและการลงทะเบียน
+ */
+export async function createMemberAndRegistration(data, trainerId) {
+  try {
+    if (!data || !trainerId) {
+      throw new Error("ข้อมูลไม่ครบถ้วน");
+    }
+
+    const requiredFields = [
+      "member_username",
+      "member_password",
+      "member_email",
+      "member_firstname",
+      "member_lastname",
+    ];
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        throw new Error(`กรุณากรอก ${field}`);
+      }
+    }
+
+    // ตรวจสอบ trainer
+    const [trainerCheck] = await db.query(
+      "SELECT trainer_id FROM trainer WHERE trainer_id = ? AND trainer_status = 'active'",
+      [trainerId]
+    );
+
+    if (!trainerCheck || trainerCheck.length === 0) {
+      throw new Error(
+        "ไม่พบข้อมูลเทรนเนอร์หรือเทรนเนอร์ไม่อยู่ในสถานะพร้อมให้บริการ"
+      );
+    }
+
+    // ตรวจสอบว่า email หรือ username ซ้ำหรือไม่
+    const [existingMember] = await db.query(
+      "SELECT member_id FROM member WHERE member_email = ? OR member_username = ?",
+      [data.member_email, data.member_username]
+    );
+
+    if (existingMember && existingMember.length > 0) {
+      throw new Error("อีเมลหรือชื่อผู้ใช้นี้ถูกใช้งานแล้ว");
+    }
+
+    // เข้ารหัสรหัสผ่าน
+    const hashedPassword = await bcrypt.hash(data.member_password, 10);
+
+    // เริ่ม transaction
+    await db.query("START TRANSACTION");
+
+    try {
+      // สร้าง member record ด้วยสถานะ registered
+      const [memberResult] = await db.query(
+        `INSERT INTO member 
+         (member_username, member_password, member_firstname, member_lastname, member_email, member_phone, member_gender, member_dob) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          data.member_username,
+          hashedPassword,
+          data.member_firstname,
+          data.member_lastname,
+          data.member_email,
+          data.member_phone || null,
+          data.member_gender || null,
+          data.member_dob || null,
+        ]
+      );
+
+      const memberId = memberResult.insertId;
+
+      const [registrationResult] = await db.query(
+        `INSERT INTO registration 
+        (member_id, trainer_id, packages_id, registration_startdate, registration_enddate, registration_status) 
+         VALUES (?, ?, NULL, NULL, NULL, 'pending')`,
+        [memberId, trainerId]
+      );
+
+      const registrationId = registrationResult.insertId;
+
+      await db.query("COMMIT");
+
+      return {
+        success: true,
+        member_id: memberId,
+        registration_id: registrationId,
+        message: "สร้างบัญชีสำเร็จ",
+      };
+    } catch (error) {
+      await db.query("ROLLBACK");
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error creating new member:", error);
+    return {
+      success: false,
+      message: error.message || "เกิดข้อผิดพลาดในการสร้างบัญชี",
+    };
+  }
+}

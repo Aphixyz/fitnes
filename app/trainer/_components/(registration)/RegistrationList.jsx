@@ -32,11 +32,11 @@ export default function RegistrationList({ trainerId }) {
   const fetchRegistrations = async () => {
     setLoading(true);
     try {
-      // สถานะที่ต้องการดึง (null หมายถึงดึงทั้งหมด)
       let statusFilter = null;
-      if (activeTab === "pending") statusFilter = 0; // pending
-      else if (activeTab === "active") statusFilter = 1; // active
-      else if (activeTab === "expired") statusFilter = 2; // expired
+      if (activeTab === "pending") statusFilter = "pending";
+      else if (activeTab === "paid") statusFilter = "paid";
+      else if (activeTab === "active") statusFilter = "active";
+      else if (activeTab === "expired") statusFilter = "expired";
 
       const result = await getTrainerRegistrations(trainerId, statusFilter);
 
@@ -48,9 +48,15 @@ export default function RegistrationList({ trainerId }) {
               try {
                 memberData = JSON.parse(reg.member_data);
               } catch (error) {
-                console.error("Error parsing member_data:", error);
+                console.error("เกิดข้อผิดพลาดในการแปลง member_data:", error);
               }
             }
+            // กำหนดวันที่ปัจจุบัน (31 พฤษภาคม 2568, 16:49 น. +07)
+            const currentDate = new Date("2025-05-31T16:49:00+07:00");
+            const endDate = reg.registration_enddate
+              ? new Date(reg.registration_enddate)
+              : null;
+
             return {
               ...reg,
               member_name: reg.member_id
@@ -61,6 +67,12 @@ export default function RegistrationList({ trainerId }) {
               member_email: reg.member_id
                 ? reg.member_email
                 : memberData.member_email || "",
+              is_pending: reg.registration_status === "pending", // รอชำระเงิน
+              is_paid: reg.registration_status === "paid", // ชำระเงินแล้ว
+              is_active: reg.registration_status === "active", // ใช้งานอยู่
+              is_expired:
+                reg.registration_status === "expired" ||
+                (endDate && endDate < currentDate), // หมดอายุ
             };
           })
         );
@@ -89,32 +101,32 @@ export default function RegistrationList({ trainerId }) {
   };
 
   const getStatusBadge = (registration) => {
-    if (registration.is_pending) {
-      return <Badge className="bg-yellow-500">รอการยืนยัน</Badge>;
-    } else if (registration.is_active) {
-      if (registration.is_expired) {
+    switch (registration.registration_status) {
+      case "pending":
+        return <Badge className="bg-yellow-500">ยังไม่ชำระเงิน</Badge>;
+      case "paid":
+        return <Badge className="bg-blue-500">ชำระเงินแล้ว</Badge>;
+      case "active":
+        return <Badge className="bg-green-500">ใช้งานอยู่</Badge>;
+      case "expired":
         return <Badge className="bg-red-500">หมดอายุ</Badge>;
-      }
-      return <Badge className="bg-green-500">ใช้งานอยู่</Badge>;
-    } else if (registration.registration_status === 3) {
-      return <Badge className="bg-gray-500">ปฏิเสธ</Badge>;
-    } else {
-      return <Badge className="bg-red-500">หมดอายุ</Badge>;
+      default:
+        return <Badge className="bg-gray-500">ไม่ทราบสถานะ</Badge>;
     }
   };
 
   const getStatusIcon = (registration) => {
-    if (registration.is_pending) {
-      return <Clock className="h-5 w-5 text-yellow-500" />;
-    } else if (registration.is_active) {
-      if (registration.is_expired) {
+    switch (registration.registration_status) {
+      case "pending":
+        return <Clock className="h-5 w-5 text-yellow-500" />;
+      case "paid":
+        return <CheckCircle className="h-5 w-5 text-blue-500" />;
+      case "active":
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case "expired":
         return <AlertTriangle className="h-5 w-5 text-red-500" />;
-      }
-      return <CheckCircle className="h-5 w-5 text-green-500" />;
-    } else if (registration.registration_status === 3) {
-      return <XCircle className="h-5 w-5 text-gray-500" />;
-    } else {
-      return <AlertTriangle className="h-5 w-5 text-red-500" />;
+      default:
+        return <AlertTriangle className="h-5 w-5 text-gray-500" />;
     }
   };
 
@@ -137,9 +149,10 @@ export default function RegistrationList({ trainerId }) {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="mb-4 grid grid-cols-4 w-full">
+            <TabsList className="mb-4 grid grid-cols-5 w-full">
               <TabsTrigger value="all">ทั้งหมด</TabsTrigger>
-              <TabsTrigger value="pending">รอยืนยัน</TabsTrigger>
+              <TabsTrigger value="pending">ยังไม่ชำระเงิน</TabsTrigger>
+              <TabsTrigger value="paid">ชำระเงินแล้ว</TabsTrigger>
               <TabsTrigger value="active">ใช้งานอยู่</TabsTrigger>
               <TabsTrigger value="expired">หมดอายุ</TabsTrigger>
             </TabsList>
@@ -215,12 +228,13 @@ export default function RegistrationList({ trainerId }) {
                           </div>
                         </div>
                         <div className="ml-auto flex items-center gap-2">
-                          {registration.is_pending && (
-                            <AddButton
-                              buttonText="ยืนยันการลงทะเบียน"
+                          {registration.is_paid && (
+                            <Button
+                              size="sm"
                               onClick={() => handleConfirmClick(registration)}
-                              showIcon={false}
-                            />
+                            >
+                              ยืนยันการใช้งาน
+                            </Button>
                           )}
                           {registration.is_active &&
                             !registration.is_expired && (

@@ -171,7 +171,7 @@ export default function MemberTable({
                     {member.trainer_firstname} {member.trainer_lastname}
                   </td>
                   <td className="px-4 py-2 border border-gray-300 text-center w-[10%]">
-                    <StatusBadge status={member.member_status} />
+                    <StatusBadge status={member.registration_status} />
                   </td>
                   {showActions && (
                     <td className="px-4 py-2 border border-gray-300 text-center space-x-2 w-[16%]">
