@@ -20,8 +20,7 @@ import {
 } from "lucide-react";
 import {
   getActiveWorkoutPlan,
-  getActiveNutritionPlan,
-} from "@/actions/trainer/workout/workoutv1/workoutPlanActions";
+} from "@/actions/trainer/workout/workout_plan/getActiveWorkoutPlan";
 
 export function toast({ title, description, variant = "default" }) {
   return <Toast title={title} description={description} variant={variant} />;

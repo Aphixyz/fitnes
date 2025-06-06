@@ -55,6 +55,8 @@ export default function WorkoutPlanForm({
     { value: 5, label: "5 สัปดาห์" },
     { value: 6, label: "6 สัปดาห์" },
     { value: 8, label: "8 สัปดาห์" },
+    { value: 9, label: "9 สัปดาห์" },
+    { value: 10, label: "10 สัปดาห์" },
     { value: 12, label: "12 สัปดาห์" },
   ];
 
