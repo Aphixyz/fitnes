@@ -84,6 +84,7 @@ export async function getMemberWithTrainerPaginated(
         m.member_firstname,
         m.member_lastname,
         m.member_email,
+        m.member_profileimage,
         r.registration_status,
         t.trainer_id,
         t.trainer_firstname,

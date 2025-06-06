@@ -15,7 +15,12 @@ function customDebounce(func, wait) {
 }
 
 // คอมโพเนนต์ TableHeader
-const TableHeader = ({ sortField, sortOrder, handleSortChange, showActions }) => {
+const TableHeader = ({
+  sortField,
+  sortOrder,
+  handleSortChange,
+  showActions,
+}) => {
   const debouncedSortChange = useCallback(
     customDebounce((field, event) => {
       event.preventDefault();
@@ -40,13 +45,16 @@ const TableHeader = ({ sortField, sortOrder, handleSortChange, showActions }) =>
           onClick={(e) => debouncedSortChange("member_firstname", e)}
         >
           ชื่อ-นามสกุล{" "}
-          {sortField === "member_firstname" && (sortOrder === "asc" ? "↑" : "↓")}
+          {sortField === "member_firstname" &&
+            (sortOrder === "asc" ? "↑" : "↓")}
         </th>
         <th className="px-4 py-2 border border-gray-300 w-[20%]">อีเมลล์</th>
         <th className="px-4 py-2 border border-gray-300 w-[20%]">เทรนเนอร์</th>
         <th className="px-4 py-2 border border-gray-300 w-[10%]">สถานะ</th>
         {showActions && (
-          <th className="px-4 py-2 border border-gray-300 w-[16%]">การจัดการ</th>
+          <th className="px-4 py-2 border border-gray-300 w-[16%]">
+            การจัดการ
+          </th>
         )}
       </tr>
     </thead>
@@ -59,7 +67,7 @@ const TableSkeleton = ({ showActions }) => (
     {Array(5)
       .fill()
       .map((_, i) => (
-        <tr Hopkins className="border-t border-gray-300">
+        <tr Hopkins className="hover:bg-gray-50 cursor-pointer border-t border-gray-200 transition duration-200 ease-in-out">
           <td className="px-4 py-2 border border-gray-300 w-[12%]">
             <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-3/4"></div>
           </td>
@@ -116,7 +124,7 @@ export default function MemberTable({
         </div>
       )}
 
-      <table className="min-w-full bg-white border border-gray-300 shadow-md table-fixed">
+      <table className="min-w-full bg-white border border-gray-200 shadow-lg rounded-xl table-fixed">
         <TableHeader
           sortField={sortField}
           sortOrder={sortOrder}
@@ -131,7 +139,7 @@ export default function MemberTable({
               members.map((member) => (
                 <tr
                   key={member.member_id}
-                  className="hover:bg-gray-100 cursor-pointer border-t border-gray-300"
+                  className="hover:bg-gray-50 cursor-pointer border-t border-gray-200 transition duration-200 ease-in-out"
                   onClick={() =>
                     startTransition(() =>
                       router.push(`/admin/members/${member.member_id}`)
@@ -179,7 +187,9 @@ export default function MemberTable({
                         onClick={(e) => {
                           e.stopPropagation();
                           startTransition(() =>
-                            router.push(`/admin/members/edit/${member.member_id}`)
+                            router.push(
+                              `/admin/members/edit/${member.member_id}`
+                            )
                           );
                         }}
                         className="px-2 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded-md transition-colors"

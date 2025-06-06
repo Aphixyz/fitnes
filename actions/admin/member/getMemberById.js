@@ -42,6 +42,7 @@ export async function getMemberById(memberId) {
       status: memberRows[0].member_status,
       trainers: [],
     };
+    console.log("memberId:", memberId);
 
     // ดึงรายชื่อเทรนเนอร์ที่ดูแลสมาชิกนี้
     const [trainerRows] = await pool.query(
@@ -52,9 +53,10 @@ export async function getMemberById(memberId) {
             t.trainer_email as email
          FROM registration r
          JOIN trainer t ON r.trainer_id = t.trainer_id
-         WHERE r.member_id = ? AND r.registration_status = 1`,
+         WHERE r.member_id = ? AND r.registration_status = "active"`,
       [memberId]
     );
+    console.log("trainerRows:", trainerRows);
 
     member.trainers = trainerRows;
 

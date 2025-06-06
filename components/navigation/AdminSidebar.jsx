@@ -300,9 +300,9 @@ export const AdminSidebar = ({ user }) => {
                   {user?.name || "ผู้ดูแลระบบ"}
                 </div>
                 <Button
-                  variant="outline"
+                  variant=""
                   size="sm"
-                  className="mt-2 text-white border-white hover:bg-blue-700 w-full"
+                  className="mt-2 text-white border-black bg-blue-700 hover:bg-blue-600 w-full"
                 >
                   ออกจากระบบ
                 </Button>
