@@ -86,7 +86,7 @@ const MembersDataTable = ({ initialData, trainerId, onRefresh }) => {
 
   // จัดการการคลิกแถว
   const handleRowClick = (member) => {
-    router.push(`/trainer/${trainerId}/members/${member.member_id}/`);
+    router.push(`/trainer/${trainerId}/members/${member.member_id}/overview`);
   };
 
   return (

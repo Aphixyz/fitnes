@@ -1,5 +1,4 @@
-// import { query } from '@/lib/db';
-// import TrainerProfileManager from '@/app/trainer/_components/(profile)/TrainerProfileManager';
+import pool from '@/lib/db';
 
 // // ฟังก์ชันสำหรับดึงข้อมูล trainer
 // async function getTrainerData(trainerId) {
@@ -23,10 +22,10 @@ export default async function TrainerProfilePage({ params }) {
 //     return <div className="p-8">ไม่พบข้อมูลผู้ฝึกสอน</div>;
 //   }
   
-//   return (
-//     <div className="container mx-auto py-8 px-4 max-w-4xl">
-//       <h1 className="text-2xl font-bold mb-8 text-gray-800 border-b pb-4">ข้อมูลส่วนตัวผู้ฝึกสอน</h1>
-//       <TrainerProfileManager trainer={trainer} />
-//     </div>
-//   );
-// }
+  return (
+    <div className="container mx-auto py-8 px-4 max-w-4xl">
+      <h1 className="text-2xl font-bold mb-8 text-gray-800 border-b pb-4">ข้อมูลส่วนตัวผู้ฝึกสอน</h1>
+      
+    </div>
+  );
+}

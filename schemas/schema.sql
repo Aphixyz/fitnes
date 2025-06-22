@@ -1,3 +1,11 @@
+# Database Schema Documentation
+
+## Overview
+
+FitTrack uses MySQL as its primary database, containerized with Docker for development and production environments. The database schema is designed to support all core features including user management, workout tracking, nutrition planning, and gamification.
+
+## Tables
+
 -- Database Schema for Fitness Tracker
 CREATE DATABASE fitness_tracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE fitness_tracker;
@@ -72,18 +80,29 @@ TABLE fitness_goal (
 );
 
 -- Registration Table - เก็บข้อมูลการลงทะเบียนระหว่างเทรนเนอร์และสมาชิก
-TABLE registration (
+CREATE TABLE registration (
     registration_id INT AUTO_INCREMENT PRIMARY KEY,
-    trainer_id INT NOT NULL,
     member_id INT,
-    member_data TEXT,
-    registration_status INT DEFAULT 0, -- 0: pending, 1: active, 2: expired, 3: rejected
+    trainer_id INT NOT NULL,
+    packages_id INT,
     registration_startdate DATE,
     registration_enddate DATE,
+    registration_status VARCHAR(20) DEFAULT "active",
     FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
 );
 
+-- Packages Table -เก็บข้อมูลแพ็คเกจที่ trainer สร้างขึ้น
+CREATE TABLE packages (
+    packages_id INT AUTO_INCREMENT PRIMARY KEY,
+    trainer_id INT,
+    packages_name VARCHAR,
+    packages_duratuin_months INT,
+    packages_price DECINAL(10,2),
+    packages_description VARCHAR,
+);
+
+-- Workout Plan Table -เก็บข้อมูลแผนการออกกำลังกายของ trainer
 CREATE TABLE workout_plan (
   workout_plan_id INT AUTO_INCREMENT PRIMARY KEY,
   trainer_id INT NOT NULL,
@@ -97,6 +116,7 @@ CREATE TABLE workout_plan (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Workout Program Table -เก็บข้อมูลแผนการออกกำลังกายของ 
 CREATE TABLE workout_program (
   workout_program_id INT AUTO_INCREMENT PRIMARY KEY,
   workout_plan_id INT NOT NULL,
@@ -106,6 +126,7 @@ CREATE TABLE workout_program (
   FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE CASCADE
 );
 
+-- Program Exercise Table -เก็บข้อมูลการออกกำลังกายของ 
 CREATE TABLE program_exercise (
   program_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
   workout_program_id INT NOT NULL,
@@ -116,6 +137,7 @@ CREATE TABLE program_exercise (
   FOREIGN KEY (workout_program_id) REFERENCES workout_program(workout_program_id) ON DELETE CASCADE
 );
 
+-- Program Exercise Set Table -เก็บข้อมูลการออกกำลังกายของ 
 CREATE TABLE program_exercise_set (
   program_exercise_set_id INT AUTO_INCREMENT PRIMARY KEY,
   program_exercise_id INT NOT NULL,
@@ -129,119 +151,34 @@ CREATE TABLE program_exercise_set (
   FOREIGN KEY (program_exercise_id) REFERENCES program_exercise(program_exercise_id) ON DELETE CASCADE
 );
 
-TABLE workout_log (
-  workout_log_id INT AUTO_INCREMENT PRIMARY KEY,
-  member_id INT NOT NULL,
-  workout_plan_id INT,
-  workout_date DATE NOT NULL,
-  duration_minutes INT,
-  intensity_level INT,
-  completion_percentage INT DEFAULT 100,
-  notes TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
-  FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE SET NULL
+-- Macro Plan Table -เก็บข้อมูลแผนการออกกำลังกายของ 
+CREATE TABLE macro_plan (
+  macro_plan_id   INT AUTO_INCREMENT PRIMARY KEY,
+  trainer_id      INT        NOT NULL,
+  member_id       INT        NOT NULL,
+  -- สัดส่วน P/C/F ที่ Trainer กำหนด (% ต้อง >=0 และรวมกัน =100)
+  protein_ratio   DECIMAL(5,2) NOT NULL,
+  carb_ratio      DECIMAL(5,2) NOT NULL,
+  fat_ratio       DECIMAL(5,2) NOT NULL,
+  -- ช่วงเวลาของแผน
+  start_date      DATE       NOT NULL,
+  end_date        DATE       NOT NULL,
+  -- สถานะของแผน (active/inactive)
+  plan_status     VARCHAR(20) NOT NULL DEFAULT 'active',
+  created_at      DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-TABLE exercise_log (
-  exercise_log_id INT AUTO_INCREMENT PRIMARY KEY,
-  workout_log_id INT NOT NULL,
-  exercise_id VARCHAR(50),
-  exercise_order INT,
-  sets_completed INT,
-  reps_per_set VARCHAR(50),
-  weight_per_set VARCHAR(50),
-  duration_minutes INT,
-  difficulty_rating INT,
-  notes TEXT,
-  FOREIGN KEY (workout_log_id) REFERENCES workout_log(workout_log_id) ON DELETE CASCADE
-);
-
--- Food Table - ข้อมูลอาหาร
-TABLE food (
-    food_id INT AUTO_INCREMENT PRIMARY KEY,
-    trainer_id INT,
-    food_name VARCHAR(100) NOT NULL,
-    food_category VARCHAR(50),
-    serving_size VARCHAR(50),
-    calories INT,
-    protein DECIMAL(5,2),
-    carbs DECIMAL(5,2),
-    fat DECIMAL(5,2),
-    fiber DECIMAL(5,2),
-    sugar DECIMAL(5,2),
-    sodium DECIMAL(5,2),
-    FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE SET NULL
-);
-
--- Nutrition Plan Table - แผนโภชนาการ
-TABLE nutrition_plan (
-    nutrition_plan_id INT AUTO_INCREMENT PRIMARY KEY,
-    trainer_id INT NOT NULL,
+-- Intake_logs Table - เก็บข้อมูลการบริโภคอาหารของ Member
+TABLE intake_logs (
+    intake_logs_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
-    plan_name VARCHAR(100) NOT NULL,
-    plan_description TEXT,
-    plan_startdate DATE,
-    plan_enddate DATE,
-    daily_calories INT,
-    protein_target INT,
-    carbs_target INT,
-    fat_target INT,
-    plan_status VARCHAR(20) DEFAULT 'active',
-    notes TEXT,
-    FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE,
-    FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
-);
-
--- Meal Plan Table - แผนมื้ออาหาร
-TABLE meal_plan (
-    meal_plan_id INT AUTO_INCREMENT PRIMARY KEY,
-    nutrition_plan_id INT NOT NULL,
-    meal_name VARCHAR(50) NOT NULL, -- Breakfast, Lunch, Dinner, Snack
-    meal_time VARCHAR(20),
-    calories_target INT,
-    notes TEXT,
-    FOREIGN KEY (nutrition_plan_id) REFERENCES nutrition_plan(nutrition_plan_id) ON DELETE CASCADE
-);
-
--- Meal Food Table - อาหารในแต่ละมื้อ
-TABLE meal_food (
-    meal_food_id INT AUTO_INCREMENT PRIMARY KEY,
-    meal_plan_id INT NOT NULL,
-    food_id INT NOT NULL,
-    serving_quantity DECIMAL(5,2) DEFAULT 1,
-    day_of_week VARCHAR(20), -- all, monday, tuesday, etc.
-    notes TEXT,
-    FOREIGN KEY (meal_plan_id) REFERENCES meal_plan(meal_plan_id) ON DELETE CASCADE,
-    FOREIGN KEY (food_id) REFERENCES food(food_id) ON DELETE CASCADE
-);
-
--- Nutrition Log Table - บันทึกการบริโภค
-TABLE nutrition_log (
-    nutrition_log_id INT AUTO_INCREMENT PRIMARY KEY,
-    member_id INT NOT NULL,
-    log_date DATE NOT NULL,
-    meal_type VARCHAR(50), -- Breakfast, Lunch, Dinner, Snack
-    meal_time TIME,
-    total_calories INT,
-    notes TEXT,
-    FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
-);
-
--- Food Log Table - บันทึกอาหารที่บริโภค
-TABLE food_log (
-    food_log_id INT AUTO_INCREMENT PRIMARY KEY,
-    nutrition_log_id INT NOT NULL,
-    food_id INT,
-    custom_food_name VARCHAR(100),
-    serving_quantity DECIMAL(5,2),
+    date DATE NOT NULL,
     calories INT,
-    protein DECIMAL(5,2),
-    carbs DECIMAL(5,2),
-    fat DECIMAL(5,2),
-    notes TEXT,
-    FOREIGN KEY (nutrition_log_id) REFERENCES nutrition_log(nutrition_log_id) ON DELETE CASCADE,
-    FOREIGN KEY (food_id) REFERENCES food(food_id) ON DELETE SET NULL
+    protein INT,
+    carb INT,
+    fat INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
 
 -- Challenge Table - ความท้าทายเพื่อกระตุ้นการออกกำลังกาย
@@ -272,26 +209,20 @@ TABLE member_challenge (
     FOREIGN KEY (challenge_id) REFERENCES challenge(challenge_id) ON DELETE CASCADE
 );
 
--- Payment Table - ข้อมูลการชำระเงิน
-TABLE payment (
-    payment_id INT AUTO_INCREMENT PRIMARY KEY,
-    registration_id INT NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
-    payment_date DATE NOT NULL,
-    payment_method VARCHAR(50),
-    transaction_id VARCHAR(100),
-    payment_status VARCHAR(20) DEFAULT 'pending',
-    notes TEXT,
-    FOREIGN KEY (registration_id) REFERENCES registration(registration_id) ON DELETE CASCADE
-);
+## Database Utilities
 
--- Payment Plan Table - แผนการชำระเงิน
-TABLE payment_plan (
-    plan_id INT AUTO_INCREMENT PRIMARY KEY,
-    plan_name VARCHAR(100) NOT NULL,
-    plan_description TEXT,
-    duration_months INT NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-    features TEXT,
-    is_active BOOLEAN DEFAULT TRUE
-);
+The database connection and query utilities are managed through `lib/db.js`. This file provides:
+
+1. Connection pooling
+2. Query execution helpers
+3. Transaction management
+4. Error handling
+
+## Data Validation
+
+All database operations are validated using schemas defined in the `schemas` directory. These schemas ensure:
+
+1. Data type correctness
+2. Required field presence
+3. Value constraints
+4. Relationship integrity

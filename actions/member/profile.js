@@ -2,7 +2,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache';
-import { query } from '@/lib/db';
+import pool from '@/lib/db';
 
 export async function updateMemberProfile(formData) {
   try {
@@ -24,7 +24,7 @@ export async function updateMemberProfile(formData) {
     }
     
     // อัพเดทข้อมูลในฐานข้อมูล
-    await query(
+    await pool.query(
       `UPDATE member 
        SET first_name = ?, last_name = ?, email = ?, phone = ?,
            date_of_birth = ?, gender = ?

@@ -46,7 +46,10 @@ docs/
 # readme
 readme.md
 
-.vscode/
-.cursor/
-/rules/
-/docs/
+.cursor
+
+.docs
+
+.coding_conventions.md
+
+.Readme.md

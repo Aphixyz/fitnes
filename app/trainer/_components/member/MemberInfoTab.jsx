@@ -8,7 +8,7 @@ import { formatDate, calculateAge } from "@/utils/utils";
 
 /**
  * คอมโพเนนต์แสดงข้อมูลทั่วไปของสมาชิก
- * 
+ *
  * @param {Object} props
  * @param {Object} props.memberData - ข้อมูลสมาชิก
  */
@@ -28,25 +28,41 @@ export default function MemberInfoTab({ memberData }) {
             <div>
               <dl className="space-y-4">
                 <div className="flex flex-col">
-                  <dt className="text-sm font-medium text-muted-foreground">ชื่อ-นามสกุล</dt>
+                  <dt className="text-sm font-medium text-muted-foreground">
+                    ชื่อ-นามสกุล
+                  </dt>
                   <dd className="text-base">
                     {memberData.member_firstname} {memberData.member_lastname}
                   </dd>
                 </div>
                 <div className="flex flex-col">
-                  <dt className="text-sm font-medium text-muted-foreground">อีเมล</dt>
-                  <dd className="text-base">{memberData.member_email || "-"}</dd>
+                  <dt className="text-sm font-medium text-muted-foreground">
+                    อีเมล
+                  </dt>
+                  <dd className="text-base">
+                    {memberData.member_email || "-"}
+                  </dd>
                 </div>
                 <div className="flex flex-col">
-                  <dt className="text-sm font-medium text-muted-foreground">เบอร์โทรศัพท์</dt>
-                  <dd className="text-base">{memberData.member_phone || "-"}</dd>
+                  <dt className="text-sm font-medium text-muted-foreground">
+                    เบอร์โทรศัพท์
+                  </dt>
+                  <dd className="text-base">
+                    {memberData.member_phone || "-"}
+                  </dd>
                 </div>
                 <div className="flex flex-col">
-                  <dt className="text-sm font-medium text-muted-foreground">เพศ</dt>
-                  <dd className="text-base">{memberData.member_gender || "-"}</dd>
+                  <dt className="text-sm font-medium text-muted-foreground">
+                    เพศ
+                  </dt>
+                  <dd className="text-base">
+                    {memberData.member_gender || "-"}
+                  </dd>
                 </div>
                 <div className="flex flex-col">
-                  <dt className="text-sm font-medium text-muted-foreground">วันเกิด</dt>
+                  <dt className="text-sm font-medium text-muted-foreground">
+                    วันเกิด
+                  </dt>
                   <dd className="text-base">
                     {memberData.member_dob
                       ? `${formatDate(memberData.member_dob)} (${age} ปี)`
@@ -58,7 +74,9 @@ export default function MemberInfoTab({ memberData }) {
             <div>
               <dl className="space-y-4">
                 <div className="flex flex-col">
-                  <dt className="text-sm font-medium text-muted-foreground">วันที่ลงทะเบียน</dt>
+                  <dt className="text-sm font-medium text-muted-foreground">
+                    วันที่ลงทะเบียน
+                  </dt>
                   <dd className="text-base">
                     {memberData.registration_startdate
                       ? formatDate(memberData.registration_startdate)
@@ -66,7 +84,9 @@ export default function MemberInfoTab({ memberData }) {
                   </dd>
                 </div>
                 <div className="flex flex-col">
-                  <dt className="text-sm font-medium text-muted-foreground">วันหมดอายุ</dt>
+                  <dt className="text-sm font-medium text-muted-foreground">
+                    วันหมดอายุ
+                  </dt>
                   <dd className="text-base">
                     {memberData.registration_enddate
                       ? formatDate(memberData.registration_enddate)
@@ -74,22 +94,24 @@ export default function MemberInfoTab({ memberData }) {
                   </dd>
                 </div>
                 <div className="flex flex-col">
-                  <dt className="text-sm font-medium text-muted-foreground">สถานะสมาชิก</dt>
+                  <dt className="text-sm font-medium text-muted-foreground">
+                    สถานะสมาชิก
+                  </dt>
                   <dd className="text-base flex items-center mt-1">
                     <Badge
                       className={
-                        memberData.is_expired 
-                          ? "bg-red-500" 
+                        memberData.is_expired
+                          ? "bg-red-500"
                           : memberData.registration_status === 1
-                            ? "bg-green-500"
-                            : "bg-yellow-500"
+                          ? "bg-green-500"
+                          : "bg-yellow-500"
                       }
                     >
-                      {memberData.is_expired 
-                        ? "หมดอายุ" 
-                        : memberData.registration_status === 1 
-                          ? "ใช้งาน" 
-                          : "รอการยืนยัน"}
+                      {memberData.is_expired
+                        ? "หมดอายุ"
+                        : memberData.registration_status === 1
+                        ? "ใช้งาน"
+                        : "รอการยืนยัน"}
                     </Badge>
                   </dd>
                 </div>
@@ -98,33 +120,6 @@ export default function MemberInfoTab({ memberData }) {
           </div>
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>การเข้าร่วมกิจกรรม</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              ยังไม่มีข้อมูลการเข้าร่วมกิจกรรม หรือรอการพัฒนาในเฟสต่อไป
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>บันทึกเพิ่มเติม</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              ยังไม่มีบันทึกสำหรับสมาชิกท่านนี้
-            </p>
-            <Button className="mt-4" variant="outline" size="sm">
-              เพิ่มบันทึก
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }

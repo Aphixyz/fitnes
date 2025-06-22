@@ -24,33 +24,6 @@ export default async function MemberWorkoutPlansPage({ params }) {
 
   return (
     <div className="space-y-6">
-      {/* PageHeader ส่วน */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-1">
-            แผนออกกำลังกาย
-          </h1>
-          <p className="text-muted-foreground">
-            จัดการแผนออกกำลังกายสำหรับ {memberName}
-          </p>
-        </div>
-        <div className="flex space-x-2">
-          <Link href={`/trainer/${trainerId}/members/${memberId}`}>
-            <Button variant="outline">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              กลับ
-            </Button>
-          </Link>
-          <Link
-            href={`/trainer/${trainerId}/members/${memberId}/workout-plan/create`}
-          >
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              สร้างแผนใหม่
-            </Button>
-          </Link>
-        </div>
-      </div>
 
       {/* เนื้อหาหลัก - ส่งข้อมูลให้ Client Component */}
       <WorkoutPlanLists
