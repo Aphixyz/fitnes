@@ -44,22 +44,21 @@ TABLE member (
 
 -- Health Metrics Table - เก็บข้อมูลสุขภาพของสมาชิก
 TABLE member_health (
-    health_id INT AUTO_INCREMENT PRIMARY KEY,
+    member_health_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
-    weight DECIMAL(5,2),
-    height DECIMAL(5,2),
-    initial_weight DECIMAL(5,2),
-    body_fat_percentage DECIMAL(5,2),
-    chest DECIMAL(5,2),
-    waist DECIMAL(5,2),
-    hip DECIMAL(5,2),
-    arm DECIMAL(5,2),
-    thigh DECIMAL(5,2),
-    health_condition TEXT,
-    allergy TEXT,
-    fitness_level VARCHAR(20) DEFAULT 'beginner',
-    note TEXT,
-    measurement_date DATE NOT NULL,
+    member_health_weight DECIMAL(5,2),
+    member_health_height DECIMAL(5,2),
+    member_health_bodyfat DECIMAL(10,2),
+    member_activity_level INT,
+    member_health_condition TEXT,
+    member_health_chest DECIMAL(10,2),
+    member_health_waist DECIMAL(10,2),
+    member_health_hip DECIMAL(10,2),
+    member_health_arm DECIMAL(10,2),
+    member_health_thigh DECIMAL(10,2),
+    member_health_measurementdate DATE NOT NULL,
+    create_ate DATETIME DEFAULT on update current_timestamp,
+    update_at DATETIME DEFAULT on update current_timestamp,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
 
