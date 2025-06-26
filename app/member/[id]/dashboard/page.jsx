@@ -147,10 +147,3 @@ export default async function DashboardPage({ params }) {
   }
 }
 
-// Metadata สำหรับ SEO
-export async function generateMetadata({ params }) {
-  return {
-    title: `Dashboard - สมาชิก ${params.id} | FitTrack`,
-    description: "Dashboard สำหรับติดตามโภชนาการและการออกกำลังกาย",
-  };
-}
