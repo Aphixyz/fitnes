@@ -64,17 +64,19 @@ TABLE member_health (
 
 -- Fitness Goals Table - เก็บเป้าหมายการออกกำลังกาย
 TABLE fitness_goal (
-    goal_id INT AUTO_INCREMENT PRIMARY KEY,
+    fitness_goal_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
-    goal_type VARCHAR(50) NOT NULL,
-    target_weight DECIMAL(5,2),
-    weight_difference DECIMAL(5,2),
-    muscle_target TEXT,
+    fitness_goal_type VARCHAR(50) NOT NULL,
+    fitness_training_frequency INT,
+    fitness_experience_level VARCHAR,
+    fitness_goal_targetweight DECIMAL(5,2),
+    fitness_training_time VARCHAR(20),
+    fitness_desired_time SMALLINT,
     fitness_goal_startdate DATE NOT NULL,
     fitness_goal_enddate DATE NOT NULL,
-    goal_duration_months INT,
-    goal_status VARCHAR(20) DEFAULT 'active',
-    note TEXT,
+    fitness_goal_status VARCHAR(20) DEFAULT 'active',
+    create_at DATETIME DEFAULT on update current_timestamp,
+    update_at DATETIME DEFAULT on update current_timestamp,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
 
