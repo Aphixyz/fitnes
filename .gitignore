@@ -41,9 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 .cursor/
-**
-
-.docs
-*.md
+/rules/
+/docs/
 
 .vscode/

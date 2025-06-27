@@ -48,12 +48,12 @@ const WorkoutPage = async ({ params }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen ">
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Workout</h1>
-          <p className="text-gray-600">ติดตามและบันทึกการออกกำลังกายของคุณ</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">การออกกำลังกายของฉัน</h1>
+          <p className="text-gray-600">ติดตามและบันทึกการออกกำลังกายของฉัน</p>
         </div>
 
         {/* Workout Plan Content */}
