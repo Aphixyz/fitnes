@@ -8,7 +8,7 @@ import WorkoutLoggingModal from "./WorkoutLoggingModal";
  * ProgramCard - Client Component
  * แสดงข้อมูล workout program พร้อม exercises
  */
-const ProgramCard = ({ program, programIndex }) => {
+const ProgramCard = ({ program, programIndex, workoutPlan }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoggingModalOpen, setIsLoggingModalOpen] = useState(false);
 
@@ -130,6 +130,7 @@ const ProgramCard = ({ program, programIndex }) => {
         isOpen={isLoggingModalOpen}
         onClose={handleCloseLoggingModal}
         program={program}
+        workoutPlan={workoutPlan}
       />
     </>
   );

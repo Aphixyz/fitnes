@@ -142,10 +142,10 @@ CREATE TABLE program_exercise_set (
   program_exercise_set_id INT AUTO_INCREMENT PRIMARY KEY,
   program_exercise_id INT NOT NULL,
   set_order INT NOT NULL,
-  weight FLOAT DEFAULT NULL,
+  weight DECIMAL(5,2) DEFAULT NULL,
   reps INT DEFAULT NULL,
   time TIME DEFAULT NULL,        -- สำหรับ cardio หรือ mobility
-  distance FLOAT DEFAULT NULL,   -- km หรือ m
+  distance INT DEFAULT NULL,   -- km หรือ m
   FOREIGN KEY (program_exercise_id) REFERENCES program_exercise(program_exercise_id) ON DELETE CASCADE
 );
 
@@ -165,10 +165,10 @@ CREATE TABLE exercise_log_set (
   exercise_log_id INT NOT NULL,
   program_exercise_set_id INT NOT NULL,
   set_order INT NOT NULL,
-  weight FLOAT DEFAULT NULL,
+  weight DECIMAL(5,2) DEFAULT NULL,
   reps INT DEFAULT NULL,
   time TIME DEFAULT NULL,
-  distance FLOAT DEFAULT NULL,
+  distance INT DEFAULT NULL,
   FOREIGN KEY (exercise_log_id) REFERENCES exercise_log(exercise_log_id) ON DELETE CASCADE,
   FOREIGN KEY (program_exercise_set_id) REFERENCES program_exercise_set(program_exercise_set_id) ON DELETE CASCADE
 );

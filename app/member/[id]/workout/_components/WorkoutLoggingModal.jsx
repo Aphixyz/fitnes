@@ -1,19 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import exercisesData from "@/data/exercises.json";
 import ExerciseSetForm, { ExerciseSetTable } from "./ExerciseSetForm";
 import WorkoutSummary from "./WorkoutSummary";
+import { insertProgramExerciseSet } from "@/actions/member/my-workout-plans/insertProgramExerciseSet";
 
 /**
  * WorkoutLoggingModal - Client Component
  * Modal สำหรับบันทึกข้อมูลการออกกำลังกาย (แบบ carousel)
  */
-const WorkoutLoggingModal = ({ isOpen, onClose, program }) => {
+const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
+  const params = useParams();
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [slideDirection, setSlideDirection] = useState("right");
   const [loggedSets, setLoggedSets] = useState({}); // เก็บข้อมูลการ log ของแต่ละเซต
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   if (!isOpen) return null;
 
@@ -32,7 +38,113 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program }) => {
     setCurrentPage(0);
     setIsAnimating(false);
     setLoggedSets({}); // Reset logged data เมื่อปิด modal
+    setIsSaving(false);
+    setSaveError(null);
     onClose();
+  };
+
+  // บันทึกข้อมูล Workout Log ลงฐานข้อมูล
+  const handleSaveWorkout = async () => {
+    try {
+      setIsSaving(true);
+      setSaveError(null);
+
+      const memberId = parseInt(params.id);
+      const todayDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+
+      // Debug logging
+      console.log("=== Workout Save Debug ===");
+      console.log("Member ID:", memberId);
+      console.log("Today Date:", todayDate);
+      console.log("Workout Plan data:", workoutPlan);
+      console.log("Program data:", program);
+      console.log("Logged Sets:", loggedSets);
+
+      // Validate basic data
+      if (!memberId || isNaN(memberId)) {
+        setSaveError("ไม่พบข้อมูล Member ID");
+        return;
+      }
+
+      if (!workoutPlan?.workout_plan_id || !program?.workout_program_id) {
+        setSaveError("ไม่พบข้อมูล Workout Plan หรือ Program");
+        return;
+      }
+
+      // วนลูปข้อมูลใน loggedSets ที่ completed = true
+      const completedSets = Object.entries(loggedSets).filter(
+        ([key, setData]) => setData.completed
+      );
+
+      if (completedSets.length === 0) {
+        setSaveError("กรุณาบันทึกข้อมูลอย่างน้อย 1 เซต");
+        return;
+      }
+
+      // บันทึกข้อมูลทีละเซต
+      for (const [setKey, setData] of completedSets) {
+        // แยก program_exercise_id และ program_exercise_set_id จาก key
+        const [programExerciseId, programExerciseSetId] = setKey
+          .split("_")
+          .map(Number);
+
+        // หา set ข้อมูลจาก exercises เพื่อได้ set_order
+        const exercise = exercises.find(
+          (ex) => ex.program_exercise_id === programExerciseId
+        );
+        const set = exercise?.sets?.find(
+          (s) => s.program_exercise_set_id === programExerciseSetId
+        );
+
+        if (!set) {
+          console.error("Set not found for key:", setKey);
+          continue;
+        }
+
+        const setDataToSave = {
+          member_id: memberId,
+          workout_plan_id: workoutPlan.workout_plan_id,
+          workout_program_id: program.workout_program_id,
+          program_exercise_set_id: programExerciseSetId,
+          set_order: set.set_order,
+          weight: setData.weight || null,
+          reps: setData.reps || null,
+          time: setData.time || null,
+          distance: setData.distance || null,
+          log_date: todayDate,
+        };
+
+        // Debug logging สำหรับแต่ละเซต
+        console.log("Saving set data:", setDataToSave);
+
+        // Validate before send
+        if (
+          !setDataToSave.member_id ||
+          !setDataToSave.workout_plan_id ||
+          !setDataToSave.workout_program_id ||
+          !setDataToSave.program_exercise_set_id ||
+          !setDataToSave.set_order ||
+          !setDataToSave.log_date
+        ) {
+          console.error("Invalid set data:", setDataToSave);
+          setSaveError(`ข้อมูลเซตไม่ครบถ้วน: Set ${set.set_order}`);
+          return;
+        }
+
+        await insertProgramExerciseSet(setDataToSave);
+      }
+
+      // บันทึกสำเร็จ - ปิด modal และแสดงข้อความ
+      handleCloseModal();
+
+      // อาจจะเพิ่ม toast notification ในอนาคต
+      alert(`บันทึกข้อมูลการออกกำลังกายสำเร็จ! (${completedSets.length} เซต)`);
+    } catch (error) {
+      console.error("Error saving workout:", error);
+      setSaveError(error.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleNextPage = () => {
@@ -320,14 +432,41 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program }) => {
           {/* Action Buttons */}
           <div className="flex items-center gap-3">
             {isLastPage && (
-              <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-                บันทึกข้อมูล
-              </button>
+              <div className="flex flex-col items-end gap-2">
+                {saveError && (
+                  <div className="text-sm text-red-600 bg-red-50 px-3 py-1 rounded-lg border border-red-200">
+                    {saveError}
+                  </div>
+                )}
+                <button
+                  onClick={handleSaveWorkout}
+                  disabled={isSaving}
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isSaving && (
+                    <svg
+                      className="w-4 h-4 animate-spin"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 12a8 8 0 018-8v8z"
+                      />
+                    </svg>
+                  )}
+                  {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+                </button>
+              </div>
             )}
 
             <button
               onClick={handleCloseModal}
-              className="px-4 py-2 text-gray-600 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+              disabled={isSaving}
+              className="px-4 py-2 text-gray-600 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ยกเลิก
             </button>

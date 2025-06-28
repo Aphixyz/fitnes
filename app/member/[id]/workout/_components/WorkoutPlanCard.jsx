@@ -103,6 +103,7 @@ const WorkoutPlanCard = ({ workoutPlan }) => {
                 key={program.workout_program_id}
                 program={program}
                 programIndex={index + 1}
+                workoutPlan={workoutPlan}
               />
             ))}
           </div>
