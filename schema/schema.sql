@@ -4,12 +4,14 @@
 
 FitTrack uses MySQL as its primary database, containerized with Docker for development and production environments. The database schema is designed to support all core features including user management, workout tracking, nutrition planning, and gamification.
 
-## Database Tables
+## Tables
 
-### Trainer - เก็บข้อมูลเทรนเนอร์
+-- Database Schema for Fitness Tracker
+CREATE DATABASE fitness_tracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE fitness_tracker;
 
-```sql
-CREATE TABLE trainer (
+-- Trainer Table - เก็บข้อมูลเทรนเนอร์
+TABLE trainer (
     trainer_id INT AUTO_INCREMENT PRIMARY KEY,
     trainer_username VARCHAR(50) NOT NULL UNIQUE,
     trainer_password VARCHAR(255) NOT NULL,
@@ -24,12 +26,9 @@ CREATE TABLE trainer (
     trainer_profileimage VARCHAR(255),
     trainer_status VARCHAR(20) DEFAULT 'active'
 );
-```
 
-### Member - เก็บข้อมูลสมาชิก
-
-```sql
-CREATE TABLE member (
+-- Member Table - เก็บข้อมูลสมาชิก
+TABLE member (
     member_id INT AUTO_INCREMENT PRIMARY KEY,
     member_username VARCHAR(50) NOT NULL UNIQUE,
     member_password VARCHAR(255) NOT NULL,
@@ -42,12 +41,9 @@ CREATE TABLE member (
     member_profileimage VARCHAR(255),
     member_status VARCHAR(20) DEFAULT 'active'
 );
-```
 
-### member_health Health Metrics Table - เก็บข้อมูลสุขภาพของสมาชิก
-
-```sql
-CREATE TABLE member_health (
+-- Health Metrics Table - เก็บข้อมูลสุขภาพของสมาชิก
+TABLE member_health (
     member_health_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
     member_health_weight DECIMAL(5,2),
@@ -65,12 +61,9 @@ CREATE TABLE member_health (
     update_at DATETIME DEFAULT on update current_timestamp,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
-```
 
-### fitness_goal Fitness Goals Table - เก็บเป้าหมายการออกกำลังกาย
-
-```sql
-CREATE TABLE fitness_goal (
+-- Fitness Goals Table - เก็บเป้าหมายการออกกำลังกาย
+TABLE fitness_goal (
     fitness_goal_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
     fitness_goal_type VARCHAR(50) NOT NULL,
@@ -86,11 +79,8 @@ CREATE TABLE fitness_goal (
     update_at DATETIME DEFAULT on update current_timestamp,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
-```
 
-## Registration Table -เก็บข้อมูลการลงทะเบียนระหว่างเทรนเนอร์และสมาชิก
-
-```sql
+-- Registration Table - เก็บข้อมูลการลงทะเบียนระหว่างเทรนเนอร์และสมาชิก
 CREATE TABLE registration (
     registration_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT,
@@ -102,10 +92,8 @@ CREATE TABLE registration (
     FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
 );
-```
-## Packages Table -เก็บข้อมูลแพ็คเกจที่ trainer สร้าง
 
-```sql
+-- Packages Table -เก็บข้อมูลแพ็คเกจที่ trainer สร้างขึ้น
 CREATE TABLE packages (
     packages_id INT AUTO_INCREMENT PRIMARY KEY,
     trainer_id INT,
@@ -114,11 +102,8 @@ CREATE TABLE packages (
     packages_price DECINAL(10,2),
     packages_description VARCHAR,
 );
-```
 
-### workout_plan
-
-```sql
+-- Workout Plan Table -เก็บข้อมูลแผนการออกกำลังกายของ trainer
 CREATE TABLE workout_plan (
   workout_plan_id INT AUTO_INCREMENT PRIMARY KEY,
   trainer_id INT NOT NULL,
@@ -131,11 +116,8 @@ CREATE TABLE workout_plan (
   plan_status VARCHAR DEFAULT 'active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-```
 
-### workout_program
-
-```sql
+-- Workout Program Table -เก็บข้อมูลแผนการออกกำลังกายของ 
 CREATE TABLE workout_program (
   workout_program_id INT AUTO_INCREMENT PRIMARY KEY,
   workout_plan_id INT NOT NULL,
@@ -144,74 +126,54 @@ CREATE TABLE workout_program (
   order_index INT NOT NULL,
   FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE CASCADE
 );
-```
 
-### program_exercise
-
-```sql
+-- Program Exercise Table -เก็บข้อมูลการออกกำลังกายของ 
 CREATE TABLE program_exercise (
   program_exercise_id INT AUTO_INCREMENT PRIMARY KEY,
   workout_program_id INT NOT NULL,
   exercise_id VARCHAR(100) NOT NULL,
   order_index INT NOT NULL,
-  rest INT DEFAULT NULL,
-  notes TEXT,
+  rest TIME DEFAULT NULL,
   FOREIGN KEY (workout_program_id) REFERENCES workout_program(workout_program_id) ON DELETE CASCADE
 );
-```
 
-### program_exercise_set
-
-```sql
+-- Program Exercise Set Table -เก็บข้อมูลการออกกำลังกายของ 
 CREATE TABLE program_exercise_set (
   program_exercise_set_id INT AUTO_INCREMENT PRIMARY KEY,
   program_exercise_id INT NOT NULL,
   set_order INT NOT NULL,
-  weight DECIMAL DEFAULT NULL,
+  weight DECIMAL(5,2) DEFAULT NULL,
   reps INT DEFAULT NULL,
-  time INT DEFAULT NULL,        -- m นาที และ s วินาที
-  distance INT DEFAULT NULL,   -- km กิโลเมตร หรือ m เมตร
+  time TIME DEFAULT NULL,        -- สำหรับ cardio หรือ mobility
+  distance INT DEFAULT NULL,   -- km หรือ m
   FOREIGN KEY (program_exercise_id) REFERENCES program_exercise(program_exercise_id) ON DELETE CASCADE
 );
-```
 
-### Workout_Logs
-
-```sql
-CREATE TABLE workout_logs (
-  workout_log_id INT AUTO_INCREMENT PRIMARY KEY,
-  member_id INT NOT NULL,
-  workout_plan_id INT,
-  workout_date DATE NOT NULL,
-  duration_minutes INT,
-  intensity_level INT,
-  completion_percentage INT DEFAULT 100,
-  notes TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
-  FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE SET NULL
-);
-```
-### exercise_log
-
-```sql
 CREATE TABLE exercise_log (
   exercise_log_id INT AUTO_INCREMENT PRIMARY KEY,
-  workout_log_id INT NOT NULL,
-  exercise_id VARCHAR(50),
-  exercise_order INT,
-  sets_completed INT,
-  reps_per_set VARCHAR(50),
-  weight_per_set VARCHAR(50),
-  duration_minutes INT,
-  difficulty_rating INT,
-  notes TEXT,
-  FOREIGN KEY (workout_log_id) REFERENCES workout_log(workout_log_id) ON DELETE CASCADE
+  member_id INT NOT NULL,
+  workout_plan_id INT NOT NULL,
+  workout_program_id INT NOT NULL,
+  log_date DATE NOT NULL,
+  FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
+  FOREIGN KEY (workout_plan_id) REFERENCES workout_plan(workout_plan_id) ON DELETE CASCADE,
+  FOREIGN KEY (workout_program_id) REFERENCES workout_program(workout_program_id) ON DELETE CASCADE
 );
-```
 
-### macro_Plans
-```sql
+CREATE TABLE exercise_log_set (
+  exercise_log_set_id INT AUTO_INCREMENT PRIMARY KEY,
+  exercise_log_id INT NOT NULL,
+  program_exercise_set_id INT NOT NULL,
+  set_order INT NOT NULL,
+  weight DECIMAL(5,2) DEFAULT NULL,
+  reps INT DEFAULT NULL,
+  time TIME DEFAULT NULL,
+  distance INT DEFAULT NULL,
+  FOREIGN KEY (exercise_log_id) REFERENCES exercise_log(exercise_log_id) ON DELETE CASCADE,
+  FOREIGN KEY (program_exercise_set_id) REFERENCES program_exercise_set(program_exercise_set_id) ON DELETE CASCADE
+);
+
+-- Macro Plan Table -เก็บข้อมูลแผนการออกกำลังกายของ 
 CREATE TABLE macro_plan (
   macro_plan_id   INT AUTO_INCREMENT PRIMARY KEY,
   trainer_id      INT        NOT NULL,
@@ -227,27 +189,47 @@ CREATE TABLE macro_plan (
   plan_status     VARCHAR(20) NOT NULL DEFAULT 'active',
   created_at      DATETIME   NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-```
 
-### Nutrition_Logs
-
-```sql
-CREATE TABLE macro_logs (
-    id VARCHAR(36) PRIMARY KEY,
-    member_id VARCHAR(36) NOT NULL,
-    meal_name VARCHAR(255) NOT NULL,
-    calories INT NOT NULL,
-    protein_grams INT NOT NULL,
-    carbs_grams INT NOT NULL,
-    fat_grams INT NOT NULL,
-    logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    notes TEXT,
-    FOREIGN KEY (member_id) REFERENCES users(id)
+-- Intake_logs Table - เก็บข้อมูลการบริโภคอาหารของ Member
+TABLE intake_logs (
+    intake_logs_id INT AUTO_INCREMENT PRIMARY KEY,
+    member_id INT NOT NULL,
+    date DATE NOT NULL,
+    calories INT,
+    protein INT,
+    carb INT,
+    fat INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
-```
 
-### Macr
+-- Challenge Table - ความท้าทายเพื่อกระตุ้นการออกกำลังกาย
+TABLE challenge (
+    challenge_id INT AUTO_INCREMENT PRIMARY KEY,
+    trainer_id INT NOT NULL,
+    challenge_name VARCHAR(100) NOT NULL,
+    challenge_description TEXT,
+    challenge_type VARCHAR(50), -- workout, nutrition, weight
+    challenge_goal TEXT, -- เป้าหมายที่ต้องทำให้สำเร็จ
+    challenge_startdate DATE,
+    challenge_enddate DATE,
+    points_reward INT DEFAULT 0,
+    FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE
+);
 
+-- Member Challenge Table - ความท้าทายที่สมาชิกเข้าร่วม
+TABLE member_challenge (
+    member_challenge_id INT AUTO_INCREMENT PRIMARY KEY,
+    member_id INT NOT NULL,
+    challenge_id INT NOT NULL,
+    join_date DATE DEFAULT (CURRENT_DATE),
+    completion_date DATE,
+    status VARCHAR(20) DEFAULT 'joined',
+    progress INT DEFAULT 0, -- percentage
+    notes TEXT,
+    FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
+    FOREIGN KEY (challenge_id) REFERENCES challenge(challenge_id) ON DELETE CASCADE
+);
 
 ## Database Utilities
 
@@ -266,16 +248,3 @@ All database operations are validated using schemas defined in the `schemas` dir
 2. Required field presence
 3. Value constraints
 4. Relationship integrity
-
-## Backup and Recovery
-
-1. **Automated Backups**
-
-   - Daily full backups
-   - Transaction log backups
-   - Backup retention policy
-
-2. **Recovery Procedures**
-   - Point-in-time recovery
-   - Disaster recovery plan
-   - Data restoration process
