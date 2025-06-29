@@ -26,7 +26,7 @@ export const MemberSidebar = ({ user }) => {
   const menuItems = [
     {
       label: "แดชบอร์ด",
-      href: `/member/${memberId}`,
+      href: `/member/${memberId}/dashboard`,
       icon: (
         <svg
           className="w-5 h-5 mr-1"
@@ -126,7 +126,7 @@ export const MemberSidebar = ({ user }) => {
     },
     {
       label: "ความก้าวหน้า",
-      href: "/member/progress",
+      href: `/member/${memberId}/progress`,
       icon: (
         <svg
           className="w-5 h-5 mr-1"
