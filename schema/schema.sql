@@ -57,7 +57,7 @@ TABLE member_health (
     member_health_arm DECIMAL(10,2),
     member_health_thigh DECIMAL(10,2),
     member_health_measurementdate DATE NOT NULL,
-    create_ate DATETIME DEFAULT on update current_timestamp,
+    create_at DATETIME DEFAULT on update current_timestamp,
     update_at DATETIME DEFAULT on update current_timestamp,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
@@ -98,9 +98,10 @@ CREATE TABLE packages (
     packages_id INT AUTO_INCREMENT PRIMARY KEY,
     trainer_id INT,
     packages_name VARCHAR,
-    packages_duratuin_months INT,
-    packages_price DECINAL(10,2),
+    packages_duration_months INT,
+    packages_price DECIMAL(10,2),
     packages_description VARCHAR,
+    FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE
 );
 
 -- Workout Plan Table -เก็บข้อมูลแผนการออกกำลังกายของ trainer
@@ -199,7 +200,7 @@ TABLE intake_logs (
     protein INT,
     carb INT,
     fat INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
 
