@@ -40,8 +40,21 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.cursor/
-/rules/
-/docs/
+# docs
+docs/
+
+# readme
+readme.md
+
+.cursor
+
+.docs
+
+.coding_conventions.md
+
+.Readme.md
+
+# YoYo AI version control directory
+.yoyo/
 
 .vscode/

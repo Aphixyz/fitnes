@@ -33,7 +33,7 @@ import {
   saveLifestyleProfile,
   saveFitnessGoals,
 } from "@/actions/member/onboarding/onboarding";
-import { suggestMacroPlan } from "@/actions/member/macro-engine/suggestMacroPlan";
+import { suggestMacroPlan } from "@/actions/macro-engine/suggestMacroPlan";
 import {
   calcAge,
   calcBMR,

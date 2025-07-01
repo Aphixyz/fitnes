@@ -1,7 +1,7 @@
 "use server";
 
 import db from "@/lib/db";
-import { suggestMacroPlan } from "@/actions/member/macro-engine/suggestMacroPlan";
+import { suggestMacroPlan } from "@/actions/macro-engine/suggestMacroPlan";
 
 /**
  * บันทึกข้อมูลส่วนตัวจาก Step 1: Personal Profile
