@@ -32,7 +32,6 @@ export default function RootLayout({ children }) {
         />
         {/* <Navbar/> */}
         {children}
-        <StagewiseProvider />
       </body>
     </html>
   );
