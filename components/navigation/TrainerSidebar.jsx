@@ -316,7 +316,7 @@ export const TrainerSidebar = ({ user }) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-2 text-white border-white hover:bg-indigo-700 w-full"
+                  className="mt-2 text-white border-white bg-indigo-500 hover:bg-indigo-700 w-full"
                 >
                   ออกจากระบบ
                 </Button>

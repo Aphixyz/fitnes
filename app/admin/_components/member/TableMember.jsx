@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { deleteTrainer } from "@/actions/admin/deleteTrainer";
+import { getInitials } from "@/utils/utils";
 import {
   useTransition,
   useState,
@@ -11,14 +11,10 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { getInitials, cn, paginate } from "@/utils/utils";
-import StatusBadge from "./common/Status";
-import Edit from "@/components/button/Edit";
-import Delete from "@/components/button/Delete";
-import Pagination from "./common/Paginate";
 import { Skeleton } from "@/components/ui/skeleton";
+import StatusBadge from "../common/Status";
 
-// ฟังก์ชัน debounce แบบกำหนดเอง
+//F กำหนดเวลา
 function customDebounce(func, wait) {
   let timeout;
   return function (...args) {
@@ -41,19 +37,20 @@ const TableHeader = ({
     }, 300),
     [handleSortChange]
   );
+
   return (
     <div
       className={`grid gap-4 px-6 py-4 text-center bg-slate-100 60rd20-b20order-gray-200 text-sm font-bold text-black uppercase tracking-wider ${
-        showActions ? "grid-cols-[70%_15%_15%]" : "grid-cols-[70%_30%]"
+        showActions ? "grid-cols-[50%_20%_20%_10%]" : "grid-cols-[50%_25%_25%]"
       }`}
     >
       <div
         className="flex justify-center items-center gap-1 cursor-pointer hover:text-gray-700 transition-colors"
-        onClick={() => handleSortChange("trainer_id")}
+        onClick={() => handleSortChange("member_id")}
       >
-        ผู้ฝึกสอน{" "}
-        {sortField === "trainer_id" && (sortOrder === "asc" ? "↑" : "↓")}
+        ลูกค้า {sortField === "member_id" && (sortOrder === "asc" ? "↑" : "↓")}
       </div>
+      <div className="flex justify-center items-center">ผู้ฝึกสอน</div>
       <div className="flex justify-center items-center">สถานะ</div>
       {showActions && (
         <div className="flex justify-center items-center">จัดการ</div>
@@ -62,97 +59,25 @@ const TableHeader = ({
   );
 };
 
-export default function TrainerTable({
-  trainers,
+export default function MemberTable({
+  members = [],
   showActions = false,
   sortField,
   sortOrder,
   handleSortChange,
 }) {
-  const [isPending, startTransition] = useTransition();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [localTrainers, setLocalTrainers] = useState([]);
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
   const scrollPositionRef = useRef(0);
 
   useEffect(() => {
     setIsLoading(true);
     const fetchData = async () => {
-      setLocalTrainers(trainers || []);
       setIsLoading(false);
     };
     fetchData();
-  }, [trainers]);
-
-  const handleDelete = (id) => {
-    if (confirm("ยืนยันการลบ?")) {
-      setIsLoading(true);
-      startTransition(async () => {
-        const success = await deleteTrainer(id);
-        if (success) {
-          setLocalTrainers((prevTrainers) =>
-            prevTrainers.filter((trainer) => trainer.trainer_id !== id)
-          );
-          alert("ลบสำเร็จ ✅");
-          router.refresh();
-        } else {
-          alert("เกิดข้อผิดพลาดในการลบ ❌");
-        }
-        setIsLoading(false);
-      });
-    }
-  };
-
-  // const sortTrainers = (trainers) => {
-  //   return [...trainers].sort((a, b) => {
-  //     if (sortField === "trainer_firstname") {
-  //       const nameA = `${a.trainer_firstname} ${a.trainer_lastname}`;
-  //       const nameB = `${b.trainer_firstname} ${b.trainer_lastname}`;
-  //       return sortOrder === "asc"
-  //         ? nameA.localeCompare(nameB, "th")
-  //         : nameB.localeCompare(nameA, "th");
-  //     } else if (sortField === "trainer_id") {
-  //       return sortOrder === "asc"
-  //         ? a.trainer_id - b.trainer_id
-  //         : b.trainer_id - a.trainer_id;
-  //     }
-  //     return 0;
-  //   });
-  // };
-
-  // const handleSortChange = (field) => {
-  //   scrollPositionRef.current = window.scrollY;
-  //   if (sortField === field) {
-  //     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-  //   } else {
-  //     setSortField(field);
-  //     setSortOrder("asc");
-  //   }
-  //   setCurrentPage(1);
-  // };
-
-  // const sortedTrainers = useMemo(
-  //   () => sortTrainers(localTrainers),
-  //   [localTrainers, sortField, sortOrder]
-  // );
-  // const pagination = useMemo(
-  //   () => paginate(sortedTrainers, currentPage, perPage),
-  //   [sortedTrainers, currentPage, perPage]
-  // );
-
-  useEffect(() => {
-    window.scrollTo(0, scrollPositionRef.current);
-  }, [sortField, sortOrder, currentPage]);
-
-  // ฟังก์ชันสำหรับจัดรูปแบบวันที่
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return `${date.getDate()} ${date.toLocaleDateString("th-TH", {
-      month: "short",
-    })} ${date.getFullYear() + 543}`;
-  };
+  }, [members]);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -178,8 +103,8 @@ export default function TrainerTable({
                 key={i}
                 className={`grid gap-10 px-6 py-4 ${
                   showActions
-                    ? "grid-cols-[60%_20%_20%]"
-                    : "grid-cols-[70%_30%]"
+                    ? "grid-cols-[50%_20%_20%_10%]"
+                    : "grid-cols-[50%_25%_25%]"
                 }`}
               >
                 <div className="flex items-center space-x-3">
@@ -192,6 +117,9 @@ export default function TrainerTable({
                 <div className="flex justify-center">
                   <Skeleton className="h-6 w-12 rounded-full" />
                 </div>
+                <div className="flex justify-center">
+                  <Skeleton className="h-6 w-12 rounded-full" />
+                </div>
                 {showActions && (
                   <div className="flex justify-center">
                     <Skeleton className="h-6 w-16" />
@@ -199,25 +127,25 @@ export default function TrainerTable({
                 )}
               </div>
             ))
-        ) : trainers.length > 0 ? (
-          trainers.map((trainer) => (
+        ) : members.length > 0 ? (
+          members.map((member) => (
             <div
-              key={trainer.trainer_id}
+              key={member.member_id}
               className={`grid gap-4 px-6 py-4 hover:bg-gray-50 transi60on20ol20s cursor-pointer ${
-                showActions ? "grid-cols-[70%_15%_15%]" : "grid-cols-[70%_30%]"
+                showActions
+                  ? "grid-cols-[50%_20%_20%_10%]"
+                  : "grid-cols-[50%_25%_25%]"
               }`}
-              onClick={() =>
-                router.push(`/admin/trainers/${trainer.trainer_id}`)
-              }
+              onClick={() => router.push(`/admin/members/${member.member_id}`)}
             >
               {/* คอลัมน์ผู้ใช้ (รหัส รูป + ชื่อ + อีเมล) */}
               <div className="flex items-center space-x-3 gap-20 px-8">
-                {trainer.trainer_id}
-                {trainer.trainer_profile_image ? (
+                {member.member_id}
+                {member.member_profile_image ? (
                   <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                     <img
-                      src={trainer.trainer_profile_image}
-                      alt={`${trainer.trainer_firstname} ${trainer.trainer_lastname}`}
+                      src={member.member_profile_image}
+                      alt={`${member.member_firstname} ${member.member_lastname}`}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -225,33 +153,42 @@ export default function TrainerTable({
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-white text-sm font-semibold">
                       {getInitials(
-                        trainer.trainer_firstname,
-                        trainer.trainer_lastname
+                        member.member_firstname,
+                        member.member_lastname
                       )}
                     </span>
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium text-gray-900 truncate">
-                    {trainer.trainer_firstname} {trainer.trainer_lastname}
+                    {member.member_firstname} {member.member_lastname}
                   </div>
                   <div className="text-sm text-gray-500 truncate">
-                    {trainer.trainer_email}
+                    {member.member_email}
                   </div>
                 </div>
               </div>
 
+              <div className="flex justify-center items-center">
+                {member.trainer_firstname} {member.trainer_lastname}
+              </div>
+
               {/* คอลัมน์สถานะ */}
               <div className="flex justify-center items-center">
-                {trainer.trainer_status === "active" ? (
+                {member.registration_status === "active" ? (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-1.5"></div>
                     ใช้งาน
                   </span>
-                ) : trainer.trainer_status === "pending" ? (
+                ) : member.registration_status === "pending" ? (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                     <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mr-1.5"></div>
-                    รอดำเนินการ
+                    ยังไม่จ่าย
+                  </span>
+                ) : member.registration_status === "paid" ? (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-1.5"></div>
+                    จ่ายแล้ว
                   </span>
                 ) : (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -267,7 +204,7 @@ export default function TrainerTable({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.push(`/admin/trainers/edit/${trainer.trainer_id}`);
+                      router.push(`/admin/members/edit/${member.member_id}`);
                     }}
                     className="p-1 text-yellow-400 hover:text-yellow-600 transition-colors"
                   >
@@ -276,7 +213,7 @@ export default function TrainerTable({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(trainer.trainer_id);
+                      handleDelete(member.member_id);
                     }}
                     className="p-1 text-red-500 hover:text-red-600 transition-colors"
                   >
@@ -288,7 +225,7 @@ export default function TrainerTable({
           ))
         ) : (
           <div className="text-center py-12 text-gray-500">
-            ไม่มีข้อมูลผู้ฝึกสอน
+            ไม่มีข้อมูลลูกค้า
           </div>
         )}
       </div>

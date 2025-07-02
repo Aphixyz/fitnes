@@ -56,7 +56,7 @@ export async function getMemberById(memberId) {
          WHERE r.member_id = ? AND r.registration_status = "active"`,
       [memberId]
     );
-    console.log("trainerRows:", trainerRows);
+    // console.log("trainerRows:", trainerRows);
 
     member.trainers = trainerRows;
 

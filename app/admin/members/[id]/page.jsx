@@ -4,6 +4,8 @@ import { getMemberById } from "@/actions/admin/member/getMemberById";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { formatDate, calculateAge, getInitials } from "@/utils/utils";
 
+
+
 export default async function MemberPage({ params }) {
   const { id } = params;
   const member = await getMemberById(id);
@@ -14,7 +16,7 @@ export default async function MemberPage({ params }) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">
+      <h1 className="text-2xl mx-5 my-5 font-bold mb-4">
         ข้อมูลสมาชิกของ: {member.firstname} {member.lastname}
       </h1>
 

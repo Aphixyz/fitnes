@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { getMemberWithTrainerPaginated } from "@/actions/admin/member/getMemberWithTrainer";
 import { getMemberWithTrainer } from "@/actions/admin/member/getMemberWithTrainer";
-import MemberTable from "../_components/member/table";
+// import MemberTable from "../_components/member/table";
+import MemberTable from "../_components/member/TableMember";
 import Pagination from "../_components/common/Paginate";
 import SearchFilter from "../_components/common/SearchFilter";
 import { Button } from "@/components/ui/button";

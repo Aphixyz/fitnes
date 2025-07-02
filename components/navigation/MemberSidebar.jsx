@@ -302,7 +302,7 @@ export const MemberSidebar = ({ user }) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-2 text-white border-white hover:bg-emerald-700 w-full"
+                  className="mt-2 text-white border-white bg-emerald-500 hover:bg-emerald-700 w-full"
                 >
                   ออกจากระบบ
                 </Button>

@@ -13,8 +13,8 @@ export default function AdminLayout({ children }) {
       <AdminSidebar />
       
       <div className="flex flex-col flex-1">
-        <main className="flex-1 p-4">
-          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <main className="">
+          <div className="max-w-7xl mx-auto">
             <ThemeProvider>{children}</ThemeProvider>
           </div>
         </main>

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import pool from '../../../../lib/db';
+import pool from '@/lib/db';
 
 // ฟังก์ชันสร้าง Hash
 function createHash(trainer_id, registration_id) {

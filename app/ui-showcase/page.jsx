@@ -344,7 +344,7 @@ export default function UIShowcase() {
         rightItems={<Button size="sm">ออกจากระบบ</Button>}
       />
       
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">UI Component Showcase</h1>
           <p className="mt-2 text-gray-600">แสดงตัวอย่าง UI Components ทั้งหมดที่พัฒนาขึ้น</p>

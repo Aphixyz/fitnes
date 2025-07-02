@@ -3,12 +3,12 @@ export default function StatusBadge({ status }) {
     <span
       className={`inline-block px-3 py-1 text-sm font-semibold rounded-full border ${
         status === "active"
-          ? "text-green-600 border-green-600"
+          ? "text-white bg-green-500"
           : status === "expired"
-          ? "text-red-600 border-red-600"
+          ? "text-white bg-red-500"
           : status === "paid"
-          ? "text-blue-600 border-blue-600" // หรือใช้ "text-yellow-600 border-yellow-600" ถ้าต้องการ
-          : "text-yellow-600 border-yellow-600" // Default สำหรับ 'pending'
+          ? "text-white bg-blue-500" // หรือใช้ "text-yellow-500 bg-yellow-500" ถ้าต้องการ
+          : "text-white bg-yellow-500" 
       }`}
     >
       {status === "active"
