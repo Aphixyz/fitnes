@@ -15,7 +15,8 @@ import Link from "next/link";
  * @param {Object} params - URL parameters
  */
 export default async function DashboardPage({ params }) {
-  const memberId = parseInt(params.id);
+  const { id } = await params;
+  const memberId = parseInt(id);
 
   // ตรวจสอบ member ID
   if (!memberId || isNaN(memberId)) {
@@ -146,4 +147,3 @@ export default async function DashboardPage({ params }) {
     );
   }
 }
-

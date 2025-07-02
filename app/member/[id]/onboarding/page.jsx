@@ -34,7 +34,7 @@ export default function OnboardingPage() {
 
           // ถ้าทำ onboarding เสร็จแล้ว redirect ไป dashboard
           if (result.completed_onboarding) {
-            router.push(`/member/${memberId}`);
+            router.push(`/member/${memberId}/dashboard`);
             return;
           }
         } else {

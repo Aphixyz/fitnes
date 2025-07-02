@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { DobPicker } from "@/components/ui/dobPicker";
 import { verifyRegistrationParams } from "@/actions/trainer/registration/generateRegistrationLink";
-import { registerNewMember } from "@/actions/register/registerNewMember";
+import { createMemberAndRegistration } from "@/actions/register/registerNewMember";
 
 // Modern Registration Form Component
 function RegistrationForm({
@@ -612,7 +612,7 @@ export default function RegisterForm() {
 
     setLoading(true);
     try {
-      const result = await registerNewMember(formData, trainerId);
+      const result = await createMemberAndRegistration(formData, trainerId);
 
       if (result.success) {
         // Success - redirect to package selection
