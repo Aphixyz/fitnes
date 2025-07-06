@@ -385,10 +385,10 @@ export default function OnboardingWizard({ memberId, onboardingStatus }) {
       const result = await suggestMacroPlan(memberId);
 
       if (result.success) {
-        setMacroSuggestion(result.calculations);
+        setMacroSuggestion(result);
         // Redirect to dashboard after showing summary
         setTimeout(() => {
-          router.push(`/member/${memberId}`);
+          router.push(`/member/${memberId}/dashboard`);
         }, 3000);
       } else {
         setErrors({ submit: result.message });
@@ -1180,22 +1180,22 @@ export default function OnboardingWizard({ memberId, onboardingStatus }) {
                       <div className="flex justify-between">
                         <span>โปรตีน:</span>
                         <span>
-                          {macroSuggestion.macro_grams.protein}g (
-                          {macroSuggestion.macro_ratios.protein}%)
+                          {macroSuggestion.suggested.macro_grams.protein}g (
+                          {macroSuggestion.suggested.protein_ratio}%)
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>คาร์โบไฮเดรต:</span>
                         <span>
-                          {macroSuggestion.macro_grams.carb}g (
-                          {macroSuggestion.macro_ratios.carb}%)
+                          {macroSuggestion.suggested.macro_grams.carb}g (
+                          {macroSuggestion.suggested.carb_ratio}%)
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>ไขมัน:</span>
                         <span>
-                          {macroSuggestion.macro_grams.fat}g (
-                          {macroSuggestion.macro_ratios.fat}%)
+                          {macroSuggestion.suggested.macro_grams.fat}g (
+                          {macroSuggestion.suggested.fat_ratio}%)
                         </span>
                       </div>
                     </div>

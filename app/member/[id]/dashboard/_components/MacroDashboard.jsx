@@ -84,25 +84,25 @@ export default function MacroDashboard({ dashboardData, statsData }) {
             </p>
           </div>
 
-      {/* Period Toggle */}
-        <PeriodToggle
-          activePeriod={activePeriod}
-          onPeriodChange={handlePeriodChange}
-        />
-      </div>
+          {/* Period Toggle */}
+          <PeriodToggle
+            activePeriod={activePeriod}
+            onPeriodChange={handlePeriodChange}
+          />
+        </div>
 
-      {/* Macro Cards Grid */}
+        {/* Macro Cards Grid */}
         <div className="space-y-4">
           {/* Desktop Grid */}
           <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {macroCards.map((macro) => (
-          <MacroCard
-            key={macro.id}
-            macro={macro}
+            {macroCards.map((macro) => (
+              <MacroCard
+                key={macro.id}
+                macro={macro}
                 onClick={handleMacroClick}
                 consumed={0} // TODO: ดึงข้อมูลการบริโภคจริง
-          />
-        ))}
+              />
+            ))}
           </div>
 
           {/* Mobile Horizontal Scroll */}

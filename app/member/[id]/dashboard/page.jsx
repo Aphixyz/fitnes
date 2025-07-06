@@ -3,7 +3,7 @@ import {
   getDashboardStats,
 } from "@/actions/member/dashboard/dashboard";
 import { getOnboardingStatus } from "@/actions/member/onboarding/onboarding";
-import MacroDashboard from "../onboarding/_components/MacroDashboard";
+import MacroDashboard from "./_components/MacroDashboard";
 import OnboardingWizard from "../onboarding/_components/OnboardingWizard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
