@@ -88,7 +88,6 @@ CREATE TABLE registration (
     packages_id INT,
     registration_startdate DATE,
     registration_enddate DATE,
-    registration_status VARCHAR(20) DEFAULT "active",
     FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
 );

@@ -389,7 +389,7 @@ export default function OnboardingWizard({ memberId, onboardingStatus }) {
         // Redirect to dashboard after showing summary
         setTimeout(() => {
           router.push(`/member/${memberId}/dashboard`);
-        }, 3000);
+        }, 7000);
       } else {
         setErrors({ submit: result.message });
       }

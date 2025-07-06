@@ -100,12 +100,12 @@ export async function suggestMacroPlan(memberId) {
     // สร้าง macro plan ใหม่
     const startDate = new Date();
     const endDate = new Date();
-    endDate.setMonth(startDate.getMonth() + 3);
+    endDate.setMonth(startDate.getMonth() + 1);
 
-    // ดึง trainer_id จาก registration ที่ active
+    // ดึง trainer_id จาก registration
     const [registrationData] = await connection.query(
       `SELECT trainer_id FROM registration 
-       WHERE member_id = ? AND registration_status = 'active' 
+       WHERE member_id = ? 
        LIMIT 1`,
       [memberId]
     );
