@@ -57,7 +57,7 @@ export async function getTrainerById(id) {
       certification: rows[0].trainer_certification,
       startDate: rows[0].trainer_startdate,
       endDate: rows[0].trainer_enddate,
-      status: rows[0].trainer_status
+      status: rows[0].trainer_status,
     };
 
     return trainer;

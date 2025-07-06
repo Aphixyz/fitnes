@@ -5,7 +5,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/utils";
-import { Menu, X, ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronRight,
+  ChevronLeft,
+  LogOut,
+  Settings,
+  User,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const TrainerSidebar = ({ user }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -80,98 +96,49 @@ export const TrainerSidebar = ({ user }) => {
         </svg>
       ),
     },
-    {
-      label: "แผนออกกำลังกาย",
-      href: `/trainer/${trainerId}/workout`,
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-          />
-        </svg>
-      ),
-    },
-    {
-      label: "แผนโภชนาการ",
-      href: `/trainer/${trainerId}/nutrition`,
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M3 3v18h18M12 8v12m4-8v8m4-12v12M4 12h20"
-          />
-        </svg>
-      ),
-    },
-    {
-      label: "กิจกรรมท้าทาย",
-      href: `/trainer/${trainerId}/challenges`,
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-          />
-        </svg>
-      ),
-    },
-    {
-      label: "รายงาน",
-      href: `/trainer/${trainerId}/reports`,
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-      ),
-    },
+    // {
+    //   label: "รายงาน",
+    //   href: `/trainer/${trainerId}/reports`,
+    //   icon: (
+    //     <svg
+    //       className="w-5 h-5"
+    //       fill="none"
+    //       stroke="currentColor"
+    //       viewBox="0 0 24 24"
+    //     >
+    //       <path
+    //         strokeLinecap="round"
+    //         strokeLinejoin="round"
+    //         strokeWidth="2"
+    //         d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+    //       />
+    //     </svg>
+    //   ),
+    // },
   ];
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
+      if (typeof window !== "undefined" && window.innerWidth >= 1024) {
         setIsMobileMenuOpen(false);
         setIsCollapsed(false);
       }
     };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
+      handleResize();
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
+      }
+    };
   }, []);
 
   const handleLinkClick = () => {
-    if (window.innerWidth < 1024) {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
       setIsMobileMenuOpen(false);
     }
   };
@@ -290,39 +257,67 @@ export const TrainerSidebar = ({ user }) => {
         </nav>
 
         <div className="absolute bottom-0 w-full p-4 border-t border-indigo-500">
-          <div
-            className={cn("flex items-center", isCollapsed && "justify-center")}
-          >
-            <div className="rounded-full bg-indigo-300 p-1 text-white">
-              <svg
-                className="h-8 w-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full h-16 justify-start text-white hover:bg-indigo-700 hover:text-white p-3",
+                  isCollapsed && "justify-center px-2"
+                )}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            </div>
-            {!isCollapsed && (
-              <div className="ml-3">
-                <p className="text-sm font-medium truncate">
-                  {user?.name || "ผู้ฝึกสอน"}
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-2 text-white border-white bg-indigo-500 hover:bg-indigo-700 w-full"
-                >
-                  ออกจากระบบ
-                </Button>
-              </div>
-            )}
-          </div>
+                <div className="rounded-full overflow-hidden bg-indigo-300 min-w-[40px] min-h-[40px] w-10 h-10 flex items-center justify-center">
+                  {user?.profileImage ? (
+                    <img
+                      src={user.profileImage}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="h-6 w-6 text-indigo-600" />
+                  )}
+                </div>
+                {!isCollapsed && (
+                  <div className="ml-3 text-left flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {user?.username || "ผู้ฝึกสอน"}
+                    </p>
+                    <p className="text-xs text-indigo-200 truncate">
+                      {user?.email }
+                    </p>
+                  </div>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-56 mb-2"
+              align={isCollapsed ? "start" : "end"}
+              side="top"
+            >
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {user?.username }
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user?.email }
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href={`/trainer/${trainerId}/profile`}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>ข้อมูลส่วนตัว</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-red-600 focus:text-red-600">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>ออกจากระบบ</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </aside>
 
