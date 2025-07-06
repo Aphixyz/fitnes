@@ -23,7 +23,7 @@ TABLE trainer (
     trainer_specialization VARCHAR(100),
     trainer_certification VARCHAR(255),
     trainer_experience INT,
-    trainer_profileimage VARCHAR(255),
+    trainer_profile_image VARCHAR(255),
     trainer_status VARCHAR(20) DEFAULT 'active'
 );
 
