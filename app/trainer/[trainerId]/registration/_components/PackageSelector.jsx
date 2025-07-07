@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { getTrainerPackages } from "@/actions/trainer/packages/getPackages";
+import { getPackages } from "@/actions/trainer/registration/fetchPackages";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ const PackageSelector = ({ trainerId, onPackageSelect, selectedPackage }) => {
     const fetchPackages = async () => {
       try {
         setLoading(true);
-        const result = await getTrainerPackages(trainerId);
+        const result = await getPackages(trainerId);
         if (result.success) {
           setPackages(result.packages);
         } else {
