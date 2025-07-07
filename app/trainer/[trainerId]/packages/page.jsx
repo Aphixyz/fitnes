@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { addPackage } from '@/actions/trainer/packages/packages'
+import { addPackage } from '@/actions/admin/packages/addPackages'
 import { useParams } from 'next/navigation'
 
 export default function AddPackagePage() {

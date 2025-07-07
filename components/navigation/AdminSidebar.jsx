@@ -74,6 +74,26 @@ export const AdminSidebar = ({ user }) => {
       ),
     },
     {
+      label: "แพ็คเกจ",
+      href: "/admin/packages",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7m16-2V7a2 2 0 00-2-2h-3.5a2.5 2.5 0 00-5 0H6a2 2 0 00-2 2v3m16 0H4"
+          />
+        </svg>
+      ),
+    },
+    {
       label: "การเงิน",
       href: "/admin/finance",
       icon: (
