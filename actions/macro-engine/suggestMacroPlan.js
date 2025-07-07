@@ -102,22 +102,35 @@ export async function suggestMacroPlan(memberId) {
     const endDate = new Date();
     endDate.setMonth(startDate.getMonth() + 3);
 
+    // ดึง trainer_id จาก registration ที่ active
+    const [registrationData] = await connection.query(
+      `SELECT trainer_id FROM registration 
+       WHERE member_id = ? AND registration_status = 'active' 
+       LIMIT 1`,
+      [memberId]
+    );
+
+    if (!registrationData || registrationData.length === 0) {
+      throw new Error(
+        "ไม่พบการลงทะเบียนที่ active กรุณาติดต่อเทรนเนอร์เพื่อลงทะเบียน"
+      );
+    }
+
+    const trainerId = registrationData[0].trainer_id;
+
     const [macroPlanResult] = await connection.query(
       `INSERT INTO macro_plan 
          (trainer_id, member_id, protein_ratio, carb_ratio, fat_ratio, 
           start_date, end_date, plan_status, created_at) 
-         SELECT r.trainer_id, ?, ?, ?, ?, ?, ?, 'active', NOW()
-         FROM registration r 
-         WHERE r.member_id = ? AND r.registration_status = 'active' 
-         LIMIT 1`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'active', NOW())`,
       [
+        trainerId,
         memberId,
         macroRatios.protein_ratio,
         macroRatios.carb_ratio,
         macroRatios.fat_ratio,
         startDate.toISOString().split("T")[0],
         endDate.toISOString().split("T")[0],
-        memberId,
       ]
     );
 
@@ -204,5 +217,3 @@ export async function suggestMacroRatios(memberProfile, fitnessGoal) {
     };
   }
 }
-
-

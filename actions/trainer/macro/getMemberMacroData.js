@@ -14,20 +14,6 @@ import {
 } from "@/utils/macro-utils";
 
 /**
- * ===================================================================
- * APPLICATION LAYER - MEMBER MACRO DATA SERVICE
- * ===================================================================
- *
- * 🎯 สำหรับ: Trainer Views, Member Management UI
- * 📊 Data Source: DB → macro-engine.js → macro-utils.js
- * 🔄 Main Interface: macro-engine.js
- */
-
-// ===================================================================
-// UI/DISPLAY UTILITY FUNCTIONS
-// ===================================================================
-
-/**
  * สร้าง macro cards data สำหรับ UI display
  * @param {Object} targets - daily/weekly/monthly targets
  * @param {string} period - "daily" | "weekly" | "monthly"
@@ -129,10 +115,6 @@ export async function getGoalTypeDisplayName(goalType) {
 export async function getExperienceLevelDisplayName(level) {
   return translateExperienceLevel(level);
 }
-
-// ===================================================================
-// MAIN DATA FUNCTIONS
-// ===================================================================
 
 /**
  * ดึงข้อมูลและคำนวณ Macro Data สำหรับสมาชิก

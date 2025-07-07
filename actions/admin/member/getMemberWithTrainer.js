@@ -20,9 +20,7 @@ export async function getMemberWithTrainer() {
         t.trainer_lastname,
         t.trainer_status,
         r.registration_startdate,
-        r.registration_enddate,
-        r.payment_time,
-        r.slip_image
+        r.registration_enddate
       FROM member m
       JOIN registration r ON m.member_id = r.member_id
       LEFT JOIN trainer t ON r.trainer_id = t.trainer_id
@@ -89,8 +87,7 @@ export async function getMemberWithTrainerPaginated(
         t.trainer_id,
         t.trainer_firstname,
         t.trainer_lastname,
-        t.trainer_status,
-        r.slip_image
+        t.trainer_status
       FROM registration r
       JOIN member m ON r.member_id = m.member_id
       LEFT JOIN trainer t ON r.trainer_id = t.trainer_id
