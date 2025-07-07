@@ -94,10 +94,12 @@ CREATE TABLE registration (
 -- Packages Table -เก็บข้อมูลแพ็คเกจที่ trainer สร้างขึ้น
 CREATE TABLE packages (
     packages_id INT AUTO_INCREMENT PRIMARY KEY,
-    packages_name VARCHAR,
-    packages_duration_months INT,
-    packages_price DECIMAL(10,2),
-    packages_description VARCHAR,
+    packages_name VARCHAR(255) NOT NULL,
+    packages_duration_months INT NOT NULL,
+    packages_price DECIMAL(10,2) NOT NULL,
+    packages_description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Workout Plan Table -เก็บข้อมูลแผนการออกกำลังกายของ trainer

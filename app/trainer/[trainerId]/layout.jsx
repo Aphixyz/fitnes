@@ -10,20 +10,11 @@ export const metadata = {
 
 export default async function TrainerLayout({ children, params }) {
   // ดึงข้อมูล trainer จาก URL params
-  const trainerId = params.trainerId;
+  const trainerId = (await params).trainerId;
   let trainerData = null;
-
-  console.log("Layout params:", params);
-  console.log("Trainer ID:", trainerId);
-
+  // ดึงข้อมูล trainer จากฐานข้อมูล
   try {
-    if (trainerId) {
-      console.log("Fetching trainer data for ID:", trainerId);
-      trainerData = await getTrainerById(trainerId);
-      console.log("Trainer data loaded:", trainerData);
-    } else {
-      console.log("No trainer ID found in params");
-    }
+    trainerData = await getTrainerById(trainerId);
   } catch (error) {
     console.error("Error fetching trainer data:", error);
   }

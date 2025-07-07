@@ -1,24 +1,26 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { addPackage } from '@/actions/trainer/packages/packages'
-import { useParams } from 'next/navigation'
+import { useState } from "react";
+import { addPackage } from "@/actions/trainer/packages/packages";
+import { useParams } from "next/navigation";
 
 export default function AddPackagePage() {
-  const [message, setMessage] = useState(null)
-  const params = useParams()
-  const id = params.id  
+  const [message, setMessage] = useState(null);
+  const params = useParams();
+  const id = params.id;
 
   async function handleSubmit(formData) {
-    formData.append('trainer_id', id)
-    const result = await addPackage(formData)
-    setMessage(result.message)
+    formData.append("trainer_id", id);
+    const result = await addPackage(formData);
+    setMessage(result.message);
   }
 
   return (
     <div className="max-w-xl mx-auto py-8 px-4">
-      <h1 className="text-2xl font-semibold mb-4">เพิ่มแพ็คเกจใหม่สำหรับผู้ฝึกสอนรหัสที่:{id}</h1>
-      
+      <h1 className="text-2xl font-semibold mb-4">
+        เพิ่มแพ็คเกจใหม่สำหรับผู้ฝึกสอนรหัสที่:{id}
+      </h1>
+
       {message && (
         <div className="mb-4 p-3 border rounded text-sm text-gray-700 bg-gray-100">
           {message}
@@ -76,5 +78,5 @@ export default function AddPackagePage() {
         </button>
       </form>
     </div>
-  )
+  );
 }

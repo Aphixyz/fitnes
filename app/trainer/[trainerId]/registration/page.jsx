@@ -1,67 +1,75 @@
-"use client";
+import { Card, CardContent } from "@/components/ui/card";
+import { fetchRegistrationData } from "@/actions/trainer/registration/fetchRegistrationData";
+import RegistrationDataTable from "./_components/RegistrationDataTable";
+import ServerPagination from "./_components/ServerPagination";
 
-import { useState } from "react";
-import { use } from "react"; // Import React.use()
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import LinkGenerator from "../../_components/(registration)/LinkGenerator";
-import RegistrationList from "../../_components/(registration)/RegistrationList";
+export default async function TrainerRegistrationPage({
+  params,
+  searchParams,
+}) {
+  // Extract params และ searchParams
+  const { trainerId } = await params;
+  const page = parseInt((await searchParams)?.page || "1", 10);
+  const pageSize = parseInt((await searchParams)?.pageSize || "10", 10);
+  const sortBy = (await searchParams)?.sortBy || "registration_id";
+  const sortOrder = (await searchParams)?.sortOrder || "desc";
+  const searchTerm = (await searchParams)?.search || "";
+  const status = (await searchParams)?.status || "";
 
-export default function TrainerRegistrationPage({ params }) {
-  const { trainerId } = use(params); // ใช้ React.use() เพื่อดึงค่า params
+  // ดึงข้อมูลการลงทะเบียนจาก server
+  const result = await fetchRegistrationData({
+    trainerId,
+    page,
+    pageSize,
+    sortBy,
+    sortOrder,
+    searchTerm,
+    status,
+  });
 
-  const [activeTab, setActiveTab] = useState("link");
+  // จัดการกรณีเกิดข้อผิดพลาด
+  if (!result.success) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="flex items-center justify-center h-32">
+            <div className="text-center">
+              <p className="text-red-600 mb-2">เกิดข้อผิดพลาดในการดึงข้อมูล</p>
+              <p className="text-sm text-gray-500">{result.message}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { data } = result;
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">การลงทะเบียน</h1>
-        <p className="text-gray-500">
-          สร้างลิงก์ลงทะเบียนและจัดการการลงทะเบียนของสมาชิก
-        </p>
-      </div>
+    <div className="space-y-6">
+      {/* Data Table  */}
+      <CardContent className="p-0 pt-4">
+        <RegistrationDataTable initialData={data} trainerId={trainerId} />
+      </CardContent>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-8">
-          <TabsTrigger value="link">สร้างลิงก์ลงทะเบียน</TabsTrigger>
-          <TabsTrigger value="list">รายการลงทะเบียน</TabsTrigger>
-        </TabsList>
+      <div className="mt-4">
+        <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+          <div>
+            {(data.pagination.page - 1) * data.pagination.pageSize + 1} ถึง{" "}
+            {Math.min(
+              data.pagination.page * data.pagination.pageSize,
+              data.pagination.totalItems
+            )}{" "}
+            จากทั้งหมด {data.pagination.totalItems} รายการ
 
-        <TabsContent value="link" className="space-y-6">
-          <div className="max-w-3xl mx-auto">
-            <LinkGenerator trainerId={trainerId} />
-
-            <div className="mt-8 bg-gray-50 border rounded-lg p-6">
-              <h2 className="text-lg font-semibold mb-4">คำแนะนำการใช้งาน</h2>
-              <ol className="list-decimal pl-5 space-y-3">
-                <li>
-                  คลิกปุ่ม "สร้างลิงก์ลงทะเบียน" เพื่อสร้างลิงก์สำหรับสมาชิกใหม่
-                </li>
-                <li>
-                  คัดลอกลิงก์ที่สร้างขึ้นและส่งให้สมาชิกผ่านช่องทางที่ต้องการ
-                </li>
-                <li>
-                  เมื่อสมาชิกลงทะเบียนผ่านลิงก์ จะมีรายการลงทะเบียนปรากฏในแท็บ
-                  "รายการลงทะเบียน"
-                </li>
-                <li>ตรวจสอบและยืนยันการลงทะเบียนของสมาชิกใหม่</li>
-              </ol>
-
-              <div className="mt-4 p-3 bg-blue-50 rounded-md text-blue-700 text-sm border border-blue-200">
-                <p className="font-medium">หมายเหตุ:</p>
-                <p>
-                  เมื่อสมาชิกลงทะเบียนแล้ว
-                  คุณจะต้องยืนยันการลงทะเบียนและกำหนดวันเริ่มต้น-สิ้นสุดการใช้งาน
-                  ก่อนที่สมาชิกจะสามารถเข้าใช้งานระบบได้
-                </p>
-              </div>
-            </div>
           </div>
-        </TabsContent>
-
-        <TabsContent value="list">
-          <RegistrationList trainerId={trainerId} />
-        </TabsContent>
-      </Tabs>
+          {/* Server Pagination Component */}
+          <ServerPagination
+            pagination={data.pagination}
+            trainerId={trainerId}
+          />
+        </div>
+      </div>
     </div>
   );
 }

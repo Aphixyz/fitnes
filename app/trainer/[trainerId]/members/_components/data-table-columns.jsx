@@ -2,7 +2,7 @@
 
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import MemberAvatar from "./MemberAvatar";
+import MemberAvatar from "../../../../../components/ui/MemberAvatar";
 import MemberActionMenu from "./MemberActionMenu";
 
 const columnHelper = createColumnHelper();

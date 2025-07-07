@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ import {
   Phone,
 } from "lucide-react";
 import { DobPicker } from "@/components/ui/dobPicker";
-import { verifyRegistrationParams } from "@/actions/trainer/registration/generateRegistrationLink";
+import { verifyRegistrationToken } from "@/actions/register/verifyRegistrationToken";
 import { createMemberAndRegistration } from "@/actions/register/registerNewMember";
 
 // Modern Registration Form Component
@@ -378,9 +378,8 @@ function RegistrationForm({
 
 export default function RegisterForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const trainerId = searchParams.get("trainer");
-  const token = searchParams.get("token");
+  const params = useParams();
+  const token = params.token;
 
   // Verification states
   const [verifying, setVerifying] = useState(true);
@@ -401,30 +400,29 @@ export default function RegisterForm() {
     const verifyParams = async () => {
       setVerifying(true);
 
-      if (!trainerId || !token) {
-        setError("ลิงก์ลงทะเบียนไม่ถูกต้อง กรุณาตรวจสอบลิงก์อีกครั้ง");
+      if (!token) {
+        setError("ลิงก์ลงทะเบียนไม่ถูกต้อง");
         setVerifying(false);
         return;
       }
 
       try {
-        const result = await verifyRegistrationParams(token, trainerId);
+        const result = await verifyRegistrationToken(token);
 
         if (result.success) {
           setTrainerInfo(result.trainer);
         } else {
-          setError(result.message || "ลิงก์ลงทะเบียนไม่ถูกต้องหรือหมดอายุแล้ว");
+          setError(result.message);
         }
       } catch (error) {
-        console.error(error);
-        setError("เกิดข้อผิดพลาดในการตรวจสอบลิงก์ลงทะเบียน");
+        setError("เกิดข้อผิดพลาดในการตรวจสอบลิงก์");
       } finally {
         setVerifying(false);
       }
     };
 
     verifyParams();
-  }, [trainerId, token]);
+  }, [token]);
 
   // Real-time validation
   const validateField = (field, value) => {
@@ -612,13 +610,11 @@ export default function RegisterForm() {
 
     setLoading(true);
     try {
-      const result = await createMemberAndRegistration(formData, trainerId);
+      const result = await createMemberAndRegistration(formData, token);
 
       if (result.success) {
         // Success - redirect to package selection
-        router.push(
-          `/member/${result.member_id}/signup/packageplan?trainer=${trainerId}`
-        );
+        router.push(`/member/${result.member_id}/onboarding`);
       } else {
         setFormErrors({ submit: result.message });
       }

@@ -67,8 +67,7 @@ export default async function TrainerMembersPage({ params, searchParams }) {
           <div className="mt-4">
             <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
               <div>
-                {(data.pagination.page - 1) * data.pagination.pageSize + 1}{" "}
-                ถึง{" "}
+                {(data.pagination.page - 1) * data.pagination.pageSize + 1} ถึง{" "}
                 {Math.min(
                   data.pagination.page * data.pagination.pageSize,
                   data.pagination.totalItems

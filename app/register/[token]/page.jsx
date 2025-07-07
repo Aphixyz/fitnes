@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import RegisterForm from "./RegisterForm";
+import RegisterForm from "@/app/register/RegisterForm";
 
 // Loading fallback component
 function RegisterPageLoading() {

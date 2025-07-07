@@ -8,13 +8,13 @@ import jwt from "jsonwebtoken";
  * @param {Object} data - ข้อมูลสำหรับการสร้างลิงก์
  * @param {number} data.trainerId - รหัสเทรนเนอร์
  * @param {number} data.packageId - รหัสแพ็คเกจที่เลือก
- * @param {number} data.expiryHours - จำนวนชั่วโมงหมดอายุของลิงก์ (default 168 ชม. = 7 วัน)
+ * @param {number} data.expiryHours - จำนวนชั่วโมงหมดอายุของลิงก์ (default 24 ชม. = 1 วัน)
  * @returns {Promise<Object>} - ข้อมูลลิงก์ที่สร้างขึ้น
  */
 export async function generateRegistrationLink({
   trainerId,
   packageId,
-  expiryHours = 168, // 7 วัน
+  expiryHours = 24, // 1 วัน
 }) {
   try {
     // ตรวจสอบ trainer และ package

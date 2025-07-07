@@ -26,6 +26,7 @@ import {
 export const TrainerSidebar = ({ user }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
 
   const getTrainerId = () => {
@@ -41,7 +42,7 @@ export const TrainerSidebar = ({ user }) => {
   const menuItems = [
     {
       label: "แดชบอร์ด",
-      href: `/trainer/${trainerId}`,
+      href: `/trainer/${trainerId}/dashboard`,
       icon: (
         <svg
           className="w-5 h-5"
@@ -96,52 +97,78 @@ export const TrainerSidebar = ({ user }) => {
         </svg>
       ),
     },
-    // {
-    //   label: "รายงาน",
-    //   href: `/trainer/${trainerId}/reports`,
-    //   icon: (
-    //     <svg
-    //       className="w-5 h-5"
-    //       fill="none"
-    //       stroke="currentColor"
-    //       viewBox="0 0 24 24"
-    //     >
-    //       <path
-    //         strokeLinecap="round"
-    //         strokeLinejoin="round"
-    //         strokeWidth="2"
-    //         d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-    //       />
-    //     </svg>
-    //   ),
-    // },
   ];
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
     const handleResize = () => {
-      if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+      if (window.innerWidth >= 1024) {
         setIsMobileMenuOpen(false);
         setIsCollapsed(false);
       }
     };
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("resize", handleResize);
-      handleResize();
-    }
+    window.addEventListener("resize", handleResize);
+    handleResize();
 
     return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("resize", handleResize);
-      }
+      window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [isMounted]);
 
   const handleLinkClick = () => {
-    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+    if (isMounted && window.innerWidth < 1024) {
       setIsMobileMenuOpen(false);
     }
   };
+
+  if (!isMounted) {
+    return (
+      <aside className="bg-indigo-600 text-white h-screen w-64 fixed top-0 left-0 z-40 -translate-x-full lg:translate-x-0 lg:sticky">
+        <div className="flex items-center justify-between h-16 px-4">
+          <Link
+            href={`/trainer/${trainerId}`}
+            className="text-white font-bold flex items-center"
+          >
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+            <span className="ml-2 text-xl">FitTrack</span>
+          </Link>
+        </div>
+        <nav className="px-3">
+          <ul className="space-y-2">
+            {menuItems.map((item, index) => (
+              <li key={index}>
+                <Link
+                  href={item.href}
+                  className="flex items-center p-2 rounded-md transition text-white hover:bg-indigo-500"
+                >
+                  {item.icon}
+                  <span className="ml-3">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+    );
+  }
 
   return (
     <>
@@ -169,14 +196,13 @@ export const TrainerSidebar = ({ user }) => {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
                 d="M13 10V3L4 14h7v7l9-11h-7z"
-              ></path>
+              />
             </svg>
             <span>FitTrack</span>
           </Link>
@@ -204,14 +230,13 @@ export const TrainerSidebar = ({ user }) => {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
                 d="M13 10V3L4 14h7v7l9-11h-7z"
-              ></path>
+              />
             </svg>
             {!isCollapsed && <span className="ml-2 text-xl">FitTrack</span>}
           </Link>
@@ -283,7 +308,7 @@ export const TrainerSidebar = ({ user }) => {
                       {user?.username || "ผู้ฝึกสอน"}
                     </p>
                     <p className="text-xs text-indigo-200 truncate">
-                      {user?.email }
+                      {user?.email}
                     </p>
                   </div>
                 )}
@@ -297,10 +322,10 @@ export const TrainerSidebar = ({ user }) => {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {user?.username }
+                    {user?.username}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email }
+                    {user?.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
