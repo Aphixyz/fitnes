@@ -195,7 +195,7 @@ export const AdminSidebar = ({ user }) => {
       {/* Sidebar for desktop */}
       <aside
         className={cn(
-          "bg-gradient-to-t from-blue-500 to-blue-700 text-white h-screen transition-all duration-300 fixed top-0 left-0 z-40 lg:sticky",
+          "bg-blue-600 text-white h-screen transition-all duration-300 fixed top-0 left-0 z-40 lg:sticky",
           isCollapsed ? "w-20" : "w-64",
           isMobileMenuOpen
             ? "translate-x-0"
