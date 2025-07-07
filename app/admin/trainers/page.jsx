@@ -142,13 +142,8 @@ export default function TrainerPage() {
         <ManageUser route="/admin/trainers/manage" />
       </div>
 
-      <div className="flex justify-between items-center mb-4">
-        <ViewButton
-          route="/admin/packages"
-          buttonText="แพ็คเกจ"
-          icon={AcademicCapIcon}
-        />
-
+      <div className="flex justify-end items-center mb-4">
+       
         <div className="flex items-center space-x-2">
           <label className="text-sm font-medium text-gray-700">
             กรองตามสถานะ:

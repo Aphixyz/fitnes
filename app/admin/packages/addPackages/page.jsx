@@ -1,29 +1,38 @@
 "use client";
 
-import { useState } from 'react'
-import { addPackage } from '@/actions/admin/packages/addPackages'
-import { useParams } from 'next/navigation'
+import { useState } from "react";
+import { addPackage } from "@/actions/admin/packages/addPackages";
+import { useRouter } from "next/navigation";
 
 export default function AddPackagePage() {
   const [message, setMessage] = useState(null);
-  const params = useParams();
-  const id = params.id;
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(formData) {
-    formData.append("trainer_id", id);
     const result = await addPackage(formData);
     setMessage(result.message);
+    if (result.success) {
+      setSuccess(true);
+      setTimeout(() => {
+        router.push("/admin/packages");
+      }, 1500); // รอ 1.5 วินาทีแล้วค่อยเปลี่ยนหน้า
+    }
   }
 
   return (
     <div className="max-w-xl mx-auto py-8 px-4">
-      <h1 className="text-2xl font-semibold mb-4">
-        เพิ่มแพ็คเกจใหม่สำหรับผู้ฝึกสอนรหัสที่:{id}
-      </h1>
+      <h1 className="text-center text-2xl font-semibold mb-4">เพิ่มแพ็คเกจใหม่</h1>
 
       {message && (
-        <div className="mb-4 p-3 border rounded text-sm text-gray-700 bg-gray-100">
-          {message}
+        <div
+          className={`mb-4 p-3 border rounded text-sm ${
+            success
+              ? "text-green-700 bg-green-100 border-green-300"
+              : "text-gray-700 bg-gray-100"
+          }`}
+        >
+          {success ? "เพิ่มแพ็คเกจสำเร็จ กำลังกลับไปหน้ารายการแพ็คเกจ..." : message}
         </div>
       )}
 
@@ -70,12 +79,23 @@ export default function AddPackagePage() {
           />
         </div>
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          เพิ่มแพ็คเกจ
-        </button>
+        <div className="flex justify-between items-center mt-6">
+          <button
+            type="button"
+            className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+            onClick={() => router.back()}
+          >
+            กลับ
+          </button>
+
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            disabled={success}
+          >
+            เพิ่มแพ็คเกจ
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -3,11 +3,17 @@
 import db from "@/lib/db";
 
 /**
+<<<<<<< HEAD:actions/trainer/packages/getPackages.js
  * ดึงแพ็คเกจกลางทั้งหมดสำหรับ Trainer
  * Trainer สามารถดูแพ็คเกจทั้งหมดแต่ไม่สามารถแก้ไขได้
+=======
+ * ดึงข้อมูล packages ทั้งหมด (ไม่กรอง trainer)
+ * @returns {Promise<Object>} - ข้อมูล packages
+>>>>>>> origin/develop:actions/admin/packages/getPackages.js
  */
-export async function getTrainerPackages(trainerId) {
+export async function getPackages() {
   try {
+<<<<<<< HEAD:actions/trainer/packages/getPackages.js
     if (!trainerId) {
       throw new Error("กรุณาระบุรหัสเทรนเนอร์");
     }
@@ -54,6 +60,18 @@ export async function getTrainerPackages(trainerId) {
       WHERE r.trainer_id = ?
     `,
       [trainerId]
+=======
+    // ดึง packages ทั้งหมด
+    const [packages] = await db.query(
+      `SELECT 
+        packages_id,
+        packages_name,
+        packages_duration_months,
+        packages_price,
+        packages_description
+      FROM packages
+      ORDER BY packages_price ASC`
+>>>>>>> origin/develop:actions/admin/packages/getPackages.js
     );
 
     return {
@@ -72,4 +90,8 @@ export async function getTrainerPackages(trainerId) {
       message: error.message || "เกิดข้อผิดพลาดในการดึงข้อมูลแพ็คเกจ",
     };
   }
+<<<<<<< HEAD:actions/trainer/packages/getPackages.js
 }
+=======
+}
+>>>>>>> origin/develop:actions/admin/packages/getPackages.js
