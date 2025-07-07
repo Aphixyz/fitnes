@@ -3,7 +3,7 @@
 import db from "@/lib/db";
 
 /**
- * ดึงข้อมูลสมาชิกที่ได้รับการยืนยัน พร้อมชื่อเทรนเนอร์
+ * ดึงข้อมูลสมาชิกพร้อมชื่อเทรนเนอร์ (Date-Based Logic)
  */
 export async function getMemberWithTrainer() {
   try {
@@ -14,7 +14,10 @@ export async function getMemberWithTrainer() {
         m.member_firstname,
         m.member_lastname,
         m.member_email,
-        r.registration_status,
+        CASE 
+          WHEN r.registration_enddate >= CURDATE() THEN 'active'
+          ELSE 'expired'
+        END as registration_status,
         t.trainer_id,
         t.trainer_firstname,
         t.trainer_lastname,
@@ -24,7 +27,6 @@ export async function getMemberWithTrainer() {
       FROM member m
       JOIN registration r ON m.member_id = r.member_id
       LEFT JOIN trainer t ON r.trainer_id = t.trainer_id
-      WHERE r.registration_status IN ('pending', 'paid', 'active', 'expired')
       ORDER BY m.member_id
     `);
 
@@ -51,10 +53,13 @@ export async function getMemberWithTrainerPaginated(
   try {
     const offset = (page - 1) * pageSize;
 
-    const whereClause = `
-      WHERE r.registration_status IN ('pending', 'paid', 'active', 'expired')
-      ${statusFilter ? `AND r.registration_status = ?` : ""}
-    `;
+    // สร้าง WHERE clause สำหรับ date-based status
+    let whereClause = "";
+    if (statusFilter === "active") {
+      whereClause = "WHERE r.registration_enddate >= CURDATE()";
+    } else if (statusFilter === "expired") {
+      whereClause = "WHERE r.registration_enddate < CURDATE()";
+    }
 
     const validSortFields = ["member_id", "member_firstname"];
     const validSortOrders = ["asc", "desc"];
@@ -67,12 +72,8 @@ export async function getMemberWithTrainerPaginated(
 
     const orderByClause =
       finalSortField === "member_firstname"
-        ? ` Next navigation ORDER BY m.member_firstname ${finalSortOrder}, m.member_lastname ${finalSortOrder}`
+        ? `ORDER BY m.member_firstname ${finalSortOrder}, m.member_lastname ${finalSortOrder}`
         : `ORDER BY m.${finalSortField} ${finalSortOrder}`;
-
-    const queryParams = statusFilter
-      ? [statusFilter, pageSize, offset]
-      : [pageSize, offset];
 
     const [members] = await db.query(
       `
@@ -83,7 +84,10 @@ export async function getMemberWithTrainerPaginated(
         m.member_lastname,
         m.member_email,
         m.member_profileimage,
-        r.registration_status,
+        CASE 
+          WHEN r.registration_enddate >= CURDATE() THEN 'active'
+          ELSE 'expired'
+        END as registration_status,
         t.trainer_id,
         t.trainer_firstname,
         t.trainer_lastname,
@@ -95,21 +99,17 @@ export async function getMemberWithTrainerPaginated(
       ${orderByClause}
       LIMIT ? OFFSET ?
     `,
-      queryParams
+      [pageSize, offset]
     );
 
     const countQuery = `
       SELECT COUNT(*) AS total
       FROM registration r
       JOIN member m ON r.member_id = m.member_id
-      WHERE r.registration_status IN ('pending', 'paid', 'active', 'expired')
-      ${statusFilter ? `AND r.registration_status = ?` : ""}
+      ${whereClause}
     `;
 
-    const [[{ total }]] = await db.query(
-      countQuery,
-      statusFilter ? [statusFilter] : []
-    );
+    const [[{ total }]] = await db.query(countQuery);
 
     return {
       success: true,

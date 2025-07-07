@@ -13,8 +13,7 @@ export async function getRevenueByPackage() {
     INNER JOIN 
       packages p ON r.packages_id = p.packages_id
     WHERE 
-      r.registration_status = 'active'
-      AND r.registration_startdate IS NOT NULL
+      r.registration_startdate IS NOT NULL
     GROUP BY 
       DATE_FORMAT(r.registration_startdate, '%Y-%m')
     ORDER BY 

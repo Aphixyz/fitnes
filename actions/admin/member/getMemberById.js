@@ -18,8 +18,7 @@ export async function getMemberById(memberId) {
             member_phone,
             member_gender,
             member_dob,
-            member_profileimage,
-            member_status
+            member_profileimage
          FROM member
          WHERE member_id = ?`,
       [memberId]
@@ -39,12 +38,11 @@ export async function getMemberById(memberId) {
       gender: memberRows[0].member_gender,
       dob: memberRows[0].member_dob,
       profileimage: memberRows[0].member_profileimage,
-      status: memberRows[0].member_status,
       trainers: [],
     };
     console.log("memberId:", memberId);
 
-    // ดึงรายชื่อเทรนเนอร์ที่ดูแลสมาชิกนี้
+    // ดึงรายชื่อเทรนเนอร์ที่ดูแลสมาชิกนี้ (active members only)
     const [trainerRows] = await pool.query(
       `SELECT 
             t.trainer_id as id,
@@ -53,7 +51,7 @@ export async function getMemberById(memberId) {
             t.trainer_email as email
          FROM registration r
          JOIN trainer t ON r.trainer_id = t.trainer_id
-         WHERE r.member_id = ? AND r.registration_status = "active"`,
+         WHERE r.member_id = ? AND r.registration_enddate >= CURDATE()`,
       [memberId]
     );
     // console.log("trainerRows:", trainerRows);

@@ -39,7 +39,6 @@ TABLE member (
     member_gender VARCHAR(50),
     member_dob DATE,
     member_profileimage VARCHAR(255),
-    member_status VARCHAR(20) DEFAULT 'active'
 );
 
 -- Health Metrics Table - เก็บข้อมูลสุขภาพของสมาชิก
@@ -88,7 +87,6 @@ CREATE TABLE registration (
     packages_id INT,
     registration_startdate DATE,
     registration_enddate DATE,
-    registration_status VARCHAR(20) DEFAULT "active",
     FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
 );
@@ -96,12 +94,10 @@ CREATE TABLE registration (
 -- Packages Table -เก็บข้อมูลแพ็คเกจที่ trainer สร้างขึ้น
 CREATE TABLE packages (
     packages_id INT AUTO_INCREMENT PRIMARY KEY,
-    trainer_id INT,
     packages_name VARCHAR,
     packages_duration_months INT,
     packages_price DECIMAL(10,2),
     packages_description VARCHAR,
-    FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id) ON DELETE CASCADE
 );
 
 -- Workout Plan Table -เก็บข้อมูลแผนการออกกำลังกายของ trainer
