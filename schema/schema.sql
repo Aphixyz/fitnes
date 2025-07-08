@@ -132,7 +132,7 @@ CREATE TABLE program_exercise (
   workout_program_id INT NOT NULL,
   exercise_id VARCHAR(100) NOT NULL,
   order_index INT NOT NULL,
-  rest TIME DEFAULT NULL,
+  rest INT DEFAULT NULL,
   FOREIGN KEY (workout_program_id) REFERENCES workout_program(workout_program_id) ON DELETE CASCADE
 );
 
@@ -192,7 +192,7 @@ CREATE TABLE macro_plan (
 
 -- Intake_logs Table - เก็บข้อมูลการบริโภคอาหารของ Member
 TABLE intake_logs (
-    intake_logs_id INT AUTO_INCREMENT PRIMARY KEY,
+    intake_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
     date DATE NOT NULL,
     calories INT,
