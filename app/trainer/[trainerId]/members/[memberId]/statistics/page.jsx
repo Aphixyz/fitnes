@@ -2,12 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { fetchProgress } from "@/actions/member/progression/fetchProgress";
+import { fetchProgress } from "@/actions/trainer/progress/fetchProgress";
 import WorkoutStatsSummary from "./_components/WorkoutStatsSummary";
 import ProgressCharts from "./_components/ProgressCharts";
+import NutritionStatsSummary from "./_components/NutritionStatsSummary";
+import NutritionCharts from "./_components/NutritionCharts";
 import PeriodSelector from "./_components/PeriodSelector";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, TrendingUp } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RefreshCw, TrendingUp, Dumbbell, Utensils } from "lucide-react";
 
 const StatisticsPage = () => {
   const params = useParams();
@@ -120,10 +123,10 @@ const StatisticsPage = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
-            สถิติการออกกำลังกาย
+            สถิติและความก้าวหน้า
           </h1>
           <p className="text-gray-600">
-            ข้อมูลความก้าวหน้าและการวิเคราะห์ผลการออกกำลังกาย
+            ข้อมูลความก้าวหน้าครบถ้วน: การออกกำลังกาย + การปฏิบัติตามแผนโภชนาการ
           </p>
         </div>
         <div className="flex items-center space-x-4">
@@ -139,14 +142,61 @@ const StatisticsPage = () => {
       </div>
 
       {/* Content */}
-      <div className="space-y-8">
-        {/* Summary Section */}
-        <WorkoutStatsSummary data={progressData} />
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            ภาพรวม
+          </TabsTrigger>
+          <TabsTrigger value="workout" className="flex items-center gap-2">
+            <Dumbbell className="h-4 w-4" />
+            การออกกำลังกาย
+          </TabsTrigger>
+          <TabsTrigger value="nutrition" className="flex items-center gap-2">
+            <Utensils className="h-4 w-4" />
+            โภชนาการ
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Charts Section */}
-        <ProgressCharts data={progressData} />
+        {/* Overview Tab - แสดงทั้งสองส่วนแบบสรุป */}
+        <TabsContent value="overview" className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Workout Summary */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <Dumbbell className="h-5 w-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-800">
+                  สรุปการออกกำลังกาย
+                </h3>
+              </div>
+              <WorkoutStatsSummary data={progressData} />
+            </div>
 
-      </div>
+            {/* Nutrition Summary */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <Utensils className="h-5 w-5 text-orange-600" />
+                <h3 className="text-lg font-semibold text-gray-800">
+                  สรุปการปฏิบัติตามแผนโภชนาการ
+                </h3>
+              </div>
+              <NutritionStatsSummary data={progressData} />
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Workout Tab - แสดงข้อมูล workout แบบเต็ม */}
+        <TabsContent value="workout" className="space-y-8">
+          <WorkoutStatsSummary data={progressData} />
+          <ProgressCharts data={progressData} />
+        </TabsContent>
+
+        {/* Nutrition Tab - แสดงข้อมูล nutrition แบบเต็ม */}
+        <TabsContent value="nutrition" className="space-y-8">
+          <NutritionStatsSummary data={progressData} />
+          <NutritionCharts data={progressData} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
