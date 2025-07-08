@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +31,16 @@ import {
   Calculator,
   Settings,
   CheckCircle,
+  Loader2,
 } from "lucide-react";
+import {
+  updateRatioMacro,
+  getCurrentMacroPlan,
+} from "@/actions/trainer/macro/manual/updateRatioMacro";
+import {
+  updateGramsMacro,
+  getCurrentMacroPlanAsGrams,
+} from "@/actions/trainer/macro/manual/updateGramsMacro";
 
 export default function EditMacroTargetsModal({
   isOpen,
@@ -38,6 +48,8 @@ export default function EditMacroTargetsModal({
   memberName,
   currentTargets,
   period = "daily",
+  planId,
+  trainerId,
   onSave,
 }) {
   const [formData, setFormData] = useState({
@@ -51,6 +63,8 @@ export default function EditMacroTargetsModal({
   });
   const [editMode, setEditMode] = useState("percentage"); // "percentage" หรือ "grams"
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   // สร้าง percentage options (0%, 5%, 10%, ..., 100%)
   const percentageOptions = [];
@@ -58,34 +72,82 @@ export default function EditMacroTargetsModal({
     percentageOptions.push(i);
   }
 
-  // Initialize form data เมื่อ modal เปิด
+  // โหลดข้อมูล macro plan ปัจจุบันเมื่อ modal เปิด
   useEffect(() => {
-    if (isOpen && currentTargets) {
-      const calories = currentTargets.kcal || 2000;
-      const protein = currentTargets.protein_g || 0;
-      const carb = currentTargets.carb_g || 0;
-      const fat = currentTargets.fat_g || 0;
-
-      // คำนวณ percentage จาก grams
-      const proteinPercent =
-        calories > 0 ? Math.round(((protein * 4) / calories) * 100) : 25;
-      const carbPercent =
-        calories > 0 ? Math.round(((carb * 4) / calories) * 100) : 45;
-      const fatPercent =
-        calories > 0 ? Math.round(((fat * 9) / calories) * 100) : 30;
-
-      setFormData({
-        calories: Math.round(calories),
-        proteinPercent: Math.min(100, Math.max(0, proteinPercent)),
-        carbPercent: Math.min(100, Math.max(0, carbPercent)),
-        fatPercent: Math.min(100, Math.max(0, fatPercent)),
-        proteinGrams: Math.round(protein),
-        carbGrams: Math.round(carb),
-        fatGrams: Math.round(fat),
-      });
-      setErrors({});
+    if (isOpen && planId && trainerId) {
+      loadCurrentMacroPlan();
     }
-  }, [isOpen, currentTargets]);
+  }, [isOpen, planId, trainerId]);
+
+  // ฟังก์ชันโหลดข้อมูล macro plan ปัจจุบัน
+  const loadCurrentMacroPlan = async () => {
+    try {
+      setIsLoading(true);
+
+      // ดึงข้อมูลแผนปัจจุบันแบบ ratios ก่อน
+      const currentPlanResult = await getCurrentMacroPlan(planId, trainerId);
+
+      if (currentPlanResult.success) {
+        const plan = currentPlanResult.plan;
+        const macros = plan.macros;
+
+        // คำนวณ grams จาก ratios
+        const calories = macros.calorie_target;
+        const proteinGrams = Math.round(
+          (calories * macros.protein_ratio) / 100 / 4
+        );
+        const carbGrams = Math.round((calories * macros.carb_ratio) / 100 / 4);
+        const fatGrams = Math.round((calories * macros.fat_ratio) / 100 / 9);
+
+        setFormData({
+          calories: Math.round(calories),
+          proteinPercent: Math.round(macros.protein_ratio),
+          carbPercent: Math.round(macros.carb_ratio),
+          fatPercent: Math.round(macros.fat_ratio),
+          proteinGrams,
+          carbGrams,
+          fatGrams,
+        });
+        setErrors({});
+      } else {
+        // ถ้าไม่มีข้อมูล ใช้ค่า default
+        if (currentTargets) {
+          const calories = currentTargets.kcal || 2000;
+          const protein = currentTargets.protein_g || 0;
+          const carb = currentTargets.carb_g || 0;
+          const fat = currentTargets.fat_g || 0;
+
+          // คำนวณ percentage จาก grams
+          const proteinPercent =
+            calories > 0 ? Math.round(((protein * 4) / calories) * 100) : 25;
+          const carbPercent =
+            calories > 0 ? Math.round(((carb * 4) / calories) * 100) : 45;
+          const fatPercent =
+            calories > 0 ? Math.round(((fat * 9) / calories) * 100) : 30;
+
+          setFormData({
+            calories: Math.round(calories),
+            proteinPercent: Math.min(100, Math.max(0, proteinPercent)),
+            carbPercent: Math.min(100, Math.max(0, carbPercent)),
+            fatPercent: Math.min(100, Math.max(0, fatPercent)),
+            proteinGrams: Math.round(protein),
+            carbGrams: Math.round(carb),
+            fatGrams: Math.round(fat),
+          });
+          setErrors({});
+        }
+      }
+    } catch (error) {
+      console.error("Error loading current macro plan:", error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถโหลดข้อมูลแผนปัจจุบันได้",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // คำนวณ calories จาก macro grams
   const calculateCaloriesFromMacros = (protein, carb, fat) => {
@@ -366,36 +428,95 @@ export default function EditMacroTargetsModal({
   };
 
   // Handle save
-  const handleSave = () => {
-    if (validateForm()) {
-      // ใช้ grams ที่คำนวณแล้ว
-      const newTargets = {
-        calories: formData.calories,
-        protein: formData.proteinGrams,
-        carb: formData.carbGrams,
-        fat: formData.fatGrams,
-        proteinPercent: formData.proteinPercent,
-        carbPercent: formData.carbPercent,
-        fatPercent: formData.fatPercent,
-      };
-
-      if (onSave) {
-        onSave(newTargets, period);
-      }
-
-      toast({
-        title: "บันทึกเสร็จสิ้น",
-        description: `อัปเดตเป้าหมายแมโครสำหรับ ${periodLabels[period]} แล้ว`,
-        variant: "default",
-      });
-
-      onClose();
-    } else {
+  const handleSave = async () => {
+    if (!validateForm()) {
       toast({
         title: "กรุณาตรวจสอบข้อมูล",
         description: "มีข้อมูลที่ไม่ถูกต้อง",
         variant: "destructive",
       });
+      return;
+    }
+
+    // ตรวจสอบข้อมูลที่จำเป็น
+    if (!planId || !trainerId) {
+      toast({
+        title: "ข้อผิดพลาด",
+        description: "ไม่พบข้อมูลแผนหรือเทรนเนอร์",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      let result;
+
+      if (editMode === "percentage") {
+        // แก้ไขแบบสัดส่วน - ใช้ updateRatioMacro
+        result = await updateRatioMacro(
+          planId,
+          trainerId,
+          formData.calories,
+          formData.proteinPercent,
+          formData.carbPercent,
+          formData.fatPercent
+        );
+      } else {
+        // แก้ไขแบบกรัม - ใช้ updateGramsMacro
+        result = await updateGramsMacro(
+          planId,
+          trainerId,
+          formData.proteinGrams,
+          formData.carbGrams,
+          formData.fatGrams
+        );
+      }
+
+      if (result.success) {
+        toast({
+          title: "บันทึกเสร็จสิ้น",
+          description: `อัปเดตเป้าหมายแมโคร${
+            editMode === "percentage" ? " (แบบสัดส่วน)" : " (แบบกรัม)"
+          }เรียบร้อยแล้ว`,
+          variant: "default",
+        });
+
+        // เรียก onSave เพื่อ refresh ข้อมูลในหน้าหลัก (ถ้ามี)
+        if (onSave) {
+          const newTargets = {
+            calories: formData.calories,
+            protein: formData.proteinGrams,
+            carb: formData.carbGrams,
+            fat: formData.fatGrams,
+            proteinPercent: formData.proteinPercent,
+            carbPercent: formData.carbPercent,
+            fatPercent: formData.fatPercent,
+          };
+          onSave(newTargets, period);
+        }
+
+        onClose();
+
+        // Refresh หน้าเว็บเพื่อโหลดข้อมูลใหม่
+        router.refresh();
+      } else {
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: result.message || "ไม่สามารถอัปเดตเป้าหมายแมโครได้",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating macro targets:", error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -824,10 +945,14 @@ export default function EditMacroTargetsModal({
             <Button
               onClick={handleSave}
               className="border-2 border-gray-300 bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-gray-600 shadow-lg transition-all transform hover:scale-105"
-              disabled={Object.keys(errors).length > 0}
+              disabled={Object.keys(errors).length > 0 || isLoading}
             >
-              <Save className="w-4 h-4 mr-2" />
-              บันทึก
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              {isLoading ? "กำลังบันทึก..." : "บันทึก"}
             </Button>
           </div>
         </DialogFooter>

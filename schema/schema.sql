@@ -178,9 +178,10 @@ CREATE TABLE macro_plan (
   trainer_id      INT        NOT NULL,
   member_id       INT        NOT NULL,
   -- สัดส่วน P/C/F ที่ Trainer กำหนด (% ต้อง >=0 และรวมกัน =100)
-  protein_ratio   DECIMAL(5,2) NOT NULL,
-  carb_ratio      DECIMAL(5,2) NOT NULL,
-  fat_ratio       DECIMAL(5,2) NOT NULL,
+  calorie_target INT NULL
+  protein_ratio   DECIMAL(5,2) NULL,
+  carb_ratio      DECIMAL(5,2) NULL,
+  fat_ratio       DECIMAL(5,2) NULL,
   -- ช่วงเวลาของแผน
   start_date      DATE       NOT NULL,
   end_date        DATE       NOT NULL,

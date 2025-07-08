@@ -5,18 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Edit3, Target, Settings } from "lucide-react";
 import EditMacroTargetsModal from "./EditMacroTargetsModal";
 
-/**
- * ===================================================================
- * EDIT MACRO BUTTON COMPONENT
- * ===================================================================
- *
- * ปุ่มสำหรับเปิด EditMacroTargetsModal
- * รองรับทั้งแบบ button และ icon-only
- */
 export default function EditMacroButton({
   memberName,
   currentTargets,
   period = "daily",
+  planId,
+  trainerId,
   variant = "outline", // "outline" | "ghost" | "secondary"
   size = "sm",
   iconOnly = false,
@@ -26,7 +20,7 @@ export default function EditMacroButton({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSave = (newTargets, period) => {
-    // TODO: Phase 2 - จะมี server action
+    // ส่งข้อมูลไปยัง modal เพื่อให้ modal handle การ save
     console.log("Saving new targets:", newTargets, "for period:", period);
 
     if (onSave) {
@@ -53,6 +47,8 @@ export default function EditMacroButton({
           memberName={memberName}
           currentTargets={currentTargets}
           period={period}
+          planId={planId}
+          trainerId={trainerId}
           onSave={handleSave}
         />
       </>
@@ -77,6 +73,8 @@ export default function EditMacroButton({
         memberName={memberName}
         currentTargets={currentTargets}
         period={period}
+        planId={planId}
+        trainerId={trainerId}
         onSave={handleSave}
       />
     </>
