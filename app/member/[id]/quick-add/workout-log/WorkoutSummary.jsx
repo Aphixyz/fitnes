@@ -5,7 +5,7 @@ import exercisesData from "@/data/exercises.json";
 /**
  * WorkoutSummary - Component สำหรับแสดงสรุปข้อมูลการออกกำลังกาย
  */
-const WorkoutSummary = ({ exercises, loggedSets, getExerciseStats }) => {
+const WorkoutSummary = ({ exercises, getExerciseStats }) => {
   // ฟังก์ชันหาชื่อ exercise จาก ID
   const getExerciseName = (exerciseId) => {
     const exerciseFound = exercisesData.find((ex) => ex.id === exerciseId);

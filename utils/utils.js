@@ -375,3 +375,87 @@ export function getRestTimeOptions() {
 
   return options;
 }
+
+// ===== EXERCISE FORMATTING FUNCTIONS =====
+
+/**
+ * แปลงวินาทีเป็นภาษาไทย (ชั่วโมง นาที วินาที)
+ * @param {number} seconds - เวลาในรูปแบบวินาที
+ * @returns {string} เวลาในรูปแบบภาษาไทย
+ */
+export function formatTimeThai(seconds) {
+  if (!seconds || seconds === 0) return "0 วินาที";
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  const parts = [];
+
+  if (hours > 0) {
+    parts.push(`${hours} ชั่วโมง`);
+  }
+
+  if (minutes > 0) {
+    parts.push(`${minutes} นาที`);
+  }
+
+  if (secs > 0 || parts.length === 0) {
+    parts.push(`${secs} วินาที`);
+  }
+
+  return parts.join(" ");
+}
+
+/**
+ * แปลงเมตรเป็นภาษาไทย (กิโลเมตร เมตร)
+ * @param {number} meters - ระยะทางในรูปแบบเมตร
+ * @returns {string} ระยะทางในรูปแบบภาษาไทย
+ */
+export function formatDistanceThai(meters) {
+  if (!meters || meters === 0) return "0 เมตร";
+
+  const kilometers = Math.floor(meters / 1000);
+  const remainingMeters = meters % 1000;
+
+  const parts = [];
+
+  if (kilometers > 0) {
+    parts.push(`${kilometers} กิโลเมตร`);
+  }
+
+  if (remainingMeters > 0 || parts.length === 0) {
+    parts.push(`${remainingMeters} เมตร`);
+  }
+
+  return parts.join(" ");
+}
+
+/**
+ * จัดรูปแบบน้ำหนัก (จัดการทศนิยม)
+ * @param {number} weight - น้ำหนักในหน่วยกิโลกรัม
+ * @returns {string} น้ำหนักในรูปแบบที่เหมาะสม
+ */
+export function formatWeight(weight) {
+  if (!weight && weight !== 0) return "";
+
+  // ตรวจสอบว่ามีทศนิยมหรือไม่
+  const hasDecimal = weight % 1 !== 0;
+
+  if (hasDecimal) {
+    // มีทศนิยม - แสดงทศนิยม
+    return `${weight} กก.`;
+  } else {
+    // ไม่มีทศนิยม - แสดงเป็นจำนวนเต็ม
+    return `${Math.floor(weight)} กก.`;
+  }
+}
+
+// ===== HELPER: Short Thai Days =====
+/**
+ * คืนชื่อวันแบบย่อภาษาไทย (จ, อ, พ, พฤ, ศ, ส, อา)
+ * @returns {string[]} - รายชื่อวันแบบย่อ
+ */
+export function getShortThaiDays() {
+  return ["จ", "อ", "พ", "พฤ", "ศ", "ส", "อา"];
+}
