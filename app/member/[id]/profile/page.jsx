@@ -1,8 +1,5 @@
-// app/member/[id]/profile/page.jsx
 import { updateMemberProfile } from '@/actions/member/profile';
-import pool from '@/lib/db';
 
-// ฟังก์ชันสำหรับดึงข้อมูล member
 async function getMemberData(memberId) {
   try {
     const members = await query(
