@@ -50,11 +50,11 @@ const MemberBottomNav = () => {
       active: pathname === `/member/${memberId}/dashboard`,
     },
     {
-      href: `/member/${memberId}/workout`,
-      // href: `/member/${memberId}/program-plan`,
+      // href: `/member/${memberId}/workout`,
+      href: `/member/${memberId}/program`,
       icon: Calendar,
       label: "แผนการ",
-      active: pathname === `/member/${memberId}/program-plan`,
+      active: pathname === `/member/${memberId}/program`,
     },
     {
       href: "#",
