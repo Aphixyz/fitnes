@@ -109,6 +109,7 @@ CREATE TABLE workout_plan (
   member_id INT NOT NULL,
   plan_name VARCHAR(255) NOT NULL,
   plan_duration INT NOT NULL,
+  weekly_target TINYINT NOT NULL,
   plan_startdate DATE NOT NULL,
   plan_enddate DATE NOT NULL,
   plan_note TEXT,
