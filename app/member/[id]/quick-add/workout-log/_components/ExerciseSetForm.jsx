@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { getDistanceUnit } from "@/utils/utils";
 
 /**
  * ExerciseSetForm - Component สำหรับบันทึกข้อมูลแต่ละเซต (Table Row Style)
@@ -16,33 +16,41 @@ const ExerciseSetForm = ({ set, exercise, loggedSets, setLoggedSets }) => {
     if (set.weight !== null)
       fields.push({
         key: "weight",
-        label: "kg",
+        label: "กก.",
         type: "number",
-        step: "0.5",
+        step: "0.01",
+        min: "0",
+        max: "999",
         value: set.weight,
       });
     if (set.reps !== null)
       fields.push({
         key: "reps",
-        label: "reps",
+        label: "รอบ",
         type: "number",
         step: "1",
+        min: "0",
+        max: "999",
         value: set.reps,
       });
     if (set.time !== null)
       fields.push({
         key: "time",
-        label: "วิ",
+        label: "วินาที",
         type: "number",
         step: "1",
+        min: "0",
+        max: "9999",
         value: set.time,
       });
     if (set.distance !== null)
       fields.push({
         key: "distance",
-        label: "ม.",
+        label: getDistanceUnit(set.distance),
         type: "number",
-        step: "0.1",
+        step: set.distance >= 1000 ? "0.01" : "1",
+        min: "0",
+        max: "999",
         value: set.distance,
       });
     return fields;
@@ -80,53 +88,18 @@ const ExerciseSetForm = ({ set, exercise, loggedSets, setLoggedSets }) => {
     }));
   };
 
-  const handleComplete = () => {
-    // Toggle behavior: ถ้า completed แล้วก็ uncheck, ถ้ายังไม่ก็ complete
-    if (currentData.completed) {
-      // กดครั้งที่ 2 - uncheck
-      setLoggedSets((prev) => ({
-        ...prev,
-        [setKey]: {
-          ...prev[setKey],
-          completed: false,
-        },
-      }));
-    } else {
-      // กดครั้งที่ 1 - complete และ auto-fill ด้วย smart placeholder
-      const updatedData = { ...currentData };
-
-      activeFields.forEach((field) => {
-        if (!updatedData[field.key]) {
-          const smartPlaceholder = getSmartPlaceholder(field.key);
-          if (smartPlaceholder !== null) {
-            updatedData[field.key] = smartPlaceholder;
-          }
-        }
-      });
-
-      setLoggedSets((prev) => ({
-        ...prev,
-        [setKey]: {
-          ...updatedData,
-          completed: true,
-        },
-      }));
-    }
+  // ===== ปรับ logic placeholder: ดึงจากฐานข้อมูลเสมอ =====
+  const getPlaceholder = (field) => {
+    return set[field.key] ?? "";
   };
 
   // Render dynamic input field
   const renderInputField = (field) => {
     const inputValue = currentData[field.key] || "";
-    const smartPlaceholder = getSmartPlaceholder(field.key);
 
     const handleChange = (e) => {
-      const value =
-        field.type === "number"
-          ? field.step === "1"
-            ? parseInt(e.target.value) || 0
-            : parseFloat(e.target.value) || 0
-          : e.target.value;
-      handleInputChange(field.key, value);
+      const val = e.target.value;
+      handleInputChange(field.key, val);
     };
 
     return (
@@ -135,7 +108,10 @@ const ExerciseSetForm = ({ set, exercise, loggedSets, setLoggedSets }) => {
           <input
             type={field.type}
             step={field.step}
-            placeholder={smartPlaceholder?.toString() || "0"}
+            min={field.min}
+            max={field.max}
+            pattern={field.pattern}
+            placeholder={getPlaceholder(field)}
             value={inputValue}
             onChange={handleChange}
             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"
@@ -143,6 +119,34 @@ const ExerciseSetForm = ({ set, exercise, loggedSets, setLoggedSets }) => {
         </div>
       </td>
     );
+  };
+
+  // ===== ปรับ handleComplete: ใช้ค่าปกติ =====
+  const handleComplete = () => {
+    if (currentData.completed) {
+      setLoggedSets((prev) => ({
+        ...prev,
+        [setKey]: {
+          ...prev[setKey],
+          completed: false,
+        },
+      }));
+    } else {
+      const updatedData = { ...currentData };
+      activeFields.forEach((field) => {
+        let val = updatedData[field.key];
+        if (val === undefined || val === null) {
+          updatedData[field.key] = set[field.key];
+        }
+      });
+      setLoggedSets((prev) => ({
+        ...prev,
+        [setKey]: {
+          ...updatedData,
+          completed: true,
+        },
+      }));
+    }
   };
 
   return (
@@ -207,10 +211,10 @@ export const ExerciseSetTable = ({
   // สร้าง dynamic headers ตามฟิลด์ที่มีข้อมูล
   const getFieldDisplayName = (fieldKey) => {
     const fieldLabels = {
-      weight: "kg",
-      reps: "Reps",
-      time: "เวลา (วิ)",
-      distance: "ระยะ (ม.)",
+      weight: "น้ำหนัก (กก.)",
+      reps: "รอบ",
+      time: "เวลา (วินาที)",
+      distance: "ระยะ",
     };
     return fieldLabels[fieldKey] || fieldKey;
   };

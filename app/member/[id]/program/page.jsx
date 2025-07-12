@@ -79,9 +79,7 @@ const ProgramPage = async ({ params }) => {
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               ยังไม่มี Workout Plan
             </h2>
-            <p className="text-gray-600 mb-6">
-              คุณยังไม่มี workout plan
-            </p>
+            <p className="text-gray-600 mb-6">คุณยังไม่มี workout plan</p>
             <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
               สร้าง Workout Plan
             </button>
@@ -99,7 +97,7 @@ const ProgramPage = async ({ params }) => {
           {/* Workout Plan Content */}
           <WorkoutPlanCard workoutPlan={workoutPlanResult.data} />
         </div>
-        
+
         <div className="">
           {/* Macro Plan Section */}
           {macroSection}

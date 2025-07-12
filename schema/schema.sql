@@ -167,7 +167,7 @@ CREATE TABLE exercise_log_set (
   set_order INT NOT NULL,
   weight DECIMAL(5,2) DEFAULT NULL,
   reps INT DEFAULT NULL,
-  time TIME DEFAULT NULL,
+  time INT DEFAULT NULL,
   distance INT DEFAULT NULL,
   FOREIGN KEY (exercise_log_id) REFERENCES exercise_log(exercise_log_id) ON DELETE CASCADE,
   FOREIGN KEY (program_exercise_set_id) REFERENCES program_exercise_set(program_exercise_set_id) ON DELETE CASCADE
