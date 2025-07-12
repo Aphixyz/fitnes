@@ -23,10 +23,12 @@ import {
   Scale,
   Activity,
 } from "lucide-react";
+import NutrientLogModal from "@/app/member/[id]/quick-add/nutrient-log/nutrientLogModal";
 
 const MemberBottomNav = () => {
   const pathname = usePathname();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isNutrientModalOpen, setIsNutrientModalOpen] = useState(false);
 
   // ดึง memberId จาก pathname หากไม่มี props
   const getMemberIdFromPath = () => {
@@ -86,7 +88,7 @@ const MemberBottomNav = () => {
       bgColor: "bg-blue-50",
     },
     {
-      href: `/member/${memberId}/quick-add/macro-log`,
+      href: `/member/${memberId}/quick-add/nutrient-log`,
       icon: Apple,
       label: "บันทึกโภชนาการ",
       description: "บันทึกแคลอรี่และสารอาหาร",
@@ -113,6 +115,13 @@ const MemberBottomNav = () => {
 
   const handleQuickActionClick = (href) => {
     setIsDrawerOpen(false);
+
+    // ถ้าเป็น nutrient log ให้เปิด modal แทนการ navigate
+    if (href.includes("nutrient-log")) {
+      setIsNutrientModalOpen(true);
+      return;
+    }
+
     window.location.href = href;
   };
 
@@ -185,7 +194,7 @@ const MemberBottomNav = () => {
               <button
                 onClick={() =>
                   handleQuickActionClick(
-                    `/member/${memberId}/quick-add/macro-log`
+                    `/member/${memberId}/quick-add/nutrient-log`
                   )
                 }
                 className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow border border-gray-200 text-black focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 hover:shadow-md transition-all"
@@ -231,6 +240,13 @@ const MemberBottomNav = () => {
 
       {/* Bottom padding สำหรับ content */}
       <div className="h-20" />
+
+      {/* Nutrient Log Modal */}
+      <NutrientLogModal
+        isOpen={isNutrientModalOpen}
+        onClose={() => setIsNutrientModalOpen(false)}
+        memberId={memberId}
+      />
     </>
   );
 };
