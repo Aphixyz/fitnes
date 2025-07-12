@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import ProgramDialog from "./ProgramDialog";
+import ProgramDialog from "@/app/member/[id]/program/_components/ProgramDialog";
 
 /**
  * ProgramCard - Client Component

@@ -25,7 +25,7 @@ const ExerciseList = ({ exercises }) => {
 
     // เพิ่ม reps ถ้ามี
     if (firstSet.reps) {
-      details.push(`${firstSet.reps} ครั้ง`);
+      details.push(`${firstSet.reps} รอบ`);
     }
 
     // เพิ่ม weight ถ้ามี (จัดรูปแบบทศนิยม)

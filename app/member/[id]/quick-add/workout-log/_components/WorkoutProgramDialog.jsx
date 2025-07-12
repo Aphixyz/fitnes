@@ -6,13 +6,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Play } from "lucide-react";
 import ExerciseList from "@/app/member/components/workout/ExerciseList";
 
 /**
  * ProgramDialog - Client Component
  * แสดงรายละเอียด program และ exercise list ในรูปแบบ dialog modal
  */
-const ProgramDialog = ({ program, programIndex, isOpen, onClose }) => {
+const WorkoutProgramDialog = ({
+  program,
+  programIndex,
+  isOpen,
+  onClose,
+  onStartWorkout,
+}) => {
+  const handleStartWorkout = () => {
+    // เรียกใช้ onStartWorkout prop แทน console.log
+    if (onStartWorkout) {
+      onStartWorkout();
+    }
+    onClose(); // ปิด dialog หลังจากคลิกปุ่ม
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] sm:max-h-[85vh] md:max-h-[80vh] overflow-y-auto p-4 sm:p-6">
@@ -57,10 +73,22 @@ const ProgramDialog = ({ program, programIndex, isOpen, onClose }) => {
               <ExerciseList exercises={program.exercises} />
             </div>
           )}
+
+          {/* Start Workout Button */}
+          <div className="pt-4 border-t border-gray-200">
+            <Button
+              onClick={handleStartWorkout}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+              size="lg"
+            >
+              <Play className="w-5 h-5 mr-2" />
+              เริ่มบันทึกการออกกำลังกาย
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default ProgramDialog;
+export default WorkoutProgramDialog;

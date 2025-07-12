@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import exercisesData from "@/data/exercises.json";
 import ExerciseSetForm, { ExerciseSetTable } from "./ExerciseSetForm";
-import WorkoutSummary from "./WorkoutSummary";
 import { insertProgramExerciseSet } from "@/actions/member/my-workout-plans/insertProgramExerciseSet";
+import { formatTimeThai, convertForDatabase } from "@/utils/utils";
 
 // Shadcn Components
 import {
@@ -21,6 +21,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerFooter,
+  DrawerDescription,
 } from "@/components/ui/drawer";
 import {
   AlertDialog,
@@ -33,6 +34,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 /**
  * Custom hook สำหรับตรวจสอบ screen size
@@ -54,7 +57,7 @@ const useMediaQuery = (query) => {
 };
 
 /**
- * WorkoutLoggingModal - Responsive Dialog/Drawer Component
+ * WorkoutLoggingModal - Responsive Modal Component
  * ใช้ Dialog บน desktop และ Drawer บน mobile
  */
 const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
@@ -127,16 +130,21 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
           continue;
         }
 
+        // แปลงข้อมูลจาก input fields เป็นค่าที่เหมาะสมสำหรับฐานข้อมูล
+        const convertFieldValue = (value, fieldKey) => {
+          return convertForDatabase(value, fieldKey);
+        };
+
         const setDataToSave = {
           member_id: memberId,
           workout_plan_id: workoutPlan.workout_plan_id,
           workout_program_id: program.workout_program_id,
           program_exercise_set_id: programExerciseSetId,
           set_order: set.set_order,
-          weight: setData.weight || null,
-          reps: setData.reps || null,
-          time: setData.time || null,
-          distance: setData.distance || null,
+          weight: convertFieldValue(setData.weight, "weight"),
+          reps: convertFieldValue(setData.reps, "reps"),
+          time: convertFieldValue(setData.time, "time"),
+          distance: convertFieldValue(setData.distance, "distance"),
           log_date: todayDate,
         };
 
@@ -192,7 +200,10 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
     const totalWeight = exerciseLoggedSets.reduce((sum, setKey) => {
       const setData = loggedSets[setKey];
       if (setData && setData.weight && setData.reps) {
-        return sum + setData.weight * setData.reps;
+        // แปลงข้อมูลก่อนคำนวณ
+        const weight = convertForDatabase(setData.weight, "weight") || 0;
+        const reps = convertForDatabase(setData.reps, "reps") || 0;
+        return sum + weight * reps;
       }
       return sum;
     }, 0);
@@ -204,10 +215,18 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
     };
   };
 
+  // ฟังก์ชันสำหรับแสดงหน่วยของระยะทาง
+  const getDistanceUnit = (value) => {
+    if (value === null || value === undefined) return "";
+    if (value >= 1000) return "กิโลเมตร";
+    if (value >= 100) return "เมตร";
+    return "เมตร";
+  };
+
   // Render Exercise Content
   const renderExercises = () => {
     return (
-      <div className="space-y-8">
+      <div className="space-y-6">
         {exercises.map((exercise, exerciseIndex) => {
           const stats = getExerciseStats(exercise);
 
@@ -224,56 +243,88 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
             const fieldOrder = ["weight", "reps", "time", "distance"];
             return fieldOrder
               .filter((field) => fieldsSet.has(field))
-              .map((key) => ({ key }));
+              .map((key) => ({
+                key,
+                label:
+                  key === "distance"
+                    ? getDistanceUnit(exercise.sets?.[0]?.[key] || 0)
+                    : undefined,
+              }));
           };
 
           const exerciseActiveFields = getAllActiveFields();
 
           return (
-            <div key={exercise.program_exercise_id} className="space-y-4 mb-4">
-              {/* Exercise Header */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                  {exerciseIndex + 1}. {getExerciseName(exercise.exercise_id)}
-                </h3>
+            <div key={exercise.program_exercise_id} className="space-y-4">
+              {/* Exercise Header - Modern Design */}
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-5 border border-slate-200 shadow-sm mt-4">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {exerciseIndex + 1}
+                      </Badge>
+                      <h3 className="text-lg font-semibold text-slate-900 leading-tight">
+                        {getExerciseName(exercise.exercise_id)}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
 
-                {/* Exercise Details */}
-                <div className="bg-white rounded-lg p-3 mb-4">
-                  <div className="flex items-center gap-4 text-sm flex-wrap">
-                    {exercise.exercise_rest && (
-                      <div>
-                        <span className="text-gray-600">พักระหว่างเซต: </span>
-                        <span className="font-medium text-gray-900">
-                          {exercise.exercise_rest} วิ
+                {/* Exercise Details - Compact Design */}
+                {(exercise.exercise_rest || exercise.exercise_notes) && (
+                  <div className=" p-3 mb-4">
+                    <div className="flex items-center gap-4 text-sm flex-wrap">
+                      {exercise.exercise_rest && (
+                        <div className="flex items-center gap-1">
+                          <svg
+                            className="w-4 h-4 text-slate-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          <span className="text-slate-600">พัก: </span>
+                          <span className="font-medium text-slate-900">
+                            {formatTimeThai(exercise.exercise_rest)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    {exercise.exercise_notes && (
+                      <div className="mt-2 text-sm">
+                        <span className="text-slate-600">หมายเหตุ: </span>
+                        <span className="text-slate-700">
+                          {exercise.exercise_notes}
                         </span>
                       </div>
                     )}
                   </div>
-                  {exercise.exercise_notes && (
-                    <div className="mt-2 text-sm">
-                      <span className="text-gray-600">หมายเหตุ: </span>
-                      <span className="text-gray-700">
-                        {exercise.exercise_notes}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                )}
 
                 {/* Exercise Sets Table */}
-                <ExerciseSetTable
-                  exerciseName={getExerciseName(exercise.exercise_id)}
-                  activeFields={exerciseActiveFields}
-                >
-                  {exercise.sets?.map((set) => (
-                    <ExerciseSetForm
-                      key={set.program_exercise_set_id}
-                      set={set}
-                      exercise={exercise}
-                      loggedSets={loggedSets}
-                      setLoggedSets={setLoggedSets}
-                    />
-                  ))}
-                </ExerciseSetTable>
+                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                  <ExerciseSetTable
+                    exerciseName={getExerciseName(exercise.exercise_id)}
+                    activeFields={exerciseActiveFields}
+                  >
+                    {exercise.sets?.map((set) => (
+                      <ExerciseSetForm
+                        key={set.program_exercise_set_id}
+                        set={set}
+                        exercise={exercise}
+                        loggedSets={loggedSets}
+                        setLoggedSets={setLoggedSets}
+                      />
+                    ))}
+                  </ExerciseSetTable>
+                </div>
               </div>
             </div>
           );
@@ -282,62 +333,43 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
     );
   };
 
-  // คำนวณสถิติรวม
-  const getTotalStats = () => {
-    const completedSets = Object.values(loggedSets).filter(
-      (setData) => setData.completed
-    );
-    const totalSets = exercises.reduce(
-      (sum, exercise) => sum + (exercise.sets?.length || 0),
-      0
-    );
-
-    return {
-      completedSets: completedSets.length,
-      totalSets,
-      completion: totalSets > 0 ? (completedSets.length / totalSets) * 100 : 0,
-    };
-  };
-
-  const totalStats = getTotalStats();
-
   // Render Content
   const renderContent = () => (
-    <>
-      {/* Exercises Content */}
-      <div className="max-h-[60vh] overflow-y-auto pr-2">
-        {renderExercises()}
-      </div>
-    </>
+    <div className="flex-1 overflow-y-auto">
+      <div className="px-4 pb-4">{renderExercises()}</div>
+    </div>
   );
 
   // Render Footer
   const renderFooter = () => (
-    <div className="flex items-center justify-between gap-4">
+    <div className="space-y-4 p-4 border-t border-slate-200 bg-white">
+      {/* Error Display */}
       {saveError && (
-        <div className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-200 flex-1">
+        <div className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
           {saveError}
         </div>
       )}
 
-      <div className="flex items-center gap-3 ml-auto">
-        <button
+      {/* Action Buttons */}
+      <div className="flex items-center gap-3">
+        <Button
+          variant="outline"
           onClick={handleCloseModal}
           disabled={isSaving}
-          className="px-4 py-2 text-gray-600 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1"
         >
           ยกเลิก
-        </button>
+        </Button>
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <button
-              disabled={isSaving || totalStats.completedSets === 0}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            <Button
+              disabled={isSaving}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
             >
               {isSaving && (
                 <svg
-                  className="w-4 h-4 animate-spin"
+                  className="w-4 h-4 animate-spin mr-2"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -351,7 +383,7 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
                 </svg>
               )}
               {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
-            </button>
+            </Button>
           </AlertDialogTrigger>
 
           <AlertDialogContent>
@@ -384,14 +416,18 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
       <Dialog open={isOpen} onOpenChange={handleCloseModal}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-gray-900">
+            <DialogTitle className="text-xl font-semibold text-slate-900">
               {program?.program_name || "บันทึกการออกกำลังกาย"}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="py-4">{renderContent()}</div>
+          <div className="py-4 overflow-y-auto max-h-[60vh]">
+            {renderExercises()}
+          </div>
 
-          <DialogFooter>{renderFooter()}</DialogFooter>
+          <DialogFooter className="border-t border-slate-200 bg-white">
+            {renderFooter()}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     );
@@ -400,16 +436,43 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
   // Mobile Drawer
   return (
     <Drawer open={isOpen} onOpenChange={handleCloseModal}>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle className="text-lg font-semibold text-gray-900">
-            {program?.program_name || "บันทึกการออกกำลังกาย"}
-          </DrawerTitle>
+      <DrawerContent className="h-[95vh] max-h-[95vh]">
+        <DrawerHeader className="border-b border-slate-200 bg-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <DrawerTitle className="text-xl font-semibold text-slate-900">
+                {program?.program_name || "บันทึกการออกกำลังกาย"}
+              </DrawerTitle>
+              <DrawerDescription className="text-slate-600 "></DrawerDescription>
+            </div>
+
+            {/* Close Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCloseModal}
+              className="h-8 w-8 p-0"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </Button>
+          </div>
         </DrawerHeader>
 
-        <div className="px-4 pb-4">{renderContent()}</div>
+        {renderContent()}
 
-        <DrawerFooter>{renderFooter()}</DrawerFooter>
+        <DrawerFooter className="border-t-0 p-0">{renderFooter()}</DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

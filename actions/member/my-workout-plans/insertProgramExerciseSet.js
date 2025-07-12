@@ -5,17 +5,18 @@ import { revalidatePath } from "next/cache";
 
 /**
  * Insert Program Exercise Set - Server Action
- * บันทึกข้อมูลการออกกำลังกายของ member ทีละเซต
+ * บันทึกข้อมูลการออกกำลังกายของ member ทีละเซต (INSERT เท่านั้น)
+ * User สามารถ log ได้หลาย session ต่อวัน
  *
  * @param {Object} setData - ข้อมูลการออกกำลังกาย
  * @param {number} setData.member_id - ID ของสมาชิก
  * @param {number} setData.workout_plan_id - ID ของ workout plan
- * @param {number} setData.workout_program_id - ID ของ workout program
+ * @param {number} setData.workout_program_id - ID ของ workout program (session)
  * @param {number} setData.program_exercise_set_id - ID ของ program exercise set
  * @param {number} setData.set_order - ลำดับของเซต
  * @param {number|null} setData.weight - น้ำหนัก (กก.) หรือ null
  * @param {number|null} setData.reps - จำนวนครั้ง หรือ null
- * @param {string|null} setData.time - เวลา (TIME format) หรือ null
+ * @param {number|null} setData.time - เวลา (วินาที) หรือ null
  * @param {number|null} setData.distance - ระยะทาง (เมตร) หรือ null
  * @param {string} setData.log_date - วันที่บันทึก (YYYY-MM-DD format)
  * @returns {Object} { success: true } หรือ throw Error
@@ -30,7 +31,7 @@ export const insertProgramExerciseSet = async (setData) => {
       set_order,
       weight = null,
       reps = null,
-      time = null,
+      time = null, // เวลาในรูปแบบวินาที (int)
       distance = null,
       log_date,
     } = setData;
@@ -47,7 +48,8 @@ export const insertProgramExerciseSet = async (setData) => {
       throw new Error("ข้อมูลที่จำเป็นไม่ครบถ้วน");
     }
 
-    // เช็คว่ามี exercise_log สำหรับวันนี้แล้วหรือยัง
+    // เช็คว่ามี exercise_log สำหรับ session นี้ในวันนี้แล้วหรือยัง
+    // User สามารถทำหลาย session ต่อวันได้ (เช่น Upper Body + Lower Body)
     const existingLogQuery = `
       SELECT exercise_log_id 
       FROM exercise_log 
@@ -66,7 +68,8 @@ export const insertProgramExerciseSet = async (setData) => {
 
     let exercise_log_id;
 
-    // ถ้ายังไม่มี exercise_log ให้สร้างใหม่
+    // ถ้ายังไม่มี exercise_log สำหรับ session นี้ ให้สร้างใหม่
+    // แต่ถ้ามีแล้ว (ทำ session เดียวกันหลายครั้ง) ให้ใช้ session เดิม
     if (exerciseLogResult.length === 0) {
       const insertLogQuery = `
         INSERT INTO exercise_log 
@@ -86,54 +89,23 @@ export const insertProgramExerciseSet = async (setData) => {
       exercise_log_id = exerciseLogResult[0].exercise_log_id;
     }
 
-    // เช็คว่ามีการบันทึกเซตนี้แล้วหรือยัง (เพื่อ update แทน insert)
-    const existingSetQuery = `
-      SELECT exercise_log_set_id 
-      FROM exercise_log_set 
-      WHERE exercise_log_id = ? 
-        AND program_exercise_set_id = ? 
-        AND set_order = ?
+    // INSERT เซตใหม่เสมอ (ไม่เช็ค existing)
+    // User สามารถทำเซตเดิมหลายครั้งได้ (เช่น เซตที่ 1, เซตที่ 2, เซตที่ 3)
+    const insertSetQuery = `
+      INSERT INTO exercise_log_set 
+      (exercise_log_id, program_exercise_set_id, set_order, weight, reps, time, distance)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const [existingSetResult] = await pool.execute(existingSetQuery, [
+    await pool.execute(insertSetQuery, [
       exercise_log_id,
       program_exercise_set_id,
       set_order,
+      weight,
+      reps,
+      time,
+      distance,
     ]);
-
-    if (existingSetResult.length > 0) {
-      // Update existing set
-      const updateSetQuery = `
-        UPDATE exercise_log_set 
-        SET weight = ?, reps = ?, time = ?, distance = ?
-        WHERE exercise_log_set_id = ?
-      `;
-
-      await pool.execute(updateSetQuery, [
-        weight,
-        reps,
-        time,
-        distance,
-        existingSetResult[0].exercise_log_set_id,
-      ]);
-    } else {
-      // Insert new set
-      const insertSetQuery = `
-        INSERT INTO exercise_log_set 
-        (exercise_log_id, program_exercise_set_id, set_order, weight, reps, time, distance)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `;
-
-      await pool.execute(insertSetQuery, [
-        exercise_log_id,
-        program_exercise_set_id,
-        set_order,
-        weight,
-        reps,
-        time,
-        distance,
-      ]);
-    }
 
     // Revalidate หน้าที่เกี่ยวข้อง
     revalidatePath(`/member/${member_id}/workout`);
