@@ -45,22 +45,26 @@ TABLE member (
 TABLE member_health (
     member_health_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
-    member_health_weight DECIMAL(5,2),
     member_health_height DECIMAL(5,2),
-    member_health_bodyfat DECIMAL(10,2),
     member_activity_level INT,
-    member_health_condition TEXT,
+    member_health_condition TEXT, -- สภาพร่างกายของสมาชิก
+    member_health_measurementdate DATE NOT NULL, -- วันที่/เวลาที่วัดจริง
+
+    -- ส่วนของ Weight Log
+    member_health_weight DECIMAL(5,2),
+    photo_front VARCHAR(255),
+    photo_side VARCHAR(255),
+    photo_back VARCHAR(255),
+
+     -- ส่วนของ Metric Log
+    member_health_bodyfat DECIMAL(10,2),
     member_health_chest DECIMAL(10,2),
     member_health_waist DECIMAL(10,2),
     member_health_hip DECIMAL(10,2),
     member_health_arm DECIMAL(10,2),
     member_health_thigh DECIMAL(10,2),
-    photo_front VARCHAR(255),
-    photo_side VARCHAR(255),
-    photo_back VARCHAR(255),
-    member_health_measurementdate DATE NOT NULL,
+
     create_at DATETIME DEFAULT on update current_timestamp,
-    update_at DATETIME DEFAULT on update current_timestamp,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
 
