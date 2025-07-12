@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import NutrientLogModal from "@/app/member/[id]/quick-add/nutrient-log/nutrientLogModal";
 import WeightLogModal from "@/app/member/[id]/quick-add/weight-log/weightLogModal";
+import MetricLogComp from "@/app/member/[id]/quick-add/metrics-log/metricLogComp";
 import { getWeightLogData } from "@/actions/member/quick-add/getWeightLogData";
 
 const MemberBottomNav = () => {
@@ -32,6 +33,7 @@ const MemberBottomNav = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isNutrientModalOpen, setIsNutrientModalOpen] = useState(false);
   const [isWeightModalOpen, setIsWeightModalOpen] = useState(false);
+  const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
   const [weightLogData, setWeightLogData] = useState({
     latestWeight: null,
     progressPhotos: null,
@@ -156,6 +158,12 @@ const MemberBottomNav = () => {
     // ถ้าเป็น weight log ให้เปิด modal แทนการ navigate
     if (href.includes("weight-log")) {
       handleWeightModalOpen();
+      return;
+    }
+
+    // ถ้าเป็น metrics log ให้เปิด modal แทนการ navigate
+    if (href.includes("metrics-log")) {
+      setIsMetricModalOpen(true);
       return;
     }
 
@@ -298,6 +306,14 @@ const MemberBottomNav = () => {
         onOpenChange={setIsWeightModalOpen}
         latestWeight={weightLogData.latestWeight}
         progressPhotos={weightLogData.progressPhotos}
+        onDataChange={handleDataChange}
+      />
+
+      {/* Metric Log Modal */}
+      <MetricLogComp
+        memberId={memberId}
+        open={isMetricModalOpen}
+        onOpenChange={setIsMetricModalOpen}
         onDataChange={handleDataChange}
       />
     </>
