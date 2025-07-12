@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -24,11 +24,19 @@ import {
   Activity,
 } from "lucide-react";
 import NutrientLogModal from "@/app/member/[id]/quick-add/nutrient-log/nutrientLogModal";
+import WeightLogModal from "@/app/member/[id]/quick-add/weight-log/weightLogModal";
+import { getWeightLogData } from "@/actions/member/quick-add/getWeightLogData";
 
 const MemberBottomNav = () => {
   const pathname = usePathname();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isNutrientModalOpen, setIsNutrientModalOpen] = useState(false);
+  const [isWeightModalOpen, setIsWeightModalOpen] = useState(false);
+  const [weightLogData, setWeightLogData] = useState({
+    latestWeight: null,
+    progressPhotos: null,
+  });
+  const [loadingWeightData, setLoadingWeightData] = useState(false);
 
   // ดึง memberId จาก pathname หากไม่มี props
   const getMemberIdFromPath = () => {
@@ -42,6 +50,29 @@ const MemberBottomNav = () => {
 
   // ใช้ memberId จาก props หรือจาก pathname
   const memberId = getMemberIdFromPath();
+
+  // ===== Fetch Weight Log Data =====
+  const fetchWeightLogData = async () => {
+    if (!memberId) return;
+
+    setLoadingWeightData(true);
+    try {
+      const result = await getWeightLogData(memberId);
+      if (result.success) {
+        setWeightLogData(result.data);
+      }
+    } catch (error) {
+      console.error("Error fetching weight log data:", error);
+    } finally {
+      setLoadingWeightData(false);
+    }
+  };
+
+  // ===== Handle Weight Modal Open =====
+  const handleWeightModalOpen = async () => {
+    setIsWeightModalOpen(true);
+    await fetchWeightLogData();
+  };
 
   // Navigation items สำหรับ bottom nav
   const navItems = [
@@ -122,7 +153,19 @@ const MemberBottomNav = () => {
       return;
     }
 
+    // ถ้าเป็น weight log ให้เปิด modal แทนการ navigate
+    if (href.includes("weight-log")) {
+      handleWeightModalOpen();
+      return;
+    }
+
     window.location.href = href;
+  };
+
+  // ===== Handle Data Change Callback =====
+  const handleDataChange = () => {
+    // Refresh หน้าปัจจุบันเพื่ออัปเดตข้อมูล
+    window.location.reload();
   };
 
   return (
@@ -246,6 +289,16 @@ const MemberBottomNav = () => {
         isOpen={isNutrientModalOpen}
         onClose={() => setIsNutrientModalOpen(false)}
         memberId={memberId}
+      />
+
+      {/* Weight Log Modal */}
+      <WeightLogModal
+        memberId={memberId}
+        open={isWeightModalOpen}
+        onOpenChange={setIsWeightModalOpen}
+        latestWeight={weightLogData.latestWeight}
+        progressPhotos={weightLogData.progressPhotos}
+        onDataChange={handleDataChange}
       />
     </>
   );
