@@ -103,7 +103,7 @@ const EXPERIENCE_LEVELS = [
   {
     value: "advanced",
     label: "ขั้นสูง",
-    description: "ออกกำลังกาย > 3 ปี",
+    description: "ออกกำลังกาย > 2 ปี",
   },
 ];
 
