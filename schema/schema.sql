@@ -38,7 +38,7 @@ TABLE member (
     member_phone VARCHAR(20),
     member_gender VARCHAR(50),
     member_dob DATE,
-    member_profileimage VARCHAR(255),
+    member_profileimage VARCHAR(255)
 );
 
 -- Health Metrics Table - เก็บข้อมูลสุขภาพของสมาชิก
@@ -64,7 +64,6 @@ TABLE member_health (
     member_health_arm DECIMAL(10,2),
     member_health_thigh DECIMAL(10,2),
 
-    create_at DATETIME DEFAULT on update current_timestamp,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
 
@@ -247,6 +246,27 @@ The database connection and query utilities are managed through `lib/db.js`. Thi
 2. Query execution helpers
 3. Transaction management
 4. Error handling
+
+import pool from "@/lib/db.js";
+
+```
+ import mysql from "mysql2/promise";
+
+ // Database connection configuration
+ const dbConfig = {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+   password: process.env.DB_PASSWORD,
+   database: process.env.DB_NAME,
+   connectionLimit: 3,
+};
+
+ // Create a connection pool
+ const pool = mysql.createPool(dbConfig);
+
+ // Export pool as default
+export default pool;
+```
 
 ## Data Validation
 

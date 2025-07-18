@@ -757,3 +757,47 @@ export function convertForDatabase(value, fieldKey) {
       return parseFloat(value) || null;
   }
 }
+
+/**
+ * แปลงวันที่เป็นรูปแบบสั้นภาษาไทย เช่น '12 ก.ค.' หรือ '12 ก.ค. 2024'
+ * @param {string|Date} dateInput - วันที่ (YYYY-MM-DD, Date object, หรือ string ที่ JS รองรับ)
+ * @param {boolean} withYear - ถ้า true จะใส่ปีด้วย
+ * @returns {string} วันที่ในรูปแบบ 'd MMM' หรือ 'd MMM yyyy' (ภาษาไทย)
+ */
+export function formatShortThaiDate(dateInput, withYear = false) {
+  if (!dateInput) return "";
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return "";
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  const thaiMonths = [
+    "ม.ค.",
+    "ก.พ.",
+    "มี.ค.",
+    "เม.ย.",
+    "พ.ค.",
+    "มิ.ย.",
+    "ก.ค.",
+    "ส.ค.",
+    "ก.ย.",
+    "ต.ค.",
+    "พ.ย.",
+    "ธ.ค.",
+  ];
+  return withYear
+    ? `${day} ${thaiMonths[month]} ${year}`
+    : `${day} ${thaiMonths[month]}`;
+}
+
+/**
+ * แปลงวินาทีเป็นชั่วโมงภาษาไทย (ปัดเศษลง)
+ * @param {number} seconds - วินาที
+ * @returns {string} เช่น '2 ชั่วโมง'
+ */
+export function formatHourThai(seconds) {
+  if (!seconds && seconds !== 0) return "";
+  return `${Math.floor(seconds / 3600)}`;
+}
+
+
