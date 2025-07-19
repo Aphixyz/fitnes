@@ -1,7 +1,7 @@
 "use client";
 
 // ===== Imports =====
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Drawer,
   DrawerContent,
@@ -11,9 +11,9 @@ import {
   DrawerClose,
   DrawerFooter,
 } from "@/components/ui/drawer";
-import { X } from "lucide-react";
-import { insertWeight } from "@/actions/member/quick-add/insertWeight";
-import { insertProgressPhoto } from "@/actions/member/quick-add/insertProgressPhoto";
+import { X, Calendar } from "lucide-react";
+import { insertHealth } from "@/actions/member/quick-add/insertHealth";
+import { loadDailyHealthRecord } from "@/actions/member/quick-add/loadDailyHealthRecord";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
@@ -22,21 +22,17 @@ const WeightLogModal = ({
   memberId,
   open,
   onOpenChange,
-  latestWeight,
-  progressPhotos: initialProgressPhotos,
   onDataChange, // callback ให้ parent reload ข้อมูลใหม่
 }) => {
   // ===== State =====
-  const [weight, setWeight] = useState(
-    latestWeight ? String(latestWeight) : ""
-  );
+  const [weight, setWeight] = useState("");
   const [date, setDate] = useState(
     () => new Date().toISOString().split("T")[0]
   );
   const [progressPhotos, setProgressPhotos] = useState({
-    front: initialProgressPhotos?.photo_front || null,
-    side: initialProgressPhotos?.photo_side || null,
-    back: initialProgressPhotos?.photo_back || null,
+    front: null,
+    side: null,
+    back: null,
   });
   const [pendingPhotos, setPendingPhotos] = useState({
     front: null,
@@ -44,7 +40,69 @@ const WeightLogModal = ({
     back: null,
   });
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState("");
+  const [existingData, setExistingData] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // ===== Reset Date When Modal Opens/Closes =====
+  useEffect(() => {
+    if (open) {
+      // เมื่อเปิด modal ให้ reset กลับมาวันที่ปัจจุบัน
+      const today = new Date().toISOString().split("T")[0];
+      setDate(today);
+      setShowDatePicker(false);
+    }
+  }, [open]);
+
+  // ===== Load Existing Data When Modal Opens or Date Changes =====
+  useEffect(() => {
+    if (open && memberId) {
+      loadExistingData();
+    }
+  }, [open, memberId, date]);
+
+  // ===== Load Existing Data =====
+  const loadExistingData = async () => {
+    setLoadingData(true);
+    try {
+      const existingRecord = await loadDailyHealthRecord(memberId, date);
+
+      if (existingRecord) {
+        // เติมข้อมูลเดิมในฟอร์ม
+        setWeight(existingRecord.weight ? String(existingRecord.weight) : "");
+
+        // เก็บรูปเดิมไว้แสดง
+        setProgressPhotos({
+          front: existingRecord.photos.front,
+          side: existingRecord.photos.side,
+          back: existingRecord.photos.back,
+        });
+
+        setExistingData(existingRecord);
+      } else {
+        // ไม่มีข้อมูลเดิม → reset ฟอร์ม
+        setWeight("");
+        setProgressPhotos({
+          front: null,
+          side: null,
+          back: null,
+        });
+        setExistingData(null);
+      }
+    } catch (error) {
+      console.error("Error loading existing data:", error);
+      // reset ฟอร์มถ้าโหลดข้อมูลไม่สำเร็จ
+      setWeight("");
+      setProgressPhotos({
+        front: null,
+        side: null,
+        back: null,
+      });
+    } finally {
+      setLoadingData(false);
+    }
+  };
 
   // ===== Handle Weight Change =====
   const handleWeightChange = (e) => {
@@ -58,11 +116,12 @@ const WeightLogModal = ({
     const today = new Date().toISOString().split("T")[0];
     if (val > today) return;
     setDate(val);
+    setShowDatePicker(false); // ปิด date picker หลังจากเลือก
   };
 
   // ===== Handle Header Date Click =====
   const handleHeaderDateClick = () => {
-    document.getElementById("date-picker").click();
+    setShowDatePicker(!showDatePicker);
   };
 
   // ===== Handle Header Date Key Down =====
@@ -109,36 +168,24 @@ const WeightLogModal = ({
     }
 
     try {
-      // 1. บันทึกน้ำหนักก่อน
-      const weightRes = await insertWeight(memberId, w, date);
-      if (!weightRes.success) {
-        setError(weightRes.message || "บันทึกน้ำหนักไม่สำเร็จ");
+      // เตรียมข้อมูลสำหรับ insertHealth
+      const healthData = {
+        memberId: memberId,
+        weight: w,
+        measurementDate: date,
+        // เพิ่มรูปภาพถ้ามี
+        ...(pendingPhotos.front && { photoFront: pendingPhotos.front }),
+        ...(pendingPhotos.side && { photoSide: pendingPhotos.side }),
+        ...(pendingPhotos.back && { photoBack: pendingPhotos.back }),
+      };
+
+      // บันทึกข้อมูลสุขภาพด้วย insertHealth
+      const result = await insertHealth(healthData);
+
+      if (!result.success) {
+        setError(result.message || "บันทึกข้อมูลไม่สำเร็จ");
         setLoading(false);
         return;
-      }
-
-      // 2. บันทึกรูปภาพที่เลือกไว้ (ถ้ามี)
-      const photoPromises = [];
-      Object.entries(pendingPhotos).forEach(([type, file]) => {
-        if (file) {
-          const formData = new FormData();
-          formData.append("memberId", memberId);
-          formData.append("photoType", type);
-          formData.append("photoFile", file);
-          formData.append("measurementDate", date);
-          photoPromises.push(insertProgressPhoto(formData));
-        }
-      });
-
-      // รอให้อัปโหลดรูปภาพเสร็จ
-      if (photoPromises.length > 0) {
-        const photoResults = await Promise.all(photoPromises);
-        const failedPhotos = photoResults.filter((res) => !res.success);
-        if (failedPhotos.length > 0) {
-          setError("บันทึกน้ำหนักสำเร็จ แต่มีรูปภาพบางรูปอัปโหลดไม่สำเร็จ");
-          setLoading(false);
-          return;
-        }
       }
 
       // สำเร็จทั้งหมด
@@ -192,32 +239,41 @@ const WeightLogModal = ({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
         <DrawerHeader className="flex flex-row items-center justify-between pb-2">
-          <div className="flex-1 text-center">
+          <div className="flex-1 text-center relative">
             <div
               onClick={handleHeaderDateClick}
               onKeyDown={handleHeaderDateKeyDown}
-              className="flex flex-col items-center justify-center"
+              className="flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors"
               tabIndex={0}
               role="button"
               aria-label="คลิกเพื่อเลือกวันที่"
             >
-              <DrawerTitle className="text-xl mb-4">
-                {new Date(date).toLocaleDateString("th-TH", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                })}
-              </DrawerTitle>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-emerald-600" />
+                <DrawerTitle className="text-xl">
+                  {new Date(date).toLocaleDateString("th-TH", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
+                </DrawerTitle>
+              </div>
             </div>
-            <input
-              id="date-picker"
-              type="date"
-              value={date}
-              onChange={handleDateChange}
-              max={new Date().toISOString().split("T")[0]}
-              className="hidden"
-              aria-label="เลือกวันที่"
-            />
+
+            {/* Date Picker Dropdown */}
+            {showDatePicker && (
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
+                <input
+                  type="date"
+                  value={date}
+                  onChange={handleDateChange}
+                  max={new Date().toISOString().split("T")[0]}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  aria-label="เลือกวันที่"
+                  autoFocus
+                />
+              </div>
+            )}
           </div>
           <DrawerClose
             aria-label="ปิด"
@@ -227,6 +283,16 @@ const WeightLogModal = ({
           </DrawerClose>
         </DrawerHeader>
         <form onSubmit={handleSave} className="flex flex-col gap-6 px-4 pb-4">
+          {/* Loading indicator */}
+          {loadingData && (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
+              <span className="ml-2 text-sm text-gray-600">
+                กำลังโหลดข้อมูล...
+              </span>
+            </div>
+          )}
+
           {/* น้ำหนัก */}
           <div className="flex items-center justify-between gap-4">
             <label
@@ -247,6 +313,7 @@ const WeightLogModal = ({
                 className="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
                 aria-label="น้ำหนัก"
                 required
+                disabled={loadingData}
               />
               <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
                 กก.
@@ -271,11 +338,11 @@ const WeightLogModal = ({
             <Button
               type="submit"
               className={`w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 ${
-                isFormValid() && !loading
+                isFormValid() && !loading && !loadingData
                   ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
-              disabled={!isFormValid() || loading}
+              disabled={!isFormValid() || loading || loadingData}
             >
               {loading ? (
                 <>
