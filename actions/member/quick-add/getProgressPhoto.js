@@ -11,9 +11,7 @@ export const getProgressPhotos = async (memberId, date = null) => {
           member_health_measurementdate,
           photo_front,
           photo_side,
-          photo_back,
-          create_at,
-          update_at
+          photo_back
         FROM member_health 
         WHERE member_id = ?
       `;
