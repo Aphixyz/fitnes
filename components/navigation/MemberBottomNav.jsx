@@ -26,7 +26,6 @@ import {
 import NutrientLogModal from "@/app/member/[id]/quick-add/nutrient-log/nutrientLogModal";
 import WeightLogModal from "@/app/member/[id]/quick-add/weight-log/weightLogModal";
 import MetricLogComp from "@/app/member/[id]/quick-add/metrics-log/metricLogComp";
-import { getWeightLogData } from "@/actions/member/quick-add/getWeightLogData";
 
 const MemberBottomNav = () => {
   const pathname = usePathname();
@@ -34,11 +33,6 @@ const MemberBottomNav = () => {
   const [isNutrientModalOpen, setIsNutrientModalOpen] = useState(false);
   const [isWeightModalOpen, setIsWeightModalOpen] = useState(false);
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
-  const [weightLogData, setWeightLogData] = useState({
-    latestWeight: null,
-    progressPhotos: null,
-  });
-  const [loadingWeightData, setLoadingWeightData] = useState(false);
 
   // ดึง memberId จาก pathname หากไม่มี props
   const getMemberIdFromPath = () => {
@@ -52,29 +46,6 @@ const MemberBottomNav = () => {
 
   // ใช้ memberId จาก props หรือจาก pathname
   const memberId = getMemberIdFromPath();
-
-  // ===== Fetch Weight Log Data =====
-  const fetchWeightLogData = async () => {
-    if (!memberId) return;
-
-    setLoadingWeightData(true);
-    try {
-      const result = await getWeightLogData(memberId);
-      if (result.success) {
-        setWeightLogData(result.data);
-      }
-    } catch (error) {
-      console.error("Error fetching weight log data:", error);
-    } finally {
-      setLoadingWeightData(false);
-    }
-  };
-
-  // ===== Handle Weight Modal Open =====
-  const handleWeightModalOpen = async () => {
-    setIsWeightModalOpen(true);
-    await fetchWeightLogData();
-  };
 
   // Navigation items สำหรับ bottom nav
   const navItems = [
@@ -157,7 +128,7 @@ const MemberBottomNav = () => {
 
     // ถ้าเป็น weight log ให้เปิด modal แทนการ navigate
     if (href.includes("weight-log")) {
-      handleWeightModalOpen();
+      setIsWeightModalOpen(true);
       return;
     }
 
@@ -304,8 +275,6 @@ const MemberBottomNav = () => {
         memberId={memberId}
         open={isWeightModalOpen}
         onOpenChange={setIsWeightModalOpen}
-        latestWeight={weightLogData.latestWeight}
-        progressPhotos={weightLogData.progressPhotos}
         onDataChange={handleDataChange}
       />
 

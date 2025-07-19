@@ -1,6 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { StagewiseToolbar } from "@stagewise/toolbar-next";
 import { Toaster } from "@/components/ui/toaster";
 // import Navbar from "./components/navbar";
 
@@ -31,8 +30,6 @@ export default function RootLayout({ children }) {
         {/* Toaster for notifications */}
         <Toaster />
 
-        {/* Stagewise Toolbar - Development Only */}
-        <StagewiseToolbar />
       </body>
     </html>
   );

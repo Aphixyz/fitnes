@@ -64,7 +64,6 @@ TABLE member_health (
     member_health_arm DECIMAL(10,2),
     member_health_thigh DECIMAL(10,2),
 
-    create_at DATETIME DEFAULT on update current_timestamp,
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
 
