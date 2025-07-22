@@ -38,6 +38,10 @@ export async function insertHealth(data) {
       photoFront,
       photoSide,
       photoBack,
+      // เพิ่ม flag สำหรับลบรูป
+      removePhotoFront,
+      removePhotoSide,
+      removePhotoBack,
     } = data;
 
     // ตรวจสอบข้อมูลที่จำเป็น
@@ -140,6 +144,25 @@ export async function insertHealth(data) {
             ", "
           )} WHERE member_health_id = ?`,
           updateValues
+        );
+      }
+      // เพิ่ม logic ลบรูป (update เป็น NULL)
+      if (removePhotoFront) {
+        await pool.query(
+          `UPDATE member_health SET photo_front = NULL WHERE member_health_id = ?`,
+          [memberHealthId]
+        );
+      }
+      if (removePhotoSide) {
+        await pool.query(
+          `UPDATE member_health SET photo_side = NULL WHERE member_health_id = ?`,
+          [memberHealthId]
+        );
+      }
+      if (removePhotoBack) {
+        await pool.query(
+          `UPDATE member_health SET photo_back = NULL WHERE member_health_id = ?`,
+          [memberHealthId]
         );
       }
     } else {

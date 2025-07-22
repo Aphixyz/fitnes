@@ -108,6 +108,30 @@ export default async function ProgressPage({ params }) {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 space-y-6">
+      {/* ===== ปุ่มไปหน้าวัดผลสุขภาพ (MeasuresPage) ===== */}
+      <div className="flex justify-end mb-4">
+        {/* ใช้ next/link เพื่อ redirect ไป MeasuresPage */}
+        <a
+          href={`/member/${memberId}/progress/measures`}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors font-medium text-sm"
+        >
+          {/* ไอคอน (optional) */}
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 12H9m6 0a6 6 0 11-12 0 6 6 0 0112 0z"
+            />
+          </svg>
+          วัดผลสุขภาพ
+        </a>
+      </div>
       {/* ===== Workout Log Summary Card ===== */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

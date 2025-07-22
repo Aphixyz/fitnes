@@ -9,7 +9,7 @@ export default function ProgressLayout({ children }) {
           </div>
         </div>
         <div className="max-w-6xl mx-auto">
-          <div className="p-6">{children}</div>
+          <div className="">{children}</div>
         </div>
       </div>
     );

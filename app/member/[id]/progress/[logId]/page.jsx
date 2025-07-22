@@ -262,7 +262,6 @@ export default async function WorkoutDetailPage({ params }) {
       totalTime += detail.actual_time;
     }
   });
-  console.log(workoutDetails, "workoutDetails");
 
   const workoutDetail = workoutDetails[0]; // For basic info like date and program name
   const exerciseCount = Object.keys(exerciseGroups).length;
