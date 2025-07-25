@@ -11,8 +11,8 @@ import { getProgressMemberData } from "@/actions/member/progression/getProgressM
 import { getExerciseSummary } from "@/actions/member/progression/total/getExerciseSummary";
 import { isActiveSubscription } from "@/actions/member/isActiveSubscription.js";
 
-import WorkoutChart from "./_components/WorkoutChart";
-import PastWorkoutLogs from "./_components/PastWorkoutLogs";
+import WorkoutChart from "../profile/_components/WorkoutChart";
+import PastWorkoutLogs from "../profile/_components/PastWorkoutLogs";
 
 function generateTicks(startDate, endDate) {
   const ticks = [];
@@ -133,7 +133,8 @@ export default async function ProgressPage({ params }) {
         </a>
       </div>
       {/* ===== Workout Log Summary Card ===== */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+
+      {/* <div className="bg-white rounded-lg shadow-md p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-green-200 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-green-600">
@@ -144,18 +145,19 @@ export default async function ProgressPage({ params }) {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="min-h-screen bg-gray-50 max-w-6xl mx-auto space-y-6">
+          
         {/* ===== Workout Chart Section ===== */}
-        <WorkoutChart
+        {/* <WorkoutChart
           member_id={memberId}
           startDate={domainStart}
           endDate={domainEnd}
           ticks={ticks}
           subscriptions={subscriptions}
           getExerciseSummary={getExerciseSummary}
-        />
+        /> */}
 
         {/* ===== Past Workout Logs Section ===== */}
         <PastWorkoutLogs

@@ -1,113 +1,166 @@
-import { updateMemberProfile } from '@/actions/member/profile';
+import React from "react";
+import Link from "next/link";
+import {
+  User,
+  Ruler,
+  Target,
+  Dumbbell,
+  Apple,
+  Package,
+  Users,
+  ChevronRight,
+  Settings,
+} from "lucide-react";
 
-async function getMemberData(memberId) {
-  try {
-    const members = await query(
-      'SELECT * FROM member WHERE member_id = ?',
-      [memberId]
+import { isActiveSubscription } from "@/actions/member/isActiveSubscription.js";
+import { getMemberById } from "@/actions/member/getMemberData.js";
+
+export default async function ProfilePage({ params }) {
+  const { id } = await params;
+  const memberId = parseInt(id);
+
+  // ตรวจสอบ subscription ที่ active และดึงช่วงเวลา
+  const subscriptionCheck = await isActiveSubscription(memberId);
+
+  if (!subscriptionCheck.success) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-800">
+              เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์การใช้งาน
+            </p>
+          </div>
+        </div>
+      </div>
     );
-    return members[0] || null;
-  } catch (error) {
-    console.error('Error fetching member data:', error);
-    return null;
   }
-}
 
-export default async function MemberProfilePage({ params }) {
-  const memberId = params.id;
-  const member = await getMemberData(memberId);
-  
-  if (!member) {
-    return <div className="p-8">ไม่พบข้อมูลสมาชิก</div>;
+  if (!subscriptionCheck.isActive) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-yellow-800">คุณยังไม่มีสิทธิ์ใช้งานระบบ</p>
+          </div>
+        </div>
+      </div>
+    );
   }
-  
+
+  // ดึงข้อมูลสมาชิก
+  const memberData = await getMemberById(memberId);
+
+  const menuItems = [
+    {
+      id: "personal",
+      title: "ข้อมูลส่วนตัว",
+      icon: User,
+      route: `/member/${id}/profile/personalprofile`,
+    },
+    {
+      id: "metrics",
+      title: "ข้อมูลร่างกาย",
+      icon: Ruler,
+      route: `/member/${id}/profile/measures`,
+    },
+    {
+      id: "goal",
+      title: "เป้าหมาย",
+      icon: Target,
+      route: `/member/${id}/profile/goal`,
+    },
+    {
+      id: "workout",
+      title: "การออกกำลังกาย",
+      icon: Dumbbell,
+      route: `/member/${id}/profile/workout`,
+    },
+    {
+      id: "nutrition",
+      title: "โภชนาการ",
+      icon: Apple,
+      route: `/member/${id}/profile/macronutrient`,
+    },
+    {
+      id: "package",
+      title: "แพ็คเกจ",
+      icon: Package,
+      route: `/member/${id}/profile/package`,
+    },
+    {
+      id: "trainer",
+      title: "เทรนเนอร์",
+      icon: Users,
+      route: `/member/${id}/profile/trainer`,
+    },
+  ];
+
   return (
-    <div className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">แก้ไขข้อมูลส่วนตัว</h1>
-      
-      <form action={updateMemberProfile}>
-        <input type="hidden" name="member_id" value={member.member_id} />
-        
-        <div className="mb-4">
-          <label htmlFor="first_name" className="block text-sm font-medium mb-1">ชื่อ</label>
-          <input
-            type="text"
-            id="first_name"
-            name="first_name"
-            defaultValue={member.first_name}
-            required
-            className="w-full p-2 border rounded"
-          />
+    <div className="min-h-screen bg-white">
+      {/* Header Section */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-4 py-6">
+          {/* Profile Header */}
+          <div className="flex items-center space-x-4">
+            {/* Profile Image */}
+            <div className="relative">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                {/* <span className="text-white text-xl font-semibold">
+                  {memberData.name.charAt(0)}
+                </span> */}
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white"></div>
+            </div>
+
+            {/* Profile Info */}
+            <div className="flex-1">
+              <h1 className="text-xl font-bold text-gray-900">
+                {memberData.name}
+              </h1>
+              <p className="text-sm text-gray-600">{memberData.email}</p>
+              <p className="text-xs text-gray-500">
+                สมาชิกตั้งแต่{" "}
+                {new Date(memberData.memberSince).toLocaleDateString("th-TH")}
+              </p>
+            </div>
+
+          </div>
         </div>
-        
-        <div className="mb-4">
-          <label htmlFor="last_name" className="block text-sm font-medium mb-1">นามสกุล</label>
-          <input
-            type="text"
-            id="last_name"
-            name="last_name"
-            defaultValue={member.last_name}
-            required
-            className="w-full p-2 border rounded"
-          />
+      </div>
+
+      {/* Menu List Section - Stack List Style */}
+      <div className="px-4">
+        <div className="divide-y divide-gray-200">
+          {menuItems.map((item, index) => {
+            const IconComponent = item.icon;
+            return (
+              <Link
+                key={item.id}
+                href={item.route}
+                className="flex items-center py-4 px-0 cursor-pointer hover:bg-gray-50 transition-colors duration-150"
+              >
+                {/* Icon */}
+                <div className="w-10 h-10 flex items-center justify-center mr-4">
+                  <IconComponent size={24} className="text-gray-700" />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-900 text-base">
+                    {item.title}
+                  </h3>
+                </div>
+
+                {/* Arrow */}
+                <div className="text-gray-400">
+                  <ChevronRight size={20} />
+                </div>
+              </Link>
+            );
+          })}
         </div>
-        
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium mb-1">อีเมล</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            defaultValue={member.email}
-            required
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        
-        <div className="mb-4">
-          <label htmlFor="phone" className="block text-sm font-medium mb-1">เบอร์โทรศัพท์</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            defaultValue={member.phone || ''}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        
-        <div className="mb-4">
-          <label htmlFor="date_of_birth" className="block text-sm font-medium mb-1">วันเกิด</label>
-          <input
-            type="date"
-            id="date_of_birth"
-            name="date_of_birth"
-            defaultValue={member.date_of_birth ? new Date(member.date_of_birth).toISOString().split('T')[0] : ''}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        
-        <div className="mb-4">
-          <label htmlFor="gender" className="block text-sm font-medium mb-1">เพศ</label>
-          <select
-            id="gender"
-            name="gender"
-            defaultValue={member.gender || ''}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">-- เลือกเพศ --</option>
-            <option value="male">ชาย</option>
-            <option value="female">หญิง</option>
-            <option value="other">อื่นๆ</option>
-          </select>
-        </div>
-        
-        <button
-          type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-        >
-          บันทึกข้อมูล
-        </button>
-      </form>
+      </div>
     </div>
   );
 }

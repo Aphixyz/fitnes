@@ -219,7 +219,7 @@ export default function MeasuresProgress({ data, memberId }) {
                     onClick={() => {
                       if (item.healthId) {
                         router.push(
-                          `/member/${memberId}/progress/measures/${item.healthId}`
+                          `/member/${memberId}/profile/measures/${item.healthId}`
                         );
                       }
                     }}

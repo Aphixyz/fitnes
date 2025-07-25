@@ -27,13 +27,13 @@ export default function ProgressPhotos({ data, memberId }) {
   // handle click ที่รูป
   const handlePhotoClick = (healthId) => {
     if (!memberId) return;
-    router.push(`/member/${memberId}/progress/measures/photos/${healthId}`);
+    router.push(`/member/${memberId}/profile/measures/${healthId}`);
   };
 
   // handle click ดูทั้งหมด
   const handleSeeAll = () => {
     if (!memberId) return;
-    router.push(`/member/${memberId}/progress/measures/photos`);
+    router.push(`/member/${memberId}/profile/measures/photos`);
   };
 
   return (

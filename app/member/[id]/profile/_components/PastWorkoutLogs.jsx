@@ -10,7 +10,7 @@ export default function PastWorkoutLogs({ workoutSummary, memberId }) {
 
   // Handle workout card click
   const handleWorkoutClick = (logId) => {
-    router.push(`/member/${memberId}/progress/${logId}`);
+    router.push(`/member/${memberId}/profile/workout/${logId}`);
   };
   // Helper function to format time in seconds to readable format
   const formatTime = (seconds) => {
