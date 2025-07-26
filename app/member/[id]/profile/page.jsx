@@ -88,12 +88,6 @@ export default async function ProfilePage({ params }) {
       icon: Package,
       route: `/member/${id}/profile/package`,
     },
-    {
-      id: "trainer",
-      title: "เทรนเนอร์",
-      icon: Users,
-      route: `/member/${id}/profile/trainer`,
-    },
   ];
 
   return (
