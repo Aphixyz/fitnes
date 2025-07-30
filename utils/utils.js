@@ -757,3 +757,210 @@ export function convertForDatabase(value, fieldKey) {
       return parseFloat(value) || null;
   }
 }
+
+/**
+ * แปลงวันที่เป็นรูปแบบสั้นภาษาไทย เช่น '12 ก.ค.' หรือ '12 ก.ค. 2024'
+ * @param {string|Date} dateInput - วันที่ (YYYY-MM-DD, Date object, หรือ string ที่ JS รองรับ)
+ * @param {boolean} withYear - ถ้า true จะใส่ปีด้วย
+ * @returns {string} วันที่ในรูปแบบ 'd MMM' หรือ 'd MMM yyyy' (ภาษาไทย)
+ */
+export function formatShortThaiDate(dateInput, withYear = false) {
+  if (!dateInput) return "";
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return "";
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  const thaiMonths = [
+    "ม.ค.",
+    "ก.พ.",
+    "มี.ค.",
+    "เม.ย.",
+    "พ.ค.",
+    "มิ.ย.",
+    "ก.ค.",
+    "ส.ค.",
+    "ก.ย.",
+    "ต.ค.",
+    "พ.ย.",
+    "ธ.ค.",
+  ];
+  return withYear
+    ? `${day} ${thaiMonths[month]} ${year}`
+    : `${day} ${thaiMonths[month]}`;
+}
+
+/**
+ * แปลงวินาทีเป็นชั่วโมงภาษาไทย (ปัดเศษลง)
+ * @param {number} seconds - วินาที
+ * @returns {string} เช่น '2 ชั่วโมง'
+ */
+export function formatHourThai(seconds) {
+  if (!seconds && seconds !== 0) return "";
+  return `${Math.floor(seconds / 3600)}`;
+}
+
+// ===== MEASURES PROGRESS HELPER FUNCTIONS =====
+
+/**
+ * ฟังก์ชันแปลงวันที่เป็นรูปแบบไทยสำหรับ chart
+ * @param {string} dateString - วันที่ในรูปแบบ ISO หรือรูปแบบที่ JavaScript รองรับ
+ * @returns {string} วันที่ในรูปแบบ "d MMM" (ภาษาไทย)
+ */
+export const formatThaiDateForChart = (dateString) => {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "";
+
+  const months = [
+    "ม.ค.",
+    "ก.พ.",
+    "มี.ค.",
+    "เม.ย.",
+    "พ.ค.",
+    "มิ.ย.",
+    "ก.ค.",
+    "ส.ค.",
+    "ก.ย.",
+    "ต.ค.",
+    "พ.ย.",
+    "ธ.ค.",
+  ];
+  return `${date.getDate()} ${months[date.getMonth()]}`;
+};
+
+/**
+ * ฟังก์ชันกรองข้อมูลตามช่วงเวลา
+ * @param {Array} data - ข้อมูลการวัดผล
+ * @param {string} period - ช่วงเวลา ("1m", "2m", "3m")
+ * @returns {Array} ข้อมูลที่กรองแล้ว
+ */
+export const filterDataByPeriod = (data, period) => {
+  if (!data || data.length === 0) return [];
+
+  const now = new Date();
+  const periodMap = {
+    "1m": new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()),
+    "2m": new Date(now.getFullYear(), now.getMonth() - 2, now.getDate()),
+    "3m": new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()),
+  };
+
+  const cutoffDate = periodMap[period];
+  if (!cutoffDate) return data;
+
+  return data.filter((item) => new Date(item.measurement_date) >= cutoffDate);
+};
+
+/**
+ * เตรียมข้อมูลสำหรับ chart
+ * @param {Array} data - ข้อมูลการวัดผล
+ * @param {string} selectedType - ประเภทการวัดผล
+ * @param {string} selectedPeriod - ช่วงเวลา
+ * @param {Object} measurementTypes - ประเภทการวัดผลทั้งหมด
+ * @returns {Array} ข้อมูลที่เตรียมแล้วสำหรับ chart
+ */
+export const prepareChartData = (
+  data,
+  selectedType,
+  selectedPeriod,
+  measurementTypes
+) => {
+  if (!data || data.length === 0) {
+    return [];
+  }
+
+  const filteredData = filterDataByPeriod(data, selectedPeriod);
+  if (filteredData.length === 0) return [];
+
+  const typeKey = measurementTypes[selectedType]?.key;
+  if (!typeKey) return [];
+
+  const processedData = filteredData
+    .map((item) => {
+      const value = item[typeKey] || item.metrics?.[typeKey];
+      const formattedDate = formatThaiDateForChart(item.measurement_date);
+
+      return {
+        date: item.measurement_date,
+        value: value,
+        formattedDate: formattedDate,
+        fullDate: item.measurement_date,
+        fullData: item,
+      };
+    })
+    .filter((item) => {
+      const hasValue = item.value !== null && item.value !== undefined;
+      return hasValue;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date)); // เรียงตามวันที่
+
+  return processedData;
+};
+
+/**
+ * เตรียมข้อมูล history
+ * @param {Array} data - ข้อมูลการวัดผล
+ * @param {string} selectedType - ประเภทการวัดผล
+ * @param {Object} measurementTypes - ประเภทการวัดผลทั้งหมด
+ * @returns {Array} ข้อมูล history
+ */
+export const prepareHistoryData = (data, selectedType, measurementTypes) => {
+  if (!data || data.length === 0) return [];
+
+  const typeKey = measurementTypes[selectedType]?.key;
+  if (!typeKey) return [];
+
+  return data
+    .map((item) => ({
+      date: item.measurement_date,
+      value: item[typeKey] || item.metrics?.[typeKey],
+      formattedDate: formatThaiDateForChart(item.measurement_date),
+      healthId: item.member_health_id, // เพิ่ม healthId สำหรับการแก้ไข
+      fullData: item,
+    }))
+    .filter((item) => item.value !== null && item.value !== undefined)
+    .sort((a, b) => new Date(b.date) - new Date(a.date)); // เรียงจากใหม่ไปเก่า
+};
+
+/**
+ * คำนวณเปอร์เซ็นต์การเปลี่ยนแปลง
+ * @param {Array} chartData - ข้อมูล chart
+ * @returns {Object|null} ข้อมูลการเปลี่ยนแปลง หรือ null ถ้าไม่มีข้อมูลเพียงพอ
+ */
+export const calculateTrend = (chartData) => {
+  if (chartData.length < 2) return null;
+
+  const latest = chartData[chartData.length - 1].value;
+  const previous = chartData[chartData.length - 2].value;
+
+  if (previous === 0) return null; // ป้องกันการหารด้วย 0
+
+  const change = ((latest - previous) / previous) * 100;
+
+  return {
+    percentage: Math.abs(change).toFixed(1),
+    isPositive: change > 0,
+  };
+};
+
+/**
+ * ข้อมูลประเภทการวัดผลและหน่วย
+ */
+export const MEASUREMENT_TYPES = {
+  weight: { label: "น้ำหนัก", unit: "กก.", key: "weight" },
+  bodyfat: { label: "ไขมันร่างกาย", unit: "%", key: "bodyfat" },
+  chest: { label: "รอบอก", unit: "ซม.", key: "chest" },
+  waist: { label: "รอบเอว", unit: "ซม.", key: "waist" },
+  arm: { label: "รอบแขน", unit: "ซม.", key: "arm" },
+  thigh: { label: "รอบต้นขา", unit: "ซม.", key: "thigh" },
+};
+
+/**
+ * ตัวเลือกช่วงเวลา
+ */
+export const PERIOD_OPTIONS = [
+  { value: "1m", label: "1 เดือน" },
+  { value: "2m", label: "2 เดือน" },
+  { value: "3m", label: "3 เดือน" },
+];
