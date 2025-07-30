@@ -84,7 +84,7 @@ export default async function ProfilePage({ params }) {
     },
     {
       id: "package",
-      title: "แพ็คเกจ",
+      title: "แพ็คเกจ & เทรนเนอร์",
       icon: Package,
       route: `/member/${id}/profile/package`,
     },
