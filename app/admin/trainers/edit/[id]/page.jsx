@@ -107,8 +107,8 @@ export default function EditTrainerPage() {
       <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">ข้อมูลเทรนเนอร์</h1>
-          <p className="text-gray-600">กรอกข้อมูลเพื่อเพิ่มเทรนเนอร์เข้าสู่ระบบ</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">แก้ไขข้อมูลผู้ฝึกสอน</h1>
+          {/* <p className="text-gray-600">แก้ไขข้อมูลของฝู้ฝึกสอน</p> */}
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

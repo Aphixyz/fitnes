@@ -84,7 +84,7 @@ export default function Page() {
   };
 
   return (
-    <div className="p-6">
+    <div className="py-4 px-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
         {/* ซ้าย: ช่องค้นหา */}
         <div className="w-full md:w-auto flex justify-center md:justify-end">
