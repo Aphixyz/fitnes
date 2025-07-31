@@ -22,6 +22,8 @@ import {
   Apple,
   Scale,
   Activity,
+  Zap,
+  Sparkles,
 } from "lucide-react";
 import NutrientLogModal from "@/app/member/[id]/quick-add/nutrient-log/nutrientLogModal";
 import WeightLogModal from "@/app/member/[id]/quick-add/weight-log/weightLogModal";
@@ -157,19 +159,36 @@ const MemberBottomNav = () => {
 
             if (item.isQuickAdd) {
               return (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "flex flex-col items-center justify-center h-16 w-16 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-colors",
-                    "focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                  )}
-                  onClick={() => setIsDrawerOpen(true)}
-                >
-                  <Icon className="h-6 w-6" />
-                  <span className="text-xs mt-1 font-medium">{item.label}</span>
-                </Button>
+                <div key={index} className="relative">
+                  <button
+                    className={cn(
+                      "relative flex items-center justify-center h-16 w-16 rounded-full",
+                      "bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600",
+                      "text-white shadow-lg shadow-emerald-500/25",
+                      "hover:from-emerald-500 hover:via-emerald-600 hover:to-emerald-700",
+                      "hover:shadow-xl hover:shadow-emerald-500/40",
+                      "hover:scale-110 active:scale-95",
+                      "transition-all duration-300 ease-out",
+                      "focus:outline-none focus:ring-4 focus:ring-emerald-300/50",
+                      "border-2 border-white/20"
+                    )}
+                    onClick={() => setIsDrawerOpen(true)}
+                    type="button"
+                  >
+                    {/* Background glow effect */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-300 to-emerald-600 opacity-0 hover:opacity-20 transition-opacity duration-300" />
+                    
+                    {/* Main icon with sparkle effect */}
+                    <div className="relative flex items-center justify-center">
+                      <Zap className="h-7 w-7 relative z-10" />
+                      <Sparkles className="absolute h-3 w-3 -top-1 -right-1 animate-pulse" />
+                    </div>
+                  </button>
+                  
+                  {/* Pulse ring animation */}
+                  <div className="absolute inset-0 rounded-full border-2 border-emerald-400/30 animate-ping pointer-events-none" />
+                  <div className="absolute inset-1 rounded-full border border-emerald-300/20 animate-pulse pointer-events-none" />
+                </div>
               );
             }
 
@@ -195,9 +214,11 @@ const MemberBottomNav = () => {
 
       {/* Quick Actions Drawer */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent className="max-h-[80vh] bg-gray-50 border-none shadow-none">
+        <DrawerContent className="max-h-[85vh] bg-gradient-to-br from-gray-50 to-white border-none shadow-2xl">
           <DrawerTitle className="sr-only">Quick Actions Menu</DrawerTitle>
-          <div className="px-4 pb-6 pt-4 space-y-6">
+          
+
+          <div className="px-6 pb-8 pt-6 space-y-6">
             {/* 2 ปุ่มบน: Log Workout, Log Food */}
             <div className="grid grid-cols-2 gap-4">
               <button
@@ -206,54 +227,79 @@ const MemberBottomNav = () => {
                     `/member/${memberId}/quick-add/workout-log`
                   )
                 }
-                className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow border border-gray-200 text-black focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 hover:shadow-md transition-all"
+                className="group relative flex flex-col items-center justify-center p-6 bg-white rounded-2xl shadow-md border border-blue-100 text-black focus:outline-none focus:ring-4 focus:ring-blue-200/50 hover:shadow-xl hover:scale-105 hover:border-blue-200 transition-all duration-300"
                 aria-label="Log Workout"
                 tabIndex={0}
               >
-                <Dumbbell className="h-8 w-8 mb-2" />
-                <span className="font-semibold text-base">Log Workout</span>
+                <div className="p-3 bg-blue-50 rounded-full mb-3 group-hover:bg-blue-100 transition-colors">
+                  <Dumbbell className="h-6 w-6 text-blue-600" />
+                </div>
+                <span className="font-semibold text-base text-gray-900 mb-1">บันทึกออกกำลังกาย</span>
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-blue-100/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
+              
               <button
                 onClick={() =>
                   handleQuickActionClick(
                     `/member/${memberId}/quick-add/nutrient-log`
                   )
                 }
-                className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow border border-gray-200 text-black focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 hover:shadow-md transition-all"
+                className="group relative flex flex-col items-center justify-center p-6 bg-white rounded-2xl shadow-md border border-green-100 text-black focus:outline-none focus:ring-4 focus:ring-green-200/50 hover:shadow-xl hover:scale-105 hover:border-green-200 transition-all duration-300"
                 aria-label="Log Food"
                 tabIndex={0}
               >
-                <Apple className="h-8 w-8 mb-2" />
-                <span className="font-semibold text-base">Log Food</span>
+                <div className="p-3 bg-green-50 rounded-full mb-3 group-hover:bg-green-100 transition-colors">
+                  <Apple className="h-6 w-6 text-green-600" />
+                </div>
+                <span className="font-semibold text-base text-gray-900 mb-1">บันทึกโภชนาการ</span>
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-green-50/0 to-green-100/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
             </div>
+            
             {/* 2 ปุ่มล่าง: บันทึกน้ำหนัก, บันทึกเมตริก */}
-            <div className="flex flex-col gap-3">
+            <div className="space-y-3">
               <button
                 onClick={() =>
                   handleQuickActionClick(
                     `/member/${memberId}/quick-add/weight-log`
                   )
                 }
-                className="flex items-center p-4 bg-white rounded-xl shadow border border-gray-200 text-black focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 hover:shadow-md transition-all"
+                className="group w-full flex items-center p-5 bg-white rounded-2xl shadow-md border border-purple-100 text-black focus:outline-none focus:ring-4 focus:ring-purple-200/50 hover:shadow-lg hover:border-purple-200 hover:bg-purple-50/30 transition-all duration-300"
                 aria-label="บันทึกน้ำหนัก"
                 tabIndex={0}
               >
-                <Scale className="h-6 w-6 mr-3" />
-                <span className="font-medium text-base">บันทึกน้ำหนัก</span>
+                <div className="p-3 bg-purple-50 rounded-full mr-4 group-hover:bg-purple-100 transition-colors">
+                  <Scale className="h-5 w-5 text-purple-600" />
+                </div>
+                <div className="flex-1 text-left">
+                  <span className="font-semibold text-base text-gray-900 block">บันทึกน้ำหนัก</span>
+                </div>
+                <div className="w-6 h-6 rounded-full border-2 border-purple-200 group-hover:border-purple-400 group-hover:bg-purple-100 transition-all duration-300 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
               </button>
+              
               <button
                 onClick={() =>
                   handleQuickActionClick(
                     `/member/${memberId}/quick-add/metrics-log`
                   )
                 }
-                className="flex items-center p-4 bg-white rounded-xl shadow border border-gray-200 text-black focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 hover:shadow-md transition-all"
+                className="group w-full flex items-center p-5 bg-white rounded-2xl shadow-md border border-orange-100 text-black focus:outline-none focus:ring-4 focus:ring-orange-200/50 hover:shadow-lg hover:border-orange-200 hover:bg-orange-50/30 transition-all duration-300"
                 aria-label="บันทึกเมตริก"
                 tabIndex={0}
               >
-                <Activity className="h-6 w-6 mr-3" />
-                <span className="font-medium text-base">บันทึกเมตริก</span>
+                <div className="p-3 bg-orange-50 rounded-full mr-4 group-hover:bg-orange-100 transition-colors">
+                  <Activity className="h-5 w-5 text-orange-600" />
+                </div>
+                <div className="flex-1 text-left">
+                  <span className="font-semibold text-base text-gray-900 block">บันทึกเมตริก</span>
+                </div>
+                <div className="w-6 h-6 rounded-full border-2 border-orange-200 group-hover:border-orange-400 group-hover:bg-orange-100 transition-all duration-300 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-orange-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
               </button>
             </div>
           </div>

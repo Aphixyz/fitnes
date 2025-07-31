@@ -209,29 +209,43 @@ export default function NutritionChart({ data }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-80 w-full">
+          <div className="h-[300px] sm:h-[400px] w-full touch-pan-x">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <AreaChart 
+                data={chartData} 
+                margin={{ top: 20, right: 15, left: 15, bottom: 20 }}
+              >
                 <defs>
                   <linearGradient id="caloriesGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#EF4444" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#EF4444" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke="#E5E7EB" 
+                  horizontal={true}
+                  vertical={false}
+                />
                 <XAxis 
                   dataKey="week"
                   stroke="#6B7280"
-                  fontSize={12}
+                  fontSize={11}
                   tickLine={false}
                   axisLine={false}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                  tick={{ fontSize: 11 }}
                 />
                 <YAxis 
                   stroke="#6B7280"
-                  fontSize={12}
+                  fontSize={11}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(value) => `${value}`}
+                  width={50}
+                  tick={{ fontSize: 11 }}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 {targets && (
@@ -270,15 +284,15 @@ export default function NutritionChart({ data }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64 w-full">
+            <div className="h-[250px] sm:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={macroPercentages}
                     cx="50%"
                     cy="50%"
-                    innerRadius={40}
-                    outerRadius={80}
+                    innerRadius={50}
+                    outerRadius={100}
                     paddingAngle={5}
                     dataKey="percentage"
                   >
@@ -327,22 +341,36 @@ export default function NutritionChart({ data }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64 w-full">
+            <div className="h-[280px] sm:h-[350px] w-full touch-pan-x">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <LineChart 
+                  data={chartData} 
+                  margin={{ top: 20, right: 15, left: 15, bottom: 20 }}
+                >
+                  <CartesianGrid 
+                    strokeDasharray="3 3" 
+                    stroke="#E5E7EB" 
+                    horizontal={true}
+                    vertical={false}
+                  />
                   <XAxis 
                     dataKey="week"
                     stroke="#6B7280"
-                    fontSize={12}
+                    fontSize={11}
                     tickLine={false}
                     axisLine={false}
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                    tick={{ fontSize: 11 }}
                   />
                   <YAxis 
                     stroke="#6B7280"
-                    fontSize={12}
+                    fontSize={11}
                     tickLine={false}
                     axisLine={false}
+                    width={45}
+                    tick={{ fontSize: 11 }}
                   />
                   <Tooltip content={<CustomTooltip />} />
                   <Line
