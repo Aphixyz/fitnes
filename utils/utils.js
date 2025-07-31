@@ -306,14 +306,24 @@ export function paginate(items, currentPage = 1, perPage = 10) {
 
 /**
  * แปลงค่าเวลาเป็นวินาที (เช่น "2:30" เป็น 150 วินาที)
- * @param {string} timeString - เวลาในรูปแบบ "M:S"
+ * @param {string|number} timeString - เวลาในรูปแบบ "M:S" หรือวินาที
  * @returns {number} เวลาในรูปแบบวินาที
  */
 export function timeToSeconds(timeString) {
-  if (!timeString) return 0;
+  if (!timeString && timeString !== 0) return 0;
 
-  const [minutes, seconds] = timeString.split(":").map(Number);
-  return minutes * 60 + (seconds || 0);
+  // ถ้าเป็น number อยู่แล้ว (วินาที) ให้คืนค่าเลย
+  if (typeof timeString === "number") {
+    return timeString;
+  }
+
+  // ถ้าเป็น string ให้แปลงจาก "M:S" format
+  if (typeof timeString === "string") {
+    const [minutes, seconds] = timeString.split(":").map(Number);
+    return minutes * 60 + (seconds || 0);
+  }
+
+  return 0;
 }
 
 /**
@@ -330,15 +340,58 @@ export function secondsToTime(seconds) {
 }
 
 /**
+ * แปลงวินาทีเป็นรูปแบบเวลา "H:M:S" สำหรับแสดงผลใน frontend
+ * @param {number} seconds - เวลาในรูปแบบวินาที
+ * @returns {string} เวลาในรูปแบบ "H:M:S" หรือ "M:S" หรือ "S"
+ *
+ * ตัวอย่างการใช้งาน:
+ * formatDuration(3661) // "1:01:01" (1 ชั่วโมง 1 นาที 1 วินาที)
+ * formatDuration(125) // "2:05" (2 นาที 5 วินาที)
+ * formatDuration(45) // "0:45" (45 วินาที)
+ */
+export function formatDuration(seconds) {
+  if (!seconds && seconds !== 0) return "0:00";
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  // ถ้ามีชั่วโมง แสดงในรูปแบบ H:M:S
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  }
+
+  // ถ้ามีนาที แสดงในรูปแบบ M:S
+  if (minutes > 0) {
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
+  }
+
+  // ถ้ามีแค่วินาที แสดงในรูปแบบ 0:S
+  return `0:${secs.toString().padStart(2, "0")}`;
+}
+
+/**
  * แปลงค่าระยะทางเป็นเมตร (เช่น "1:500" เป็น 1500 เมตร)
- * @param {string} distanceString - ระยะทางในรูปแบบ "KM:M"
+ * @param {string|number} distanceString - ระยะทางในรูปแบบ "KM:M" หรือเมตร
  * @returns {number} ระยะทางในรูปแบบเมตร
  */
 export function distanceToMeters(distanceString) {
-  if (!distanceString) return 0;
+  if (!distanceString && distanceString !== 0) return 0;
 
-  const [kilometers, meters] = distanceString.split(":").map(Number);
-  return kilometers * 1000 + (meters || 0);
+  // ถ้าเป็น number อยู่แล้ว (เมตร) ให้คืนค่าเลย
+  if (typeof distanceString === "number") {
+    return distanceString;
+  }
+
+  // ถ้าเป็น string ให้แปลงจาก "KM:M" format
+  if (typeof distanceString === "string") {
+    const [kilometers, meters] = distanceString.split(":").map(Number);
+    return kilometers * 1000 + (meters || 0);
+  }
+
+  return 0;
 }
 
 /**
@@ -375,3 +428,539 @@ export function getRestTimeOptions() {
 
   return options;
 }
+
+// ===== EXERCISE FORMATTING FUNCTIONS =====
+
+/**
+ * แปลงวินาทีเป็นภาษาไทย (ชั่วโมง นาที วินาที)
+ * @param {number} seconds - เวลาในรูปแบบวินาที
+ * @returns {string} เวลาในรูปแบบภาษาไทย
+ */
+export function formatTimeThai(seconds) {
+  if (!seconds || seconds === 0) return "0 วินาที";
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  const parts = [];
+
+  if (hours > 0) {
+    parts.push(`${hours} ชั่วโมง`);
+  }
+
+  if (minutes > 0) {
+    parts.push(`${minutes} นาที`);
+  }
+
+  if (secs > 0 || parts.length === 0) {
+    parts.push(`${secs} วินาที`);
+  }
+
+  return parts.join(" ");
+}
+
+/**
+ * แปลงเมตรเป็นภาษาไทย (กิโลเมตร เมตร)
+ * @param {number} meters - ระยะทางในรูปแบบเมตร
+ * @returns {string} ระยะทางในรูปแบบภาษาไทย
+ */
+export function formatDistanceThai(meters) {
+  if (!meters || meters === 0) return "0 เมตร";
+
+  const kilometers = Math.floor(meters / 1000);
+  const remainingMeters = meters % 1000;
+
+  const parts = [];
+
+  if (kilometers > 0) {
+    parts.push(`${kilometers} กิโลเมตร`);
+  }
+
+  if (remainingMeters > 0 || parts.length === 0) {
+    parts.push(`${remainingMeters} เมตร`);
+  }
+
+  return parts.join(" ");
+}
+
+/**
+ * จัดรูปแบบน้ำหนัก (จัดการทศนิยม)
+ * @param {number} weight - น้ำหนักในหน่วยกิโลกรัม
+ * @returns {string} น้ำหนักในรูปแบบที่เหมาะสม
+ */
+export function formatWeight(weight) {
+  const num = Number(weight);
+  if (isNaN(num)) return "";
+  const hasDecimal = num % 1 !== 0;
+  if (hasDecimal) {
+    return `${num.toFixed(2)} กก.`;
+  } else {
+    return `${Math.floor(num)} กก.`;
+  }
+}
+
+// ===== HELPER: Short Thai Days =====
+/**
+ * คืนชื่อวันแบบย่อภาษาไทย (จ, อ, พ, พฤ, ศ, ส, อา)
+ * @returns {string[]} - รายชื่อวันแบบย่อ
+ */
+export function getShortThaiDays() {
+  return ["จ", "อ", "พ", "พฤ", "ศ", "ส", "อา"];
+}
+
+// ===== WORKOUT LOGGING HELPER FUNCTIONS =====
+
+/**
+ * แสดงผลข้อมูลที่ member กรอกในแต่ละเซต
+ * @param {Object} setData - ข้อมูลเซตที่ member กรอก
+ * @param {string} fieldKey - ชื่อฟิลด์ (weight, reps, time, distance)
+ * @returns {string} - ข้อความแสดงผล
+ *
+ * ตัวอย่างการใช้งาน:
+ * formatLoggedSetValue({weight: 50, reps: 12}, "weight") // "50 กก."
+ * formatLoggedSetValue({time: 120}, "time") // "2 นาที"
+ * formatLoggedSetValue({distance: 1000}, "distance") // "1 กิโลเมตร"
+ */
+export function formatLoggedSetValue(setData, fieldKey) {
+  if (!setData || !setData[fieldKey]) return "";
+
+  const value = setData[fieldKey];
+
+  switch (fieldKey) {
+    case "weight":
+      return formatWeight(value);
+    case "reps":
+      return `${value} รอบ`;
+    case "time":
+      return formatTimeThai(value);
+    case "distance":
+      return formatDistanceThai(value);
+    default:
+      return value.toString();
+  }
+}
+
+/**
+ * แสดงผลข้อมูลที่ trainer กำหนดไว้ในแต่ละเซต
+ * @param {Object} set - ข้อมูลเซตจาก trainer
+ * @param {string} fieldKey - ชื่อฟิลด์ (weight, reps, time, distance)
+ * @returns {string} - ข้อความแสดงผล
+ *
+ * ตัวอย่างการใช้งาน:
+ * formatTrainerSetValue({weight: 50}, "weight") // "50 กก."
+ * formatTrainerSetValue({time: 60}, "time") // "1 นาที"
+ * formatTrainerSetValue({distance: 500}, "distance") // "500 เมตร"
+ */
+export function formatTrainerSetValue(set, fieldKey) {
+  if (!set || set[fieldKey] === null || set[fieldKey] === undefined) return "";
+
+  const value = set[fieldKey];
+
+  switch (fieldKey) {
+    case "weight":
+      return formatWeight(value);
+    case "reps":
+      return `${value} รอบ`;
+    case "time":
+      return formatTimeThai(value);
+    case "distance":
+      return formatDistanceThai(value);
+    default:
+      return value.toString();
+  }
+}
+
+/**
+ * แสดงผลข้อมูลแบบย่อสำหรับ input field
+ * @param {Object} set - ข้อมูลเซตจาก trainer
+ * @param {string} fieldKey - ชื่อฟิลด์ (weight, reps, time, distance)
+ * @returns {string} - ข้อความแสดงผลแบบย่อ
+ *
+ * ตัวอย่างการใช้งาน:
+ * formatInputValue({weight: 50}, "weight") // "50 กก."
+ * formatInputValue({time: 60}, "time") // "1 นาที"
+ * formatInputValue({distance: 500}, "distance") // "500 เมตร"
+ */
+export function formatInputValue(set, fieldKey) {
+  if (!set || set[fieldKey] === null || set[fieldKey] === undefined) return "";
+
+  const value = set[fieldKey];
+
+  switch (fieldKey) {
+    case "weight":
+      return formatWeight(value);
+    case "reps":
+      return `${value} รอบ`;
+    case "time":
+      return formatTimeThai(value);
+    case "distance":
+      return formatDistanceThai(value);
+    default:
+      return value.toString();
+  }
+}
+
+/**
+ * คำนวณ Smart Placeholder สำหรับแต่ละฟิลด์
+ * @param {Object} loggedSets - ข้อมูลที่ member กรอกแล้ว
+ * @param {number} exerciseId - ID ของ exercise
+ * @param {string} fieldKey - ชื่อฟิลด์
+ * @param {number} trainerValue - ค่าที่ trainer กำหนด
+ * @returns {number|null} - ค่า placeholder หรือ null
+ *
+ * ตัวอย่างการใช้งาน:
+ * getSmartPlaceholder(loggedSets, 1, "weight", 50) // คืนค่าล่าสุดที่ member กรอก หรือ 50
+ */
+export function getSmartPlaceholder(
+  loggedSets,
+  exerciseId,
+  fieldKey,
+  trainerValue
+) {
+  // ดึงข้อมูลจาก loggedSets ที่เป็น exercise เดียวกัน
+  const exerciseLoggedSets = Object.keys(loggedSets)
+    .filter((key) => key.startsWith(`${exerciseId}_`))
+    .map((key) => loggedSets[key])
+    .filter((data) => data && data[fieldKey]); // เฉพาะที่มีข้อมูล field นี้
+
+  // ถ้ามีข้อมูลจาก member ใช้ค่าล่าสุด
+  if (exerciseLoggedSets.length > 0) {
+    const latestValue =
+      exerciseLoggedSets[exerciseLoggedSets.length - 1][fieldKey];
+    return latestValue;
+  }
+
+  // ถ้าไม่มี ใช้ค่าจาก trainer
+  return trainerValue;
+}
+
+/**
+ * แสดงผลข้อมูลแบบย่อสำหรับ placeholder ใน input field
+ * @param {number} value - ค่าที่ต้องการแสดงผล
+ * @param {string} fieldKey - ชื่อฟิลด์ (weight, reps, time, distance)
+ * @returns {string} - ข้อความแสดงผลแบบย่อ
+ *
+ * ตัวอย่างการใช้งาน:
+ * formatPlaceholderValue(50, "weight") // "50 กก."
+ * formatPlaceholderValue(60, "time") // "1 นาที"
+ * formatPlaceholderValue(500, "distance") // "500 เมตร"
+ */
+export function formatPlaceholderValue(value, fieldKey) {
+  if (!value && value !== 0) return "";
+
+  switch (fieldKey) {
+    case "weight":
+      return formatWeight(value);
+    case "reps":
+      return `${value} รอบ`;
+    case "time":
+      return formatTimeThai(value);
+    case "distance":
+      return formatDistanceThai(value);
+    default:
+      return value.toString();
+  }
+}
+
+// ===== NEW WORKOUT LOGGING INPUT FIELD HELPERS =====
+
+/**
+ * แปลงรูปแบบ "mm:ss" เป็นวินาที หรือคืนค่าที่เป็นวินาทีอยู่แล้ว
+ * @param {string|number} timeString - เวลาในรูปแบบ "mm:ss" หรือวินาที
+ * @returns {number} เวลาในรูปแบบวินาที
+ */
+export function parseTimeFromInput(timeString) {
+  if (!timeString && timeString !== 0) return 0;
+
+  // ถ้าเป็น number อยู่แล้ว (วินาที) ให้คืนค่าเลย
+  if (typeof timeString === "number") {
+    return timeString;
+  }
+
+  // ถ้าเป็น string ให้แปลงจาก "mm:ss" format
+  if (typeof timeString === "string") {
+    const [minutes, seconds] = timeString.split(":").map(Number);
+    return (minutes || 0) * 60 + (seconds || 0);
+  }
+
+  return 0;
+}
+
+/**
+ * ตรวจสอบและแปลงค่าจาก input field ตามประเภท
+ * @param {string|number} value - ค่าที่ user กรอก
+ * @param {string} fieldKey - ประเภทฟิลด์ (weight, reps, time, distance)
+ * @returns {number} ค่าที่แปลงแล้ว
+ */
+export function parseInputValue(value, fieldKey) {
+  if (!value && value !== 0) return 0;
+
+  // ถ้าเป็น number อยู่แล้ว ให้คืนค่าเลย (ยกเว้น time ที่ต้องแปลงเป็นวินาที)
+  if (typeof value === "number") {
+    if (fieldKey === "time") {
+      // สำหรับ time ที่เป็น number อยู่แล้ว (วินาที) ให้คืนค่าเลย
+      return value;
+    }
+    return value;
+  }
+
+  // ถ้าเป็น string ให้แปลงตามประเภท
+  if (typeof value === "string") {
+    switch (fieldKey) {
+      case "weight":
+        return parseFloat(value) || 0;
+      case "reps":
+        return parseInt(value) || 0;
+      case "time":
+        return parseTimeFromInput(value);
+      case "distance":
+        // สำหรับ distance ใช้หน่วยเมตรเป็นค่าเริ่มต้น
+        const num = parseFloat(value);
+        return isNaN(num) ? 0 : Math.round(num);
+      default:
+        return parseFloat(value) || 0;
+    }
+  }
+
+  return 0;
+}
+
+/**
+ * ตรวจสอบว่าควรแสดงหน่วยกิโลเมตรหรือเมตรสำหรับระยะทาง
+ * @param {number} meters - ระยะทางในเมตร
+ * @returns {string} หน่วยที่เหมาะสม ("m" หรือ "km")
+ */
+export function getDistanceUnit(meters) {
+  return meters >= 1000 ? "km" : "m";
+}
+
+/**
+ * แปลงข้อมูลสำหรับการบันทึกลงฐานข้อมูล
+ * @param {string|number} value - ค่าที่ต้องการแปลง
+ * @param {string} fieldKey - ประเภทฟิลด์ (weight, reps, time, distance)
+ * @returns {number|null} - ค่าที่แปลงแล้ว หรือ null ถ้าไม่มีค่า
+ */
+export function convertForDatabase(value, fieldKey) {
+  if (!value && value !== 0) return null;
+
+  switch (fieldKey) {
+    case "weight":
+      return parseFloat(value) || null;
+    case "reps":
+      return parseInt(value) || null;
+    case "time":
+      return parseTimeFromInput(value);
+    case "distance":
+      return parseFloat(value) || null;
+    default:
+      return parseFloat(value) || null;
+  }
+}
+
+/**
+ * แปลงวันที่เป็นรูปแบบสั้นภาษาไทย เช่น '12 ก.ค.' หรือ '12 ก.ค. 2024'
+ * @param {string|Date} dateInput - วันที่ (YYYY-MM-DD, Date object, หรือ string ที่ JS รองรับ)
+ * @param {boolean} withYear - ถ้า true จะใส่ปีด้วย
+ * @returns {string} วันที่ในรูปแบบ 'd MMM' หรือ 'd MMM yyyy' (ภาษาไทย)
+ */
+export function formatShortThaiDate(dateInput, withYear = false) {
+  if (!dateInput) return "";
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return "";
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  const thaiMonths = [
+    "ม.ค.",
+    "ก.พ.",
+    "มี.ค.",
+    "เม.ย.",
+    "พ.ค.",
+    "มิ.ย.",
+    "ก.ค.",
+    "ส.ค.",
+    "ก.ย.",
+    "ต.ค.",
+    "พ.ย.",
+    "ธ.ค.",
+  ];
+  return withYear
+    ? `${day} ${thaiMonths[month]} ${year}`
+    : `${day} ${thaiMonths[month]}`;
+}
+
+/**
+ * แปลงวินาทีเป็นชั่วโมงภาษาไทย (ปัดเศษลง)
+ * @param {number} seconds - วินาที
+ * @returns {string} เช่น '2 ชั่วโมง'
+ */
+export function formatHourThai(seconds) {
+  if (!seconds && seconds !== 0) return "";
+  return `${Math.floor(seconds / 3600)}`;
+}
+
+// ===== MEASURES PROGRESS HELPER FUNCTIONS =====
+
+/**
+ * ฟังก์ชันแปลงวันที่เป็นรูปแบบไทยสำหรับ chart
+ * @param {string} dateString - วันที่ในรูปแบบ ISO หรือรูปแบบที่ JavaScript รองรับ
+ * @returns {string} วันที่ในรูปแบบ "d MMM" (ภาษาไทย)
+ */
+export const formatThaiDateForChart = (dateString) => {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "";
+
+  const months = [
+    "ม.ค.",
+    "ก.พ.",
+    "มี.ค.",
+    "เม.ย.",
+    "พ.ค.",
+    "มิ.ย.",
+    "ก.ค.",
+    "ส.ค.",
+    "ก.ย.",
+    "ต.ค.",
+    "พ.ย.",
+    "ธ.ค.",
+  ];
+  return `${date.getDate()} ${months[date.getMonth()]}`;
+};
+
+/**
+ * ฟังก์ชันกรองข้อมูลตามช่วงเวลา
+ * @param {Array} data - ข้อมูลการวัดผล
+ * @param {string} period - ช่วงเวลา ("1m", "2m", "3m")
+ * @returns {Array} ข้อมูลที่กรองแล้ว
+ */
+export const filterDataByPeriod = (data, period) => {
+  if (!data || data.length === 0) return [];
+
+  const now = new Date();
+  const periodMap = {
+    "1m": new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()),
+    "2m": new Date(now.getFullYear(), now.getMonth() - 2, now.getDate()),
+    "3m": new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()),
+  };
+
+  const cutoffDate = periodMap[period];
+  if (!cutoffDate) return data;
+
+  return data.filter((item) => new Date(item.measurement_date) >= cutoffDate);
+};
+
+/**
+ * เตรียมข้อมูลสำหรับ chart
+ * @param {Array} data - ข้อมูลการวัดผล
+ * @param {string} selectedType - ประเภทการวัดผล
+ * @param {string} selectedPeriod - ช่วงเวลา
+ * @param {Object} measurementTypes - ประเภทการวัดผลทั้งหมด
+ * @returns {Array} ข้อมูลที่เตรียมแล้วสำหรับ chart
+ */
+export const prepareChartData = (
+  data,
+  selectedType,
+  selectedPeriod,
+  measurementTypes
+) => {
+  if (!data || data.length === 0) {
+    return [];
+  }
+
+  const filteredData = filterDataByPeriod(data, selectedPeriod);
+  if (filteredData.length === 0) return [];
+
+  const typeKey = measurementTypes[selectedType]?.key;
+  if (!typeKey) return [];
+
+  const processedData = filteredData
+    .map((item) => {
+      const value = item[typeKey] || item.metrics?.[typeKey];
+      const formattedDate = formatThaiDateForChart(item.measurement_date);
+
+      return {
+        date: item.measurement_date,
+        value: value,
+        formattedDate: formattedDate,
+        fullDate: item.measurement_date,
+        fullData: item,
+      };
+    })
+    .filter((item) => {
+      const hasValue = item.value !== null && item.value !== undefined;
+      return hasValue;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date)); // เรียงตามวันที่
+
+  return processedData;
+};
+
+/**
+ * เตรียมข้อมูล history
+ * @param {Array} data - ข้อมูลการวัดผล
+ * @param {string} selectedType - ประเภทการวัดผล
+ * @param {Object} measurementTypes - ประเภทการวัดผลทั้งหมด
+ * @returns {Array} ข้อมูล history
+ */
+export const prepareHistoryData = (data, selectedType, measurementTypes) => {
+  if (!data || data.length === 0) return [];
+
+  const typeKey = measurementTypes[selectedType]?.key;
+  if (!typeKey) return [];
+
+  return data
+    .map((item) => ({
+      date: item.measurement_date,
+      value: item[typeKey] || item.metrics?.[typeKey],
+      formattedDate: formatThaiDateForChart(item.measurement_date),
+      healthId: item.member_health_id, // เพิ่ม healthId สำหรับการแก้ไข
+      fullData: item,
+    }))
+    .filter((item) => item.value !== null && item.value !== undefined)
+    .sort((a, b) => new Date(b.date) - new Date(a.date)); // เรียงจากใหม่ไปเก่า
+};
+
+/**
+ * คำนวณเปอร์เซ็นต์การเปลี่ยนแปลง
+ * @param {Array} chartData - ข้อมูล chart
+ * @returns {Object|null} ข้อมูลการเปลี่ยนแปลง หรือ null ถ้าไม่มีข้อมูลเพียงพอ
+ */
+export const calculateTrend = (chartData) => {
+  if (chartData.length < 2) return null;
+
+  const latest = chartData[chartData.length - 1].value;
+  const previous = chartData[chartData.length - 2].value;
+
+  if (previous === 0) return null; // ป้องกันการหารด้วย 0
+
+  const change = ((latest - previous) / previous) * 100;
+
+  return {
+    percentage: Math.abs(change).toFixed(1),
+    isPositive: change > 0,
+  };
+};
+
+/**
+ * ข้อมูลประเภทการวัดผลและหน่วย
+ */
+export const MEASUREMENT_TYPES = {
+  weight: { label: "น้ำหนัก", unit: "กก.", key: "weight" },
+  bodyfat: { label: "ไขมันร่างกาย", unit: "%", key: "bodyfat" },
+  chest: { label: "รอบอก", unit: "ซม.", key: "chest" },
+  waist: { label: "รอบเอว", unit: "ซม.", key: "waist" },
+  arm: { label: "รอบแขน", unit: "ซม.", key: "arm" },
+  thigh: { label: "รอบต้นขา", unit: "ซม.", key: "thigh" },
+};
+
+/**
+ * ตัวเลือกช่วงเวลา
+ */
+export const PERIOD_OPTIONS = [
+  { value: "1m", label: "1 เดือน" },
+  { value: "2m", label: "2 เดือน" },
+  { value: "3m", label: "3 เดือน" },
+];

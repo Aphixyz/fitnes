@@ -38,26 +38,32 @@ TABLE member (
     member_phone VARCHAR(20),
     member_gender VARCHAR(50),
     member_dob DATE,
-    member_profileimage VARCHAR(255),
+    member_profileimage VARCHAR(255)
 );
 
 -- Health Metrics Table - เก็บข้อมูลสุขภาพของสมาชิก
 TABLE member_health (
     member_health_id INT AUTO_INCREMENT PRIMARY KEY,
     member_id INT NOT NULL,
-    member_health_weight DECIMAL(5,2),
     member_health_height DECIMAL(5,2),
-    member_health_bodyfat DECIMAL(10,2),
     member_activity_level INT,
-    member_health_condition TEXT,
+    member_health_condition TEXT, -- สภาพร่างกายของสมาชิก
+    member_health_measurementdate DATE NOT NULL, -- วันที่/เวลาที่วัดจริง
+
+    -- ส่วนของ Weight Log
+    member_health_weight DECIMAL(5,2),
+    photo_front VARCHAR(255),
+    photo_side VARCHAR(255),
+    photo_back VARCHAR(255),
+
+     -- ส่วนของ Metric Log
+    member_health_bodyfat DECIMAL(10,2),
     member_health_chest DECIMAL(10,2),
     member_health_waist DECIMAL(10,2),
     member_health_hip DECIMAL(10,2),
     member_health_arm DECIMAL(10,2),
     member_health_thigh DECIMAL(10,2),
-    member_health_measurementdate DATE NOT NULL,
-    create_at DATETIME DEFAULT on update current_timestamp,
-    update_at DATETIME DEFAULT on update current_timestamp,
+
     FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
 );
 
@@ -167,7 +173,7 @@ CREATE TABLE exercise_log_set (
   set_order INT NOT NULL,
   weight DECIMAL(5,2) DEFAULT NULL,
   reps INT DEFAULT NULL,
-  time TIME DEFAULT NULL,
+  time INT DEFAULT NULL,
   distance INT DEFAULT NULL,
   FOREIGN KEY (exercise_log_id) REFERENCES exercise_log(exercise_log_id) ON DELETE CASCADE,
   FOREIGN KEY (program_exercise_set_id) REFERENCES program_exercise_set(program_exercise_set_id) ON DELETE CASCADE
@@ -240,6 +246,27 @@ The database connection and query utilities are managed through `lib/db.js`. Thi
 2. Query execution helpers
 3. Transaction management
 4. Error handling
+
+import pool from "@/lib/db.js";
+
+```
+ import mysql from "mysql2/promise";
+
+ // Database connection configuration
+ const dbConfig = {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+   password: process.env.DB_PASSWORD,
+   database: process.env.DB_NAME,
+   connectionLimit: 3,
+};
+
+ // Create a connection pool
+ const pool = mysql.createPool(dbConfig);
+
+ // Export pool as default
+export default pool;
+```
 
 ## Data Validation
 

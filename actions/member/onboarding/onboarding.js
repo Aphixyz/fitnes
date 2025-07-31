@@ -43,7 +43,7 @@ export async function savePersonalProfile(memberId, personalData) {
         // อัพเดทข้อมูลที่มีอยู่
         [healthResult] = await db.query(
           `UPDATE member_health 
-           SET member_health_weight = ?, member_health_height = ?, member_health_bodyfat = ?, update_at = NOW()
+           SET member_health_weight = ?, member_health_height = ?, member_health_bodyfat = ?
            WHERE member_health_id = ?`,
           [
             member_health_weight,
@@ -237,7 +237,7 @@ export async function saveFitnessGoals(memberId, goalsData) {
       await db.query(
         `UPDATE fitness_goal 
          SET fitness_goal_type = ?, fitness_goal_targetweight = ?, fitness_desired_time = ?,
-             fitness_goal_startdate = ?, fitness_goal_enddate = ?, update_at = NOW()
+             fitness_goal_startdate = ?, fitness_goal_enddate = ?
          WHERE member_id = ? AND fitness_goal_status = 'active'`,
         [
           fitness_goal_type,

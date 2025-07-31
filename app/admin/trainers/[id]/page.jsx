@@ -46,7 +46,7 @@ export default function TrainerDashboard() {
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-6 py-4 px-6">
         <h1 className="text-2xl font-bold tracking-tight">
           สวัสดี, คุณ {trainer.trainer_firstname} ID : {trainer.trainer_id}
         </h1>

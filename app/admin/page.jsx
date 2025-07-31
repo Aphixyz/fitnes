@@ -330,7 +330,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-6 py-4 px-6 ">
         <h1 className="text-2xl font-bold tracking-tight">
           แดชบอร์ดผู้ดูแลระบบ
         </h1>
