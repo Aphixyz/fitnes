@@ -146,98 +146,132 @@ export default function VolumeChart({ data }) {
         </div>
 
         {/* Main Volume Chart */}
-        <div className="h-80 w-full mb-8">
+        <div className="mb-8">
           <h4 className="font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Training Volume รายสัปดาห์
           </h4>
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis 
-                dataKey="week"
-                stroke="#6B7280"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis 
-                yAxisId="volume"
-                stroke="#6B7280"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-              />
-              <YAxis 
-                yAxisId="days"
-                orientation="right"
-                stroke="#6B7280"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                domain={[0, 7]}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar
-                yAxisId="volume"
-                dataKey="weekly_volume"
-                fill="#3B82F6"
-                radius={[4, 4, 0, 0]}
-                fillOpacity={0.8}
-              />
-              <Line
-                yAxisId="days"
-                type="monotone"
-                dataKey="workout_days"
-                stroke="#10B981"
-                strokeWidth={3}
-                dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <div className="h-[320px] sm:h-[400px] w-full touch-pan-x">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart 
+                data={chartData} 
+                margin={{ top: 20, right: 15, left: 15, bottom: 20 }}
+              >
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke="#E5E7EB" 
+                  horizontal={true}
+                  vertical={false}
+                />
+                <XAxis 
+                  dataKey="week"
+                  stroke="#6B7280"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis 
+                  yAxisId="volume"
+                  stroke="#6B7280"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                  width={50}
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis 
+                  yAxisId="days"
+                  orientation="right"
+                  stroke="#6B7280"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  domain={[0, 7]}
+                  width={35}
+                  tick={{ fontSize: 11 }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar
+                  yAxisId="volume"
+                  dataKey="weekly_volume"
+                  fill="#3B82F6"
+                  radius={[4, 4, 0, 0]}
+                  fillOpacity={0.8}
+                />
+                <Line
+                  yAxisId="days"
+                  type="monotone"
+                  dataKey="workout_days"
+                  stroke="#10B981"
+                  strokeWidth={3}
+                  dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Workout Frequency Chart */}
-        <div className="h-60 w-full">
+        <div className="mb-6">
           <h4 className="font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Activity className="h-4 w-4" />
             จำนวนเซตต่อสัปดาห์
           </h4>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis 
-                dataKey="week"
-                stroke="#6B7280"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis 
-                stroke="#6B7280"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip 
-                formatter={(value, name) => [value, 'เซต']}
-                labelStyle={{ color: '#374151' }}
-                contentStyle={{ 
-                  backgroundColor: '#fff',
-                  border: '1px solid #E5E7EB',
-                  borderRadius: '8px'
-                }}
-              />
-              <Bar
-                dataKey="total_sets"
-                fill="#8B5CF6"
-                radius={[4, 4, 0, 0]}
-                fillOpacity={0.8}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="h-[280px] sm:h-[320px] w-full touch-pan-x">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart 
+                data={chartData} 
+                margin={{ top: 20, right: 15, left: 15, bottom: 20 }}
+              >
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke="#E5E7EB" 
+                  horizontal={true}
+                  vertical={false}
+                />
+                <XAxis 
+                  dataKey="week"
+                  stroke="#6B7280"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis 
+                  stroke="#6B7280"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  width={45}
+                  tick={{ fontSize: 11 }}
+                />
+                <Tooltip 
+                  formatter={(value, name) => [value, 'เซต']}
+                  labelStyle={{ color: '#374151' }}
+                  contentStyle={{ 
+                    backgroundColor: '#fff',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Bar
+                  dataKey="total_sets"
+                  fill="#8B5CF6"
+                  radius={[4, 4, 0, 0]}
+                  fillOpacity={0.8}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Progress Insight */}

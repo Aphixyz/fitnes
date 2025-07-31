@@ -134,15 +134,15 @@ export default function WeightChart({ data }) {
         </div>
 
         {/* Weight Chart - Mobile Optimized */}
-        <div className="h-80 sm:h-96 w-full touch-pan-x">
+        <div className="h-[300px] sm:h-[400px] w-full touch-pan-x">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart 
               data={chartData} 
               margin={{ 
                 top: 20, 
-                right: window.innerWidth < 640 ? 10 : 30, 
-                left: window.innerWidth < 640 ? 10 : 20, 
-                bottom: 5 
+                right: 15, 
+                left: 10, 
+                bottom: 20 
               }}
             >
               <defs>
@@ -155,50 +155,53 @@ export default function WeightChart({ data }) {
                 strokeDasharray="3 3" 
                 stroke="#E5E7EB" 
                 strokeOpacity={0.5}
+                horizontal={true}
+                vertical={false}
               />
               <XAxis 
                 dataKey="date"
                 stroke="#6B7280"
-                fontSize={window.innerWidth < 640 ? 10 : 12}
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
-                interval={window.innerWidth < 640 ? 'preserveStartEnd' : 0}
-                angle={window.innerWidth < 640 ? -45 : 0}
-                textAnchor={window.innerWidth < 640 ? 'end' : 'middle'}
-                height={window.innerWidth < 640 ? 60 : 30}
+                interval="preserveStartEnd"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                tick={{ fontSize: 11 }}
               />
               <YAxis 
                 domain={['dataMin - 2', 'dataMax + 2']}
                 stroke="#6B7280"
-                fontSize={window.innerWidth < 640 ? 10 : 12}
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `${value} kg`}
-                width={window.innerWidth < 640 ? 40 : 60}
+                tickFormatter={(value) => `${value}`}
+                width={45}
+                tick={{ fontSize: 11 }}
               />
               <Tooltip 
                 content={<CustomTooltip />}
                 cursor={{ stroke: '#3B82F6', strokeWidth: 1, strokeDasharray: '5 5' }}
                 animationDuration={200}
                 offset={10}
-                position={{ x: undefined, y: undefined }}
                 allowEscapeViewBox={{ x: false, y: true }}
               />
               <Area
                 type="monotone"
                 dataKey="weight"
                 stroke="#3B82F6"
-                strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                strokeWidth={3}
                 fill="url(#weightGradient)"
                 dot={{ 
                   fill: '#3B82F6', 
                   strokeWidth: 2, 
-                  r: window.innerWidth < 640 ? 3 : 4 
+                  r: 4 
                 }}
                 activeDot={{ 
-                  r: window.innerWidth < 640 ? 5 : 6, 
+                  r: 6, 
                   stroke: '#3B82F6', 
-                  strokeWidth: 2,
+                  strokeWidth: 3,
                   fill: '#ffffff'
                 }}
               />
@@ -209,43 +212,47 @@ export default function WeightChart({ data }) {
         {/* Body Fat Chart (if available) - Mobile Optimized */}
         {data.some(item => item.body_fat) && (
           <div className="mt-8">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-4 text-sm sm:text-base">
+            <h4 className="font-medium text-gray-900 dark:text-white mb-4 text-base">
               เปอร์เซ็นต์ไขมัน
             </h4>
-            <div className="h-60 sm:h-72 w-full touch-pan-x">
+            <div className="h-[250px] sm:h-[300px] w-full touch-pan-x">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart 
                   data={chartData} 
                   margin={{ 
-                    top: 5, 
-                    right: window.innerWidth < 640 ? 10 : 30, 
-                    left: window.innerWidth < 640 ? 10 : 20, 
-                    bottom: 5 
+                    top: 20, 
+                    right: 15, 
+                    left: 10, 
+                    bottom: 20 
                   }}
                 >
                   <CartesianGrid 
                     strokeDasharray="3 3" 
                     stroke="#E5E7EB" 
                     strokeOpacity={0.5}
+                    horizontal={true}
+                    vertical={false}
                   />
                   <XAxis 
                     dataKey="date"
                     stroke="#6B7280"
-                    fontSize={window.innerWidth < 640 ? 10 : 12}
+                    fontSize={11}
                     tickLine={false}
                     axisLine={false}
-                    interval={window.innerWidth < 640 ? 'preserveStartEnd' : 0}
-                    angle={window.innerWidth < 640 ? -45 : 0}
-                    textAnchor={window.innerWidth < 640 ? 'end' : 'middle'}
-                    height={window.innerWidth < 640 ? 60 : 30}
+                    interval="preserveStartEnd"
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                    tick={{ fontSize: 11 }}
                   />
                   <YAxis 
                     stroke="#6B7280"
-                    fontSize={window.innerWidth < 640 ? 10 : 12}
+                    fontSize={11}
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(value) => `${value}%`}
-                    width={window.innerWidth < 640 ? 35 : 50}
+                    width={40}
+                    tick={{ fontSize: 11 }}
                   />
                   <Tooltip 
                     content={<CustomTooltip />}
@@ -258,16 +265,16 @@ export default function WeightChart({ data }) {
                     type="monotone"
                     dataKey="body_fat"
                     stroke="#F59E0B"
-                    strokeWidth={window.innerWidth < 640 ? 2 : 2}
+                    strokeWidth={3}
                     dot={{ 
                       fill: '#F59E0B', 
                       strokeWidth: 2, 
-                      r: window.innerWidth < 640 ? 2 : 3 
+                      r: 4 
                     }}
                     activeDot={{ 
-                      r: window.innerWidth < 640 ? 4 : 5, 
+                      r: 6, 
                       stroke: '#F59E0B', 
-                      strokeWidth: 2,
+                      strokeWidth: 3,
                       fill: '#ffffff'
                     }}
                     connectNulls={false}
