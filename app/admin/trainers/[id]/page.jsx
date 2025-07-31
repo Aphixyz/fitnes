@@ -1,185 +1,258 @@
-"use client";
+import { getTrainerById } from "@/actions/trainer/getTrainerData";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  User,
+  Calendar,
+  Phone,
+  Mail,
+  Users,
+  Activity,
+  Award,
+  Clock,
+} from "lucide-react";
+import { notFound } from "next/navigation";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { getTrainerById } from "@/actions/admin/getTrainerById";
-import { formatDate, calculateAge, getInitials } from "@/utils/utils";
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import LoadingSpinner from "../../_components/common/loadingSpinner";
-
-export default function TrainerDashboard() {
-  const params = useParams();
+// ===== Trainer Dashboard Page =====
+export default async function TrainerDashboardPage({ params }) {
   const { id } = params;
 
-  const [trainer, setTrainer] = useState(null);
-  const [loading, setLoading] = useState(true);
+  try {
+    // ดึงข้อมูลเทรนเนอร์
+    const trainer = await getTrainerById(parseInt(id));
 
-  useEffect(() => {
-    const fetchTrainer = async () => {
-      setLoading(true);
-      const data = await getTrainerById(id);
-      setTrainer(data);
-      setLoading(false);
+    if (!trainer) {
+      notFound();
+    }
+
+    // คำนวณอายุจาก dateOfBirth
+    const calculateAge = (birthDate) => {
+      if (!birthDate) return "ไม่ระบุ";
+      const today = new Date();
+      const birth = new Date(birthDate);
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birth.getDate())
+      ) {
+        age--;
+      }
+      return `${age} ปี`;
     };
 
-    if (id) {
-      fetchTrainer();
-    }
-  }, [id]);
+    // ฟอร์แมตวันที่
+    const formatDate = (date) => {
+      if (!date) return "ไม่ระบุ";
+      return new Date(date).toLocaleDateString("th-TH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    };
 
-  if (loading) {
-    return <LoadingSpinner message="กำลังโหลดข้อมูล" />;
-  }
-
-  if (!trainer) {
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh]">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">
-            ไม่พบข้อมูลผู้ฝึกสอน
-          </h2>
-          <p className="text-gray-600">ไม่พบข้อมูลผู้ฝึกสอนที่มี ID: {id}</p>
+      <div className="container mx-auto p-6 space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Profile Card */}
+          <Card className="lg:w-1/3">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <Avatar className="w-24 h-24">
+                  <AvatarImage
+                    src={trainer.profileImage || "/default-avatar.png"}
+                    alt={`${trainer.firstName} ${trainer.lastName}`}
+                  />
+                  <AvatarFallback className="text-lg">
+                    {trainer.firstName?.charAt(0)}
+                    {trainer.lastName?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <CardTitle className="text-xl">
+                {trainer.firstName} {trainer.lastName}
+              </CardTitle>
+              <CardDescription>
+                {trainer.nickname && `(${trainer.nickname})`}
+              </CardDescription>
+              <div className="flex justify-center mt-2">
+                <Badge
+                  variant={
+                    trainer.status === "active" ? "default" : "secondary"
+                  }
+                >
+                  {trainer.status === "active" ? "ใช้งานอยู่" : "ไม่ใช้งาน"}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center gap-2 text-sm">
+                <User className="w-4 h-4 text-muted-foreground" />
+                <span>@{trainer.username}</span>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm">
+                <Mail className="w-4 h-4 text-muted-foreground" />
+                <span>{trainer.email}</span>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm">
+                <Phone className="w-4 h-4 text-muted-foreground" />
+                <span>{trainer.phone || "ไม่ระบุ"}</span>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <span>อายุ {calculateAge(trainer.dateOfBirth)}</span>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm">
+                <Award className="w-4 h-4 text-muted-foreground" />
+                <span>ประสบการณ์ {trainer.experience || 0} ปี</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Stats Cards */}
+          <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Members Card */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  สมาชิกทั้งหมด
+                </CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">0</div>
+                <p className="text-xs text-muted-foreground">
+                  +0 คนจากเดือนที่แล้ว
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Active Plans Card */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  แผนการออกกำลังกาย
+                </CardTitle>
+                <Activity className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">0</div>
+                <p className="text-xs text-muted-foreground">
+                  แผนที่ใช้งานอยู่
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Experience Card */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  วันเริ่มงาน
+                </CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-semibold">
+                  {formatDate(trainer.startDate)}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  ประสบการณ์ {trainer.experience || 0} ปี
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Status Card */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">สถานะ</CardTitle>
+                <Badge
+                  variant={
+                    trainer.status === "active" ? "default" : "secondary"
+                  }
+                >
+                  {trainer.status === "active" ? "ใช้งานอยู่" : "ไม่ใช้งาน"}
+                </Badge>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm">
+                  {trainer.status === "active"
+                    ? "พร้อมให้บริการ"
+                    : "ไม่พร้อมให้บริการ"}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  อัปเดตล่าสุด: วันนี้
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Additional Information Section */}
+        <div className="grid grid-cols-1 gap-6">
+          {/* Bio & Specialization */}
+          <Card>
+            <CardHeader>
+              <CardTitle>ข้อมูลส่วนตัว</CardTitle>
+              <CardDescription>
+                ประวัติและความเชี่ยวชาญของเทรนเนอร์
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {trainer.bio && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2">เกี่ยวกับฉัน</h4>
+                  <p className="text-sm text-muted-foreground">{trainer.bio}</p>
+                </div>
+              )}
+
+              {trainer.specialization && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2">ความเชี่ยวชาญ</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {trainer.specialization}
+                  </p>
+                </div>
+              )}
+
+              {trainer.certification && (
+                <div>
+                  <h4 className="font-medium text-sm mb-2">ใบรับรอง</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {trainer.certification}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          
         </div>
       </div>
     );
+  } catch (error) {
+    console.error("Error loading trainer dashboard:", error);
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center text-muted-foreground">
+              เกิดข้อผิดพลาดในการโหลดข้อมูล
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
-
-  return (
-    <div>
-      <div className="mb-6 py-4 px-6">
-        <h1 className="text-2xl font-bold tracking-tight">
-          สวัสดี, คุณ {trainer.trainer_firstname} ID : {trainer.trainer_id}
-        </h1>
-        {/* <p className="text-muted-foreground">
-          หน้าทดสอบการแสดงข้อมูลจาก Server Action
-        </p> */}
-      </div>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>ข้อมูลส่วนตัว</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="col-span-2 flex justify-center mb-4">
-              {trainer.trainer_profile_image ? (
-                <div className="w-32 h-32 rounded-full overflow-hidden">
-                  <img
-                    src={trainer.trainer_profile_image}
-                    alt={`${trainer.trainer_firstname} ${trainer.trainer_lastname}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center">
-                  <span className="text-indigo-700 text-3xl font-bold">
-                    {getInitials(
-                      trainer.trainer_firstname,
-                      trainer.trainer_lastname
-                    )}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                ชื่อผู้ใช้:
-              </p>
-              <p className="text-lg">{trainer.trainer_username}</p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                ชื่อ-นามสกุล:
-              </p>
-              <p className="text-lg">
-                {trainer.trainer_firstname} {trainer.trainer_lastname}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                ชื่อเล่น:
-              </p>
-              <p className="text-lg">{trainer.trainer_nickname || "-"}</p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                อีเมล:
-              </p>
-              <p className="text-lg">{trainer.trainer_email}</p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                เบอร์โทรศัพท์:
-              </p>
-              <p className="text-lg">{trainer.trainer_phone || "-"}</p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">เพศ:</p>
-              <p className="text-lg">{trainer.trainer_gender || "-"}</p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                วันเกิด:
-              </p>
-              <p className="text-lg">
-                {trainer.trainer_dob ? formatDate(trainer.trainer_dob) : "-"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">อายุ:</p>
-              <p className="text-lg">
-                {trainer.trainer_dob
-                  ? `${calculateAge(trainer.trainer_dob)} ปี`
-                  : "-"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                ประสบการณ์:
-              </p>
-              <p className="text-lg">
-                {trainer.trainer_exp ? `${trainer.trainer_exp} ปี` : "-"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                สถานะ:
-              </p>
-              <p className="text-lg">
-                <span
-                  className={`inline-block px-2 py-1 rounded-md text-sm ${
-                    trainer.trainer_status === "active"
-                      ? "bg-green-100 text-green-800"
-                      : trainer.trainer_status === "inactive"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
-                >
-                  {trainer.trainer_status || "-"}
-                </span>
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      
-
-      <div className="mt-6 bg-indigo-50 p-4 rounded-md">
-        <p className="text-indigo-800 text-center font-medium">
-          ข้อมูลถูกดึงมาจาก Server Action getTrainerById เรียบร้อย
-        </p>
-      </div>
-    </div>
-  );
 }
