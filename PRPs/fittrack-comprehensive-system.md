@@ -7,7 +7,7 @@ Complete implementation blueprint for FitTrack, a full-stack Next.js 15 fitness 
 ## Core Principles
 1. **Context is King**: All necessary documentation, patterns, and constraints included
 2. **Role-Based Security**: Strict access control and data isolation
-3. **Mobile-First Design**: Responsive, touch-optimized interfaces
+3. **Mobile-First Design**: Responsive, touch-optimized interfaces only in Rolse Member
 4. **Server Actions Pattern**: All database operations via Next.js Server Actions
 5. **Global rules**: Follow all rules in CLAUDE.md
 
@@ -37,7 +37,6 @@ A role-based web application with three distinct user interfaces:
 - [ ] Gamification system with points, badges, and challenges
 - [ ] Mobile-responsive design across all modules
 - [ ] Secure database operations with parameterized queries
-- [ ] Payment integration with QR code generation
 - [ ] Progress analytics and reporting features
 
 ## All Needed Context
@@ -173,12 +172,12 @@ The system uses MySQL with the following core entities:
 - workout_plan: Trainer-created workout plans
 - workout_program: Individual workout sessions
 - program_exercise: Exercises within programs
-- program_exercise_set: Sets, reps, weights for exercises
+- program_exercise_set: Sets, reps, weights,time for exercises
 - exercise_log: Member workout completions
 
 -- Nutrition system
 - macro_plan: Trainer-created nutrition plans
-- intake_logs: Member food/macro intake tracking
+- intake_logs: Member calories/macro intake tracking
 
 -- Gamification
 - challenge: Fitness challenges created by trainers
