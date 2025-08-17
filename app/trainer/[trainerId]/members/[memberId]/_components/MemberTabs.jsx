@@ -7,10 +7,10 @@ import { User, Activity, Apple, BarChart3, Heart, Target } from "lucide-react";
 
 const tabs = [
   {
-    name: "ภาพรวม",
-    href: "/overview",
+    name: "แดชบอร์ด",
+    href: "/dashboard",
     icon: User,
-    key: "overview",
+    key: "dashboard",
   },
   {
     name: "แผนออกกำลังกาย",
@@ -52,14 +52,14 @@ export default function MemberTabs({ trainerId, memberId }) {
 
   // หา active tab
   const getActiveTab = () => {
-    if (pathname.includes("/overview")) return "overview";
+    if (pathname.includes("/dashboard")) return "dashboard";
     if (pathname.includes("/workout-plan")) return "workout";
     if (pathname.includes("/macros-plan")) return "macros";
     if (pathname.includes("/statistics")) return "stats";
     if (pathname.includes("/health-info")) return "health";
     if (pathname.includes("/goals")) return "goals";
 
-    return "overview";
+    return "dashboard";
   };
 
   const activeTab = getActiveTab();

@@ -2,6 +2,8 @@
 
 import { z } from "zod";
 import pool from "@/lib/db";
+import fs from 'fs';
+import path from 'path';
 
 // Schema สำหรับ validate ข้อมูลที่รับมา
 const getWorkoutPlanSchema = z.object({
@@ -19,7 +21,7 @@ export async function getWorkoutPlanByMemberId(data) {
     // ตรวจสอบความสัมพันธ์ระหว่างเทรนเนอร์และสมาชิก
     const [memberCheck] = await connection.query(
       `SELECT registration_id FROM registration 
-       WHERE trainer_id = ? AND member_id = ? AND registration_status = 'active'`,
+       WHERE trainer_id = ? AND member_id = ?`,
       [trainer_id, member_id]
     );
     
@@ -81,23 +83,82 @@ export async function getWorkoutPlanByMemberId(data) {
       const programIds = programs.map(p => p.workout_program_id);
       
       if (programIds.length > 0) {
+        // ดึงข้อมูลท่าออกกำลังกายจากฐานข้อมูล (ไม่รวมรายละเอียดของท่า)
         const [exercises] = await connection.query(
           `SELECT 
              pe.*,
-             e.exercise_name,
-             e.exercise_type,
              wp.workout_plan_id
            FROM program_exercise pe
-           JOIN exercise e ON pe.exercise_id = e.exercise_id
            JOIN workout_program wp ON pe.workout_program_id = wp.workout_program_id
            WHERE pe.workout_program_id IN (?)
            ORDER BY pe.order_index ASC`,
           [programIds]
         );
         
+        // อ่านข้อมูลท่าออกกำลังกายจากไฟล์ JSON
+        let exerciseData = {};
+        try {
+          const exerciseFilePath = path.join(process.cwd(), 'data', 'exercises.json');
+          const exerciseFileContent = fs.readFileSync(exerciseFilePath, 'utf8');
+          const exercisesArray = JSON.parse(exerciseFileContent);
+          
+          // แปลงเป็น object โดยใช้ id เป็น key
+          exerciseData = exercisesArray.reduce((acc, exercise) => {
+            acc[exercise.id] = exercise;
+            return acc;
+          }, {});
+        } catch (error) {
+          console.error('Error reading exercise data:', error);
+        }
+        
+        // รวมข้อมูลท่าออกกำลังกายกับข้อมูลจากฐานข้อมูล
+        const enrichedExercises = exercises.map(ex => {
+          const exerciseInfo = exerciseData[ex.exercise_id] || {};
+          return {
+            ...ex,
+            exercise_name: exerciseInfo.name || ex.exercise_id,
+            exercise_category: exerciseInfo.category || 'unknown',
+            primaryMuscles: exerciseInfo.primaryMuscles || [],
+            secondaryMuscles: exerciseInfo.secondaryMuscles || [],
+            equipment: exerciseInfo.equipment || 'unknown',
+            level: exerciseInfo.level || 'beginner',
+            images: exerciseInfo.images || []
+          };
+        });
+        
+        // ดึงข้อมูล sets สำหรับแต่ละท่าออกกำลังกาย
+        const exerciseIds = exercises.map(ex => ex.program_exercise_id);
+        let exerciseSets = [];
+        
+        if (exerciseIds.length > 0) {
+          const [sets] = await connection.query(
+            `SELECT 
+               pes.*
+             FROM program_exercise_set pes
+             WHERE pes.program_exercise_id IN (?)
+             ORDER BY pes.set_order ASC`,
+            [exerciseIds]
+          );
+          exerciseSets = sets;
+        }
+        
+        // จัดกลุ่ม sets ตาม exercise
+        const setsByExercise = {};
+        exerciseSets.forEach(set => {
+          if (!setsByExercise[set.program_exercise_id]) {
+            setsByExercise[set.program_exercise_id] = [];
+          }
+          setsByExercise[set.program_exercise_id].push(set);
+        });
+        
+        // เพิ่ม sets เข้าไปในแต่ละท่าออกกำลังกาย
+        enrichedExercises.forEach(exercise => {
+          exercise.sets = setsByExercise[exercise.program_exercise_id] || [];
+        });
+        
         // จัดกลุ่มท่าออกกำลังกายตาม program
         const exercisesByProgram = {};
-        exercises.forEach(ex => {
+        enrichedExercises.forEach(ex => {
           if (!exercisesByProgram[ex.workout_program_id]) {
             exercisesByProgram[ex.workout_program_id] = [];
           }
