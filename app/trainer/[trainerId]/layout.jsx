@@ -2,12 +2,6 @@ import TrainerSidebar from "@/components/navigation/TrainerSidebar";
 import { ThemeProvider } from "@/components/Theme/ThemeProvider";
 import { getTrainerById } from "@/actions/trainer/getTrainerData";
 
-export const metadata = {
-  title: "ผู้ฝึกสอน | FitTrack",
-  description:
-    "ระบบจัดการติดตามการออกกำลังกายและโภชนาการส่วนบุคคล - ส่วนผู้ฝึกสอน",
-};
-
 export default async function TrainerLayout({ children, params }) {
   // ดึงข้อมูล trainer จาก URL params
   const trainerId = (await params).trainerId;
