@@ -120,7 +120,7 @@ export default function Page() {
       <div className="flex flex-col md:flex-row md:justify-between md:items-center  mb-4">
         {/* ปุ่มกลับ */}
         <div className="w-full md:w-auto flex justify-center md:justify-start">
-          <BackButton />
+          <BackButton path="/admin/trainers" />
         </div>
 
         {/* ตัวกรองสถานะ */}
