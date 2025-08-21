@@ -22,7 +22,7 @@ import { getMemberById } from "@/actions/member/getMemberData";
 import { getMemberMacroPlans } from "@/actions/trainer/macro/getMemberMacroPlans";
 import { getMemberMacroData } from "@/actions/trainer/macro/getMemberMacroData";
 import MacroPlanList from "./_components/MacroPlanList";
-import CreateMacroPlanModal from "./_components/CreateMacroPlanModal";
+import CreateMacroPlanSheet from "./_components/CreateMacroPlanSheet";
 import EditMacroTargetsModal from "../logs/_components/EditMacroTargetsModal";
 import ActiveMacroPlanCard from "./_components/ActiveMacroPlanCard";
 
@@ -302,14 +302,13 @@ const MacroPlanManagementPage = () => {
         onEditClick={handleEditPlan}
       />
 
-      {/* Create Modal */}
-      <CreateMacroPlanModal
+      {/* Create Sheet */}
+      <CreateMacroPlanSheet
         isOpen={isCreateModalOpen}
         onClose={handleModalClose}
         onSuccess={handlePlanCreated}
         memberId={memberId}
         trainerId={trainerId}
-        memberData={memberData}
       />
 
       {/* Edit Modal - ใช้ข้อมูลที่คำนวณจริงจาก macro-engine */}
