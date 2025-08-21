@@ -21,14 +21,14 @@ export default function ProgramList({ programs, trainerId, memberId, planId }) {
   // ฟังก์ชันเพื่อนำทางไปหน้าแก้ไขโปรแกรม
   const handleProgramClick = (programId) => {
     router.push(
-      `/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}/programs/${programId}`
+      `/trainer/${trainerId}/workout-plan-editor/${planId}/programs/${programId}?memberId=${memberId}`
     );
   };
 
   // ฟังก์ชันสำหรับการนำทางไปยังหน้าเพิ่มโปรแกรม
   const handleAddProgram = () => {
     router.push(
-      `/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}/`
+      `/trainer/${trainerId}/workout-plan-editor/${planId}?memberId=${memberId}`
     );
   };
 
@@ -74,7 +74,7 @@ function ProgramCard({ program, trainerId, memberId, planId, onClick }) {
   const handleEdit = (e) => {
     e.stopPropagation(); // ป้องกันการ trigger onClick ของ card
     router.push(
-      `/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}/programs/${programId}`
+      `/trainer/${trainerId}/workout-plan-editor/${planId}/programs/${programId}?memberId=${memberId}`
     );
   };
 

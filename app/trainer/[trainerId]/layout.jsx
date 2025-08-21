@@ -14,7 +14,7 @@ export default async function TrainerLayout({ children, params }) {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
+    <div className="flex flex-col lg:flex-row min-h-screen ">
       <TrainerSidebar user={trainerData} />
 
       <div className="flex flex-col flex-1">

@@ -1,9 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { formatDate } from "@/utils/utils";
-import ActiveWorkoutPlanCard from "./ActiveWorkoutPlanCard";
 import WorkoutPlanTable from "./WorkoutPlanTable";
 import EmptyState from "./EmptyState";
 import { Card, CardContent } from "@/components/ui/card";
@@ -93,23 +90,15 @@ export default function WorkoutPlanLists({
 
   return (
     <div className="space-y-6">
-      {active ? (
-        <ActiveWorkoutPlanCard
-          plan={active}
-          trainerId={trainerId}
-          memberId={memberId}
-        />
-      ) : (
-        <EmptyState trainerId={trainerId} memberId={memberId} />
-      )}
-
-      {plansList.length > 0 && (
+      {plansList.length > 0 ? (
         <WorkoutPlanTable
           plans={plansList}
           trainerId={trainerId}
           memberId={memberId}
           onStatusChange={handleStatusChange}
         />
+      ) : (
+        <EmptyState trainerId={trainerId} memberId={memberId} />
       )}
     </div>
   );

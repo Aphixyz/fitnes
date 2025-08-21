@@ -92,7 +92,7 @@ export default function WorkoutPlanTable({
               <TableRow key={plan.workout_plan_id}>
                 <TableCell>
                   <Link
-                    href={`/trainer/${trainerId}/members/${memberId}/workout-plan/${plan.workout_plan_id}`}
+                    href={`/trainer/${trainerId}/workout-plan-editor/${plan.workout_plan_id}?memberId=${memberId}`}
                     className="font-medium text-blue-600 hover:underline"
                   >
                     {plan.plan_name}

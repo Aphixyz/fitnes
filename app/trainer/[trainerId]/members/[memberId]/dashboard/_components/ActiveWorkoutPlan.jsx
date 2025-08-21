@@ -188,7 +188,7 @@ export function ActiveWorkoutPlan({ trainerId, memberId }) {
           </p>
           <Button asChild>
             <Link
-              href={`/trainer/${trainerId}/members/${memberId}/workout-plan/create`}
+              href={`/trainer/${trainerId}/workout-plan-editor/create?memberId=${memberId}`}
             >
               สร้างโปรแกรมใหม่
             </Link>
@@ -215,7 +215,7 @@ export function ActiveWorkoutPlan({ trainerId, memberId }) {
               className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
             >
               <Link
-                href={`/trainer/${trainerId}/members/${memberId}/workout-plan/${workoutPlan.workout_plan_id}`}
+                href={`/trainer/${trainerId}/workout-plan-editor/${workoutPlan.workout_plan_id}?memberId=${memberId}`}
               >
                 <Edit className="w-4 h-4 mr-1" />
                 แก้ไขแผนโปรแกรม

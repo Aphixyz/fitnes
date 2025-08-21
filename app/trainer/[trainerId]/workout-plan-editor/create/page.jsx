@@ -1,9 +1,16 @@
 import { getMemberDetails } from "@/actions/trainer/getMemberDetails";
 import { createWorkoutPlanForMember } from "@/actions/trainer/workout/workout_plan/createWorkoutPlanForMember";
 import WorkoutPlanForm from "./_components/WorkoutPlanForm";
+import { redirect } from "next/navigation";
 
-export default async function CreateWorkoutPlanPage({ params }) {
-  const { trainerId, memberId } = await params;
+export default async function CreateWorkoutPlanPage({ params, searchParams }) {
+  const { trainerId } = await params;
+  const resolvedSearchParams = await searchParams;
+  const memberId = resolvedSearchParams?.memberId;
+
+  if (!memberId) {
+    redirect(`/trainer/${trainerId}/dashboard`);
+  }
 
   // ดึงข้อมูลสมาชิกที่ฝั่ง server
   const memberResult = await getMemberDetails(trainerId, memberId);

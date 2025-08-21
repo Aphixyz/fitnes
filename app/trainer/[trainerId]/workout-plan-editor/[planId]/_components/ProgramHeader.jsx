@@ -23,7 +23,7 @@ export default function ProgramHeader({
       });
       if (result.success) {
         router.push(
-          `/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}/programs/${result.data.workout_program_id}?isNewProgram=true`
+          `/trainer/${trainerId}/workout-plan-editor/${planId}/programs/${result.data.workout_program_id}?memberId=${memberId}&isNewProgram=true`
         );
       }
     });
