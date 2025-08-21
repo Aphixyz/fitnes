@@ -60,7 +60,7 @@ export default function PackageRevenueSummary({ trainerId, activeMembersPackages
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
                       <Link 
-                        href={`/trainer/${trainerId}/members/${member.memberId}/overview`}
+                        href={`/trainer/${trainerId}/members/${member.memberId}/dashboard`}
                         className="font-medium text-sm hover:underline text-blue-700"
                       >
                         {member.memberName} กำลังใช้แพ็คเกจ {member.packageName}

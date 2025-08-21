@@ -104,7 +104,7 @@ export default function RecentActivity({ recentActivity, trainerId }) {
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center justify-between">
                     <Link 
-                      href={`/trainer/${trainerId}/members/${activity.memberId}/overview`}
+                      href={`/trainer/${trainerId}/members/${activity.memberId}/dashboard`}
                       className="font-medium text-sm hover:underline"
                     >
                       {activity.memberName} {formatActivitySentence(activity)}

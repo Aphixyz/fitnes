@@ -175,7 +175,7 @@ export default function MemberListModal({
 
                   {/* Action Button */}
                   <div>
-                    <Link href={`/trainer/${trainerId}/members/${member.memberId}/overview`}>
+                    <Link href={`/trainer/${trainerId}/members/${member.memberId}/dashboard`}>
                       <Button variant="outline" size="sm">
                         <Eye className="h-4 w-4 mr-2" />
                         ดูโปรไฟล์
