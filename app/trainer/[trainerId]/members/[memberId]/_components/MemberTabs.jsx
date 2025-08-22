@@ -13,6 +13,12 @@ const tabs = [
     key: "dashboard",
   },
   {
+    name: "ข้อมูลส่วนตัว",
+    href: "/personal-info",
+    icon: Activity,
+    key: "personal",
+  },
+  {
     name: "แผนออกกำลังกาย",
     href: "/workout-plan",
     icon: Activity,
@@ -53,6 +59,7 @@ export default function MemberTabs({ trainerId, memberId }) {
   // หา active tab
   const getActiveTab = () => {
     if (pathname.includes("/dashboard")) return "dashboard";
+    if (pathname.includes("/personal-info")) return "personal";
     if (pathname.includes("/workout-plan")) return "workout";
     if (pathname.includes("/macros-plan")) return "macros";
     if (pathname.includes("/statistics")) return "stats";
@@ -65,7 +72,7 @@ export default function MemberTabs({ trainerId, memberId }) {
   const activeTab = getActiveTab();
 
   return (
-    <div className="border-b border-border">
+    <div className="">
       <nav className="-mb-px flex space-x-8">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
