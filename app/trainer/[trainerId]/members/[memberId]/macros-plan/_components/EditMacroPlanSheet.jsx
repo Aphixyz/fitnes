@@ -20,11 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, AlertCircle, Apple } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { createRatioMacro } from "@/actions/trainer/macro/manual/createRatioMacro";
+import { updateRatioMacro, getCurrentMacroPlan } from "@/actions/trainer/macro/manual/updateRatioMacro";
 
 // Constants สำหรับการคำนวณ
 const MACRO_CALORIES = {
@@ -33,29 +31,29 @@ const MACRO_CALORIES = {
   FAT: 9,
 };
 
-const CreateMacroPlanSheet = ({
+const EditMacroPlanSheet = ({
   isOpen,
   onClose,
-  memberId,
+  planId,
   trainerId,
   onSuccess,
 }) => {
   const { toast } = useToast();
 
-  // States
+  // States - เหมือน CreateMacroPlanSheet
   const [planData, setPlanData] = useState({
     plan_startdate: new Date().toISOString().split("T")[0],
     plan_enddate: "",
     plan_duration: 0,
+    member_name: "",
   });
   const [calories, setCalories] = useState("");
   const [proteinPercent, setProteinPercent] = useState([30]);
   const [fatPercent, setFatPercent] = useState([30]);
   const [carbPercent, setCarbPercent] = useState([40]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  // คำนวณกรัมของแต่ละ macro
+  // คำนวณกรัมของแต่ละ macro - เหมือน CreateMacroPlanSheet
   const calculateGrams = () => {
     const proteinGrams = Math.round(
       (calories * proteinPercent[0]) / 100 / MACRO_CALORIES.PROTEIN
@@ -74,29 +72,22 @@ const CreateMacroPlanSheet = ({
     };
   };
 
-  // ตรวจสอบความถูกต้องของข้อมูล
+  // ตรวจสอบความถูกต้องของข้อมูล - เหมือน CreateMacroPlanSheet
   const validateData = () => {
     const totalPercent = proteinPercent[0] + fatPercent[0] + carbPercent[0];
 
     if (!calories || calories <= 0) {
-      setError("เป้าหมายแคลอรี่ต้องมากกว่า 0");
       return false;
     }
 
     if (Math.abs(totalPercent - 100) > 0.1) {
-      setError(
-        `อัตราส่วน macro รวมต้องเท่ากับ 100% (ปัจจุบัน: ${totalPercent.toFixed(
-          1
-        )}%)`
-      );
       return false;
     }
 
-    setError("");
     return true;
   };
 
-  // Duration options
+  // Duration options - เหมือน CreateMacroPlanSheet
   const durationOptions = [
     { value: 0, label: "ไม่กำหนด" },
     { value: 1, label: "1 สัปดาห์" },
@@ -111,7 +102,7 @@ const CreateMacroPlanSheet = ({
     { value: 12, label: "12 สัปดาห์" },
   ];
 
-  // คำนวณวันที่สิ้นสุดอัตโนมัติเมื่อเปลี่ยนระยะเวลาหรือวันเริ่มต้น
+  // คำนวณวันที่สิ้นสุดอัตโนมัติ - เหมือน CreateMacroPlanSheet
   useEffect(() => {
     if (planData.plan_duration === 0) {
       setPlanData((prev) => ({ ...prev, plan_enddate: "" }));
@@ -130,32 +121,83 @@ const CreateMacroPlanSheet = ({
     }
   }, [planData.plan_duration, planData.plan_startdate]);
 
-  // รีเซ็ตข้อมูลเมื่อเปิด Sheet
+  // โหลดข้อมูลเมื่อเปิด Sheet - แก้ไขจาก CreateMacroPlanSheet
   useEffect(() => {
     if (isOpen) {
-      setPlanData({
-        plan_startdate: new Date().toISOString().split("T")[0],
-        plan_enddate: "",
-        plan_duration: 0,
-      });
-      setCalories("");
-      setProteinPercent([30]);
-      setFatPercent([30]);
-      setCarbPercent([40]);
-      setError("");
+      if (planId && trainerId) {
+        // โหลดข้อมูลจาก database
+        loadPlanData();
+      } else {
+        // รีเซ็ตข้อมูล
+        setPlanData({
+          plan_startdate: new Date().toISOString().split("T")[0],
+          plan_enddate: "",
+          plan_duration: 0,
+          member_name: "",
+        });
+        setCalories("");
+        setProteinPercent([30]);
+        setFatPercent([30]);
+        setCarbPercent([40]);
+      }
     }
   }, [isOpen]);
 
-  // ตรวจสอบข้อมูลแบบ real-time
-  useEffect(() => {
-    validateData();
-  }, [calories, proteinPercent, fatPercent, carbPercent]);
+  const loadPlanData = async () => {
+    try {
+      const result = await getCurrentMacroPlan(parseInt(planId), parseInt(trainerId));
+      
+      if (result.success) {
+        const plan = result.plan;
+        
+        // Format date helper
+        const formatDate = (dateValue) => {
+          if (!dateValue) return "";
+          if (typeof dateValue === 'string') {
+            return dateValue.split('T')[0];
+          }
+          if (dateValue instanceof Date) {
+            return dateValue.toISOString().split('T')[0];
+          }
+          return "";
+        };
+        
+        // Set plan data
+        setPlanData({
+          plan_startdate: formatDate(plan.period.start_date),
+          plan_enddate: formatDate(plan.period.end_date),
+          plan_duration: 0,
+          member_name: plan.member.name,
+        });
 
-  // จัดการการปรับ multi-range slider
+        // Set macro data
+        setCalories(plan.macros.calorie_target || "");
+        setProteinPercent([parseFloat(plan.macros.protein_ratio) || 30]);
+        setFatPercent([parseFloat(plan.macros.fat_ratio) || 30]);
+        setCarbPercent([parseFloat(plan.macros.carb_ratio) || 40]);
+      } else {
+        toast({
+          title: "เกิดข้อผิดพลาด",
+          description: result.message || "ไม่สามารถดึงข้อมูลแผนโภชนาการได้",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Load plan data error:", error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "เกิดข้อผิดพลาดในการดึงข้อมูลแผนโภชนาการ",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // ไม่ต้องมี real-time validation เหมือน CreateMacroPlanSheet
+
+  // จัดการการปรับ multi-range slider - เหมือน CreateMacroPlanSheet
   const handleMultiSliderChange = (values) => {
     const [proteinEnd, fatEnd] = values;
 
-    // คำนวณเปอร์เซ็นต์ของแต่ละส่วน
     const proteinPercentage = proteinEnd;
     const fatPercentage = fatEnd - proteinEnd;
     const carbPercentage = 100 - fatEnd;
@@ -165,15 +207,15 @@ const CreateMacroPlanSheet = ({
     setCarbPercent([Math.round(carbPercentage * 10) / 10]);
   };
 
-  // สร้างแผนโภชนาการ
-  const handleCreatePlan = async () => {
+  // อัปเดตแผนโภชนาการ - แก้ไขจาก CreateMacroPlanSheet
+  const handleUpdatePlan = async () => {
     if (!validateData()) return;
 
     setIsLoading(true);
     try {
-      const result = await createRatioMacro(
+      const result = await updateRatioMacro(
+        parseInt(planId),
         parseInt(trainerId),
-        parseInt(memberId),
         calories,
         proteinPercent[0],
         carbPercent[0],
@@ -183,24 +225,24 @@ const CreateMacroPlanSheet = ({
       if (result.success) {
         toast({
           title: "สำเร็จ",
-          description: "สร้างแผนโภชนาการใหม่เรียบร้อยแล้ว",
+          description: "อัปเดตแผนโภชนาการเรียบร้อยแล้ว",
         });
         onSuccess?.(result.data || result);
         onClose();
       } else {
         toast({
           title: "เกิดข้อผิดพลาด",
-          description: result.message || "ไม่สามารถสร้างแผนโภชนาการได้",
+          description: result.message || "ไม่สามารถอัปเดตแผนโภชนาการได้",
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
         title: "เกิดข้อผิดพลาด",
-        description: "เกิดข้อผิดพลาดในการสร้างแผนโภชนาการ",
+        description: "เกิดข้อผิดพลาดในการอัปเดตแผนโภชนาการ",
         variant: "destructive",
       });
-      console.error("Create plan error:", error);
+      console.error("Update plan error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -216,8 +258,13 @@ const CreateMacroPlanSheet = ({
       <SheetContent side="right" className="w-full sm:max-w-md">
         <SheetHeader className="space-y-1 ">
           <SheetTitle className="flex items-center gap-2 ">
-            เพิ่มโปรแกรมโภชนาการ
+            แก้ไขโปรแกรมโภชนาการ
           </SheetTitle>
+          {planData.member_name && (
+            <SheetDescription>
+              สมาชิก: {planData.member_name}
+            </SheetDescription>
+          )}
         </SheetHeader>
 
         <div className="flex flex-col h-[calc(100vh-120px)]">
@@ -267,7 +314,7 @@ const CreateMacroPlanSheet = ({
                 </Select>
               </div>
 
-              {/* วันสิ้นสุด - แสดงเมื่อมีการเลือกระยะเวลา */}
+              {/* วันสิ้นสุด */}
               {planData.plan_duration > 0 && planData.plan_enddate && (
                 <div className="col-span-1 md:col-span-2 space-y-2">
                   <Label htmlFor="plan_enddate">วันสิ้นสุด</Label>
@@ -374,17 +421,17 @@ const CreateMacroPlanSheet = ({
                 ยกเลิก
               </Button>
               <Button
-                onClick={handleCreatePlan}
+                onClick={handleUpdatePlan}
                 disabled={!isValid || isLoading}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    กำลังสร้าง...
+                    กำลังอัปเดต...
                   </>
                 ) : (
-                  "สร้างแผน"
+                  "อัปเดตแผน"
                 )}
               </Button>
             </div>
@@ -395,4 +442,4 @@ const CreateMacroPlanSheet = ({
   );
 };
 
-export default CreateMacroPlanSheet;
+export default EditMacroPlanSheet;
