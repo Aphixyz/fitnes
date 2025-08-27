@@ -1,7 +1,7 @@
 "use server";
 
 import db from "@/lib/db";
-import { suggestMacroPlan } from "@/actions/macro-engine/suggestMacroPlan";
+
 
 /**
  * บันทึกข้อมูลส่วนตัวจาก Step 1: Personal Profile
@@ -107,15 +107,6 @@ export async function saveLifestyleProfile(memberId, lifestyleData) {
       member_activity_level,
       fitness_training_time,
     } = lifestyleData;
-
-    // Debug: log ข้อมูลที่ได้รับ
-    console.log("saveLifestyleProfile received:", {
-      memberId,
-      fitness_experience_level,
-      fitness_training_frequency,
-      member_activity_level,
-      fitness_training_time,
-    });
 
     // ตรวจสอบข้อมูลที่จำเป็น
     if (

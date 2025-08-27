@@ -1,19 +1,119 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  User,
-  Mail,
-  Phone,
-  Calendar,
-  Weight,
-  Target,
-  Ruler,
-  Cake,
-  Activity,
-  Save
-} from "lucide-react";
+import { Save } from "lucide-react";
 import { updateMemberPersonalInfo } from "@/actions/trainer/member/updateMemberPersonalInfo";
+
+// Experience Levels
+const EXPERIENCE_LEVELS = [
+  {
+    value: "beginner",
+    label: "เริ่มต้น",
+    description: "เพิ่งออกกำลังกายเป็นประจำ < 6 เดือน",
+  },
+  {
+    value: "intermediate",
+    label: "กลาง",
+    description: "ออกกำลังกาย 6–24 เดือน",
+  },
+  {
+    value: "advanced",
+    label: "ขั้นสูง",
+    description: "ออกกำลังกาย > 2 ปี",
+  },
+];
+
+// Training Frequencies
+const TRAINING_FREQUENCIES = [
+  {
+    value: 0,
+    label: "0 วัน/สัปดาห์",
+    description: "ไม่ได้ออกกำลังกาย",
+  },
+  {
+    value: 1,
+    label: "1-3 วัน/สัปดาห์",
+    description: "น้อย",
+  },
+  {
+    value: 2,
+    label: "4-6 วัน/สัปดาห์",
+    description: "ปานกลาง",
+  },
+  {
+    value: 3,
+    label: "7+ วัน/สัปดาห์",
+    description: "ทุกวัน",
+  },
+];
+
+// Activity Levels
+const ACTIVITY_LEVELS = [
+  {
+    value: 0,
+    label: "เคลื่อนไหวน้อยมาก",
+    description: "นั่งทำงาน ไม่ค่อยออกกำลังกาย",
+  },
+  {
+    value: 1,
+    label: "เคลื่อนไหวเล็กน้อย",
+    description: "ออกกำลังกายเบา ๆ สัปดาห์ละ 1–3 วัน",
+  },
+  {
+    value: 2,
+    label: "ออกกำลังกายปานกลาง",
+    description: "ออกกำลังกายหนักปานกลาง 3–5 วันต่อสัปดาห์",
+  },
+  {
+    value: 3,
+    label: "ออกกำลังกายหนัก",
+    description: "ออกกำลังกายหนักหรือมีกิจกรรมทางกายต่อเนื่องทุกวัน",
+  },
+];
+
+// Training Times
+const TRAINING_TIMES = [
+  {
+    value: "morning",
+    label: "เช้า",
+    description: "06:00 – 09:00",
+  },
+  {
+    value: "afternoon",
+    label: "กลางวัน",
+    description: "10:00 – 14:00",
+  },
+  {
+    value: "evening",
+    label: "บ่าย",
+    description: "15:00 – 18:00",
+  },
+  {
+    value: "night",
+    label: "เย็น",
+    description: "18:00 – 21:00",
+  },
+];
+
+// Goal Types
+const GOAL_TYPES = [
+  {
+    value: "ลดน้ำหนัก",
+    label: "ลดน้ำหนัก",
+    description: "ลดไขมันและน้ำหนักตัว",
+  },
+  {
+    value: "เพิ่มกล้ามเนื้อ",
+    label: "เพิ่มกล้ามเนื้อ",
+    description: "เพิ่มมวลกล้ามเนื้อและความแข็งแรง",
+  },
+  {
+    value: "รักษาหุ่น",
+    label: "รักษาหุ่น",
+    description: "รักษาน้ำหนักและสุขภาพปัจจุบัน",
+  },
+];
+
 
 const MemberPersonalInfoCard = ({ personalData }) => {
   // Helper function to safely format date for input
@@ -42,21 +142,29 @@ const MemberPersonalInfoCard = ({ personalData }) => {
         member_age: "",
         fitness_goal_type: "",
         fitness_experience_level: "",
-        member_health_condition: ""
+        member_health_condition: "",
+        fitness_training_frequency: "",
+        member_activity_level: "",
+        fitness_training_time: "",
+        fitness_desired_time: ""
       };
     }
 
     return {
-      member_health_height: personalData.member_health_height || "",
-      member_health_weight: personalData.member_health_weight || "",
-      fitness_goal_targetweight: personalData.fitness_goal_targetweight || "",
+      member_health_height: personalData.member_health_height ? Math.round(personalData.member_health_height) : "",
+      member_health_weight: personalData.member_health_weight ? Math.round(personalData.member_health_weight) : "",
+      fitness_goal_targetweight: personalData.fitness_goal_targetweight ? Math.round(personalData.fitness_goal_targetweight) : "",
       member_phone: personalData.member_phone || "",
       member_gender: personalData.member_gender || "",
       member_dob: formatDateForInput(personalData.member_dob),
       member_age: personalData.member_age || "",
       fitness_goal_type: personalData.fitness_goal_type || "",
       fitness_experience_level: personalData.fitness_experience_level || "",
-      member_health_condition: personalData.member_health_condition || ""
+      member_health_condition: personalData.member_health_condition || "",
+      fitness_training_frequency: personalData.fitness_training_frequency || "",
+      member_activity_level: personalData.member_activity_level || "",
+      fitness_training_time: personalData.fitness_training_time || "",
+      fitness_desired_time: personalData.fitness_desired_time || ""
     };
   };
 
@@ -164,12 +272,16 @@ const MemberPersonalInfoCard = ({ personalData }) => {
         healthInfo: {
           member_health_height: parseFloatSafe(formData.member_health_height),
           member_health_weight: parseFloatSafe(formData.member_health_weight),
-          member_health_condition: formData.member_health_condition || null
+          member_health_condition: formData.member_health_condition || null,
+          member_activity_level: parseFloat(formData.member_activity_level) || null
         },
         goalInfo: {
           fitness_goal_type: formData.fitness_goal_type || null,
           fitness_experience_level: formData.fitness_experience_level || null,
-          fitness_goal_targetweight: parseFloatSafe(formData.fitness_goal_targetweight)
+          fitness_goal_targetweight: parseFloatSafe(formData.fitness_goal_targetweight),
+          fitness_training_frequency: parseFloat(formData.fitness_training_frequency) || null,
+          fitness_training_time: formData.fitness_training_time || null,
+          fitness_desired_time: parseFloat(formData.fitness_desired_time) || null
         }
       };
 
@@ -208,7 +320,7 @@ const MemberPersonalInfoCard = ({ personalData }) => {
             className="w-28 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="ส่วนสูง"
             min="0"
-            step="0.1"
+            step="1"
           />
           <span className="px-3 py-2 text-gray-700 flex items-center">ซม.</span>
         </div>
@@ -226,7 +338,7 @@ const MemberPersonalInfoCard = ({ personalData }) => {
               className="w-28 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="น้ำหนัก"
               min="0"
-              step="0.1"
+              step="1"
             />
             <span className="px-3 py-2 text-gray-700 flex items-center">กก.</span>
           </div>
@@ -242,7 +354,7 @@ const MemberPersonalInfoCard = ({ personalData }) => {
               className="w-28 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="เป้าหมาย"
               min="0"
-              step="0.1"
+              step="1"
             />
             <span className="px-3 py-2 text-gray-700 flex items-center">กก.</span>
           </div>
@@ -269,7 +381,6 @@ const MemberPersonalInfoCard = ({ personalData }) => {
           onChange={(e) => handleInputChange('member_gender', e.target.value)}
           className="w-32 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="">เลือกเพศ</option>
           <option value="male">ชาย</option>
           <option value="female">หญิง</option>
         </select>
@@ -306,12 +417,13 @@ const MemberPersonalInfoCard = ({ personalData }) => {
           <select
             value={formData.fitness_goal_type}
             onChange={(e) => handleInputChange('fitness_goal_type', e.target.value)}
-            className="w-42 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">เลือกเป้าหมาย</option>
-            <option value="ลดน้ำหนัก">ลดน้ำหนัก</option>
-            <option value="เพิ่มกล้ามเนื้อ">เพิ่มกล้ามเนื้อ</option>
-            <option value="รักษาหุ่น">รักษาหุ่น</option>
+            {GOAL_TYPES.map((goal) => (
+              <option key={goal.value} value={goal.value}>
+                {goal.label}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -320,14 +432,67 @@ const MemberPersonalInfoCard = ({ personalData }) => {
           <select
             value={formData.fitness_experience_level}
             onChange={(e) => handleInputChange('fitness_experience_level', e.target.value)}
-            className="w-64 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">เลือกระดับประสบการณ์</option>
-            <option value="ระดับเริ่มต้น">ระดับเริ่มต้น</option>
-            <option value="ระดับกลาง">ระดับกลาง</option>
-            <option value="ระดับขั้นสูง">ระดับขั้นสูง</option>
+            {EXPERIENCE_LEVELS.map((level) => (
+              <option key={level.value} value={level.value}>
+                {level.label}
+              </option>
+            ))}
           </select>
         </div>
+      </div>
+
+      {/* Training Frequency and Activity Level */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-2">ความถี่การฝึก</p>
+          <select
+            value={formData.fitness_training_frequency}
+            onChange={(e) => handleInputChange('fitness_training_frequency', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {TRAINING_FREQUENCIES.map((freq) => (
+              <option key={freq.value} value={freq.value}>
+                {freq.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-2">ระดับกิจกรรม</p>
+          <select
+            value={formData.member_activity_level}
+            onChange={(e) => handleInputChange('member_activity_level', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {ACTIVITY_LEVELS.map((level) => (
+              <option key={level.value} value={level.value}>
+                {level.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Training Time and Desired Timeline */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-2">เวลาการฝึก</p>
+          <select
+            value={formData.fitness_training_time}
+            onChange={(e) => handleInputChange('fitness_training_time', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {TRAINING_TIMES.map((time) => (
+              <option key={time.value} value={time.value}>
+                {time.label} - {time.description}
+              </option>
+            ))}
+          </select>
+        </div>
+
       </div>
 
       {/* Health Condition */}
@@ -338,7 +503,7 @@ const MemberPersonalInfoCard = ({ personalData }) => {
           onChange={(e) => handleInputChange('member_health_condition', e.target.value)}
           rows={4}
           className="w-96 px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-          placeholder="กรอกข้อมูลสุขภาพที่ต้องระวัง (เช่น โรคประจำตัว, การแพ้ยา, ข้อห้าม ฯลฯ)"
+          
         />
       </div>
       
