@@ -46,30 +46,32 @@ export default async function TrainerRegistrationPage({
   const { data } = result;
 
   return (
-    <div className="space-y-6">
+    <div className="mt-4 space-y-2">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight mb-1">รายการลงทะเบียนลูกค้าของฉัน</h1>
+        <p className="text-muted-foreground">
+          จัดการการลงทะเบียน
+        </p>
+      </div>
+
       {/* Data Table  */}
       <CardContent className="p-0 pt-4">
         <RegistrationDataTable initialData={data} trainerId={trainerId} />
-      </CardContent>
 
-      <div className="mt-4">
-        <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-          <div>
-            {(data.pagination.page - 1) * data.pagination.pageSize + 1} ถึง{" "}
-            {Math.min(
-              data.pagination.page * data.pagination.pageSize,
-              data.pagination.totalItems
-            )}{" "}
-            จากทั้งหมด {data.pagination.totalItems} รายการ
-
+        {/* Pagination Info */}
+        {data.pagination.totalItems > 0 && (
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+              {/* Server Pagination Component */}
+              <ServerPagination
+                pagination={data.pagination}
+                trainerId={trainerId}
+              />
+            </div>
           </div>
-          {/* Server Pagination Component */}
-          <ServerPagination
-            pagination={data.pagination}
-            trainerId={trainerId}
-          />
-        </div>
-      </div>
+        )}
+      </CardContent>
     </div>
   );
 }

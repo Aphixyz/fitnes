@@ -49,12 +49,12 @@ export default async function TrainerMembersPage({ params, searchParams }) {
   const { data } = result;
 
   return (
-    <div className="space-y-6">
+    <div className="mt-4 space-y-2">
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight mb-1">ลูกค้าของฉัน</h1>
         <p className="text-muted-foreground">
-          จัดการลูกค้าที่อยู่ภายใต้การดูแลของ
+          จัดการลูกค้าที่อยู่ภายใต้การดูแลของฉัน
         </p>
       </div>
 
