@@ -26,7 +26,7 @@
 - **Workout Planning**: Create personalized workout plans
 - **Nutrition Planning**: Design nutrition plans macro plan macronutritien (calories,Carb,protein,fat)
 - **Progress Tracking**: Monitor member progress and achievements
-- **Profile Management**: Update trainer profile and availability
+- **Profile Management**: Update trainer profile and availability   
 
 #### 👤 **Member Module** (`/app/member/[id]/`)
 

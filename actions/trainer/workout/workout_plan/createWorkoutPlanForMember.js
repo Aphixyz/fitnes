@@ -116,6 +116,6 @@ export async function createWorkoutPlanForMember(formData) {
 
   // ใช้ redirect จาก next/navigation เพื่อเปลี่ยนเส้นทาง
   redirect(
-    `/trainer/${trainer_id}/members/${member_id}/workout-plan/${newPlanId}`
+    `/trainer/${trainer_id}/workout-plan-editor/${newPlanId}?memberId=${member_id}`
   );
 }

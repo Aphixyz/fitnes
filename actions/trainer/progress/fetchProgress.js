@@ -391,18 +391,18 @@ function formatProgressData(workoutData, totalStats, summaryStats, nutritionData
       carb: parseFloat(log.carb || 0),
       fat: parseFloat(log.fat || 0),
     },
-    targets: nutritionStats.dailyTargets,
+    targets: nutritionStats.dailyTargets || { calories: 0, protein: 0, carb: 0, fat: 0 },
     adherence: {
-      calories: nutritionStats.dailyTargets.calories > 0 
+      calories: (nutritionStats.dailyTargets && nutritionStats.dailyTargets.calories > 0)
         ? Math.round((parseFloat(log.calories || 0) / nutritionStats.dailyTargets.calories) * 100)
         : 0,
-      protein: nutritionStats.dailyTargets.protein > 0 
+      protein: (nutritionStats.dailyTargets && nutritionStats.dailyTargets.protein > 0)
         ? Math.round((parseFloat(log.protein || 0) / nutritionStats.dailyTargets.protein) * 100)
         : 0,
-      carb: nutritionStats.dailyTargets.carb > 0 
+      carb: (nutritionStats.dailyTargets && nutritionStats.dailyTargets.carb > 0)
         ? Math.round((parseFloat(log.carb || 0) / nutritionStats.dailyTargets.carb) * 100)
         : 0,
-      fat: nutritionStats.dailyTargets.fat > 0 
+      fat: (nutritionStats.dailyTargets && nutritionStats.dailyTargets.fat > 0)
         ? Math.round((parseFloat(log.fat || 0) / nutritionStats.dailyTargets.fat) * 100)
         : 0,
     },
@@ -439,11 +439,11 @@ function formatProgressData(workoutData, totalStats, summaryStats, nutritionData
     // === Nutrition Data ===
     nutrition: {
       summary: nutritionSummary,
-      adherence: nutritionStats.averageAdherence,
-      targets: nutritionStats.dailyTargets,
+      adherence: nutritionStats.averageAdherence || { calories: 0, protein: 0, carb: 0, fat: 0 },
+      targets: nutritionStats.dailyTargets || { calories: 0, protein: 0, carb: 0, fat: 0 },
       totals: {
-        target: nutritionStats.totalTarget,
-        actual: nutritionStats.totalActual,
+        target: nutritionStats.totalTarget || { calories: 0, protein: 0, carb: 0, fat: 0 },
+        actual: nutritionStats.totalActual || { calories: 0, protein: 0, carb: 0, fat: 0 },
       },
       dailyProgress: dailyNutrition,
       macroPlan: nutritionData.macroPlan,
@@ -553,6 +553,12 @@ function calculateNutritionStats(nutritionData) {
     return {
       totalDays: 0,
       averageAdherence: {
+        calories: 0,
+        protein: 0,
+        carb: 0,
+        fat: 0,
+      },
+      dailyTargets: {
         calories: 0,
         protein: 0,
         carb: 0,

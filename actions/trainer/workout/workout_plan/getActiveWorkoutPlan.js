@@ -8,9 +8,14 @@ export async function getActiveWorkoutPlan(memberId) {
   }
 
   const [result] = await db.query(
-    `SELECT * FROM workout_plan 
-     WHERE member_id = ? AND plan_status = 'active' 
-     ORDER BY plan_startdate DESC 
+    `SELECT 
+       wp.*,
+       COUNT(wpr.workout_program_id) as program_count
+     FROM workout_plan wp
+     LEFT JOIN workout_program wpr ON wp.workout_plan_id = wpr.workout_plan_id
+     WHERE wp.member_id = ? AND wp.plan_status = 'active' 
+     GROUP BY wp.workout_plan_id
+     ORDER BY wp.plan_startdate DESC 
      LIMIT 1`,
     [memberId]
   );

@@ -132,7 +132,7 @@ export const TrainerSidebar = ({ user }) => {
       <aside className="bg-indigo-600 text-white h-screen w-64 fixed top-0 left-0 z-40 -translate-x-full lg:translate-x-0 lg:sticky">
         <div className="flex items-center justify-between h-16 px-4">
           <Link
-            href={`/trainer/${trainerId}`}
+            href={`/trainer/${trainerId}/dashboard`}
             className="text-white font-bold flex items-center"
           >
             <svg
@@ -188,7 +188,7 @@ export const TrainerSidebar = ({ user }) => {
             )}
           </button>
           <Link
-            href={`/trainer/${trainerId}`}
+            href={`/trainer/${trainerId}/dashboard`}
             className="text-white font-bold text-xl flex items-center"
           >
             <svg
@@ -222,7 +222,7 @@ export const TrainerSidebar = ({ user }) => {
         {/* Sidebar Header */}
         <div className="flex items-center justify-between h-16 px-4">
           <Link
-            href={`/trainer/${trainerId}`}
+            href={`/trainer/${trainerId}/dashboard`}
             className="text-white font-bold flex items-center"
           >
             <svg
