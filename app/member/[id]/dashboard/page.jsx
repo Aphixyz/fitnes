@@ -6,13 +6,16 @@ import {
   getTodaysNutrition,
   getWorkoutMotivationData,
 } from "@/actions/member/dashboard/dashboard";
+import { fetchWorkoutProgramsForDashboard } from "@/actions/member/dashboard/fetchWorkoutPrograms";
+import { fetchLatestHealthMetrics } from "@/actions/member/dashboard/fetchHealthMetrics";
+import { fetchLatestProgressPhotos } from "@/actions/member/dashboard/fetchProgressPhotos";
 import { getOnboardingStatus } from "@/actions/member/onboarding/onboarding";
 import OnboardingWizard from "../onboarding/_components/OnboardingWizard";
-import QuickActions from "./_components/QuickActions";
 import DailyNutritionDisplay from "./_components/DailyNutritionDisplay";
-import WorkoutMotivationDisplay from "./_components/WorkoutMotivationDisplay";
-import ProgressOverview from "./_components/ProgressOverview";
-import TodaysFocus from "./_components/TodaysFocus";
+import WorkoutProgramCard from "./_components/WorkoutProgramCard";
+import HealthMetricsCards from "./_components/HealthMetricsCards";
+import ProgressPhotoCard from "./_components/ProgressPhotoCard";
+import DashboardHeaderWrapper from "./_components/DashboardHeaderWrapper";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,9 +25,14 @@ import Link from "next/link";
  * Dashboard Page สำหรับสมาชิก
  * @param {Object} params - URL parameters
  */
-export default async function DashboardPage({ params }) {
+export default async function DashboardPage({ params, searchParams }) {
   const { id } = await params;
   const memberId = parseInt(id);
+
+  // Get date from search params or default to today
+  const searchParamsResolved = await searchParams;
+  const dateParam = searchParamsResolved?.date;
+  const selectedDate = dateParam ? new Date(dateParam) : new Date();
 
   // ตรวจสอบ member ID
   if (!memberId || isNaN(memberId)) {
@@ -66,14 +74,28 @@ export default async function DashboardPage({ params }) {
       );
     }
 
-    // ดึงข้อมูล dashboard
-    const [dashboardData, statsData, todaysData, progressData, nutritionData, workoutData] = await Promise.all([
+    // ดึงข้อมูล dashboard สำหรับวันที่ที่เลือก
+    const dateString = selectedDate.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+    const [
+      dashboardData,
+      statsData,
+      todaysData,
+      progressData,
+      nutritionData,
+      workoutData,
+      workoutProgramsData,
+      healthMetricsData,
+      progressPhotosData,
+    ] = await Promise.all([
       getDashboardData(memberId),
       getDashboardStats(memberId),
-      getTodaysPlans(memberId),
+      getTodaysPlans(memberId, dateString),
       getProgressOverview(memberId),
-      getTodaysNutrition(memberId),
-      getWorkoutMotivationData(memberId),
+      getTodaysNutrition(memberId, dateString),
+      getWorkoutMotivationData(memberId, dateString),
+      fetchWorkoutProgramsForDashboard(memberId),
+      fetchLatestHealthMetrics(memberId),
+      fetchLatestProgressPhotos(memberId),
     ]);
 
     // ตรวจสอบข้อผิดพลาด
@@ -117,59 +139,74 @@ export default async function DashboardPage({ params }) {
       );
     }
 
-
     // แสดง Dashboard
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Header Section */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="px-4 py-4">
-            <h1 className="text-xl font-bold text-gray-900">
-              สวัสดี, {dashboardData.data?.member?.name || 'สมาชิก'}
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              {new Date().toLocaleDateString('th-TH', { 
-                weekday: 'long', 
-                day: 'numeric', 
-                month: 'long' 
-              })}
-            </p>
-          </div>
-        </div>
+        {/* Sticky Header with Date Navigation */}
+        <DashboardHeaderWrapper
+          memberData={dashboardData.data?.member}
+          memberId={memberId}
+          initialDate={selectedDate}
+        />
 
-        <div className="px-4 py-6 space-y-6">
-          
-          {/* Swipeable Cards Section - Only Nutrition & Workout */}
-          <div className="space-y-4">
-            
-            {/* Horizontal Scroll Container - Only 2 Cards */}
-            <div className="relative">
-              <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
-                {/* Daily Nutrition Card */}
-                <div className="w-[320px] md:w-[360px] lg:w-[380px] h-[450px] md:h-[480px] lg:h-[500px] flex-shrink-0 snap-start">
-                  <DailyNutritionDisplay nutritionData={nutritionData} memberId={memberId} />
-                </div>
-                
-                {/* Workout Motivation Card */}
-                <div className="w-[320px] md:w-[360px] lg:w-[380px] h-[450px] md:h-[480px] lg:h-[500px] flex-shrink-0 snap-start">
-                  <WorkoutMotivationDisplay workoutData={workoutData} memberId={memberId} />
-                </div>
-                
-                {/* Spacer for better end scrolling */}
-                <div className="min-w-[16px] flex-shrink-0"></div>
-              </div>
-              
-              {/* Scroll Indicators */}
-              <div className="flex justify-center mt-4 space-x-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+        <div className="px-4 py-4 space-y-4">
+          {/* Responsive Cards Grid - Mobile First */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/*โภชนาการรายวัน*/}
+            <div className="pt-2 w-full">
+              <div className="text-xm md:text-xl text-left text-gray-900">
+                โภชนาการรายวัน
               </div>
             </div>
+
+            {/* Daily Nutrition Card */}
+            <div className="w-full">
+              <DailyNutritionDisplay
+                nutritionData={nutritionData}
+                memberId={memberId}
+              />
+            </div>
+
+            {/*โปรแกรมฝึก*/}
+            <div className="pt-2 w-full">
+              <div className="text-xm md:text-xl text-left text-gray-900">
+                โปรแกรมฝึก
+              </div>
+            </div>
+
+            {/* Workout Program Card */}
+            <div className="w-full">
+              <WorkoutProgramCard
+                workoutProgramData={workoutProgramsData}
+                memberId={memberId}
+              />
+            </div>
+
+            {/*สถิติของฉัน*/}
+            <div className="pt-2 w-full">
+              <div className="text-xm md:text-xl text-left text-gray-900">
+                สถิติของฉัน
+              </div>
+            </div>
+
+            {/* Health Metrics Cards */}
+            <div className="w-full">
+              <HealthMetricsCards healthData={healthMetricsData} memberId={memberId} />
+            </div>
+
+            {/*ภาพความก้าวหน้า*/}
+            <div className="pt-2 w-full">
+              <div className="text-xm md:text-xl text-left text-gray-900">
+                ภาพความก้าวหน้า
+              </div>
+            </div>
+
+            {/* Progress Photo Card */}
+            <div className="w-full">
+              <ProgressPhotoCard photoData={progressPhotosData} memberId={memberId} />
+            </div>
+
           </div>
-
-          {/* Quick Actions Section */}
-          <QuickActions memberId={memberId} />
-
         </div>
       </div>
     );

@@ -30,6 +30,7 @@ export async function fetchIntakeList(memberId, startDate, endDate) {
       SELECT 
         intake_id,
         member_id,
+        macro_plan_id,
         date,
         calories,
         protein,
@@ -48,6 +49,7 @@ export async function fetchIntakeList(memberId, startDate, endDate) {
     return rows.map((intake) => ({
       intake_id: intake.intake_id,
       member_id: intake.member_id,
+      macro_plan_id: intake.macro_plan_id,
       date: intake.date,
       calories: parseFloat(intake.calories) || 0,
       protein: parseFloat(intake.protein) || 0,
@@ -82,6 +84,7 @@ export async function fetchIntakeById(intakeId, memberId) {
       SELECT 
         intake_id,
         member_id,
+        macro_plan_id,
         date,
         calories,
         protein,
@@ -105,6 +108,7 @@ export async function fetchIntakeById(intakeId, memberId) {
     return {
       intake_id: intake.intake_id,
       member_id: intake.member_id,
+      macro_plan_id: intake.macro_plan_id,
       date: intake.date,
       calories: parseFloat(intake.calories) || 0,
       protein: parseFloat(intake.protein) || 0,

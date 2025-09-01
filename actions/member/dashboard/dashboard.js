@@ -28,7 +28,8 @@ export async function getDashboardData(memberId) {
         member_lastname,
         member_gender,
         member_dob,
-        member_email
+        member_email,
+        member_profileimage
        FROM member 
        WHERE member_id = ?`,
       [memberId]
@@ -141,6 +142,7 @@ export async function getDashboardData(memberId) {
           email: member.member_email,
           gender: member.member_gender,
           dateOfBirth: member.member_dob,
+          profileImage: member.member_profileimage,
         },
         health: {
           weight: health.member_health_weight,
@@ -210,17 +212,18 @@ export async function getMacroCardsData(memberId, period = "daily") {
 }
 
 /**
- * ดึงข้อมูลแผนของวันนี้ (Workout + Nutrition)
+ * ดึงข้อมูลแผนของวันที่ระบุ (Workout + Nutrition)
  * @param {number} memberId - รหัสสมาชิก
- * @returns {Promise<Object>} แผนของวันนี้
+ * @param {string} targetDate - วันที่ต้องการดู (YYYY-MM-DD) หรือ null สำหรับวันนี้
+ * @returns {Promise<Object>} แผนของวันที่ระบุ
  */
-export async function getTodaysPlans(memberId) {
+export async function getTodaysPlans(memberId, targetDate = null) {
   try {
     if (!memberId) {
       throw new Error("ไม่พบรหัสสมาชิก");
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = targetDate || new Date().toISOString().split('T')[0];
 
     // ดึงข้อมูล workout plan ที่ active
     const [workoutPlanData] = await db.query(
@@ -413,17 +416,18 @@ function calculateWorkoutStreak(workoutData) {
 }
 
 /**
- * ดึงข้อมูลโภชนาการของวันนี้ (Daily Nutrition Display)
+ * ดึงข้อมูลโภชนาการของวันที่ระบุ (Daily Nutrition Display)
  * @param {number} memberId - รหัสสมาชิก
- * @returns {Promise<Object>} ข้อมูลโภชนาการวันนี้
+ * @param {string} targetDate - วันที่ต้องการดู (YYYY-MM-DD) หรือ null สำหรับวันนี้
+ * @returns {Promise<Object>} ข้อมูลโภชนาการของวันที่ระบุ
  */
-export async function getTodaysNutrition(memberId) {
+export async function getTodaysNutrition(memberId, targetDate = null) {
   try {
     if (!memberId) {
       throw new Error("ไม่พบรหัสสมาชิก");
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = targetDate || new Date().toISOString().split('T')[0];
 
     // ดึงข้อมูล macro plan ที่ active
     const [macroPlanData] = await db.query(
@@ -494,15 +498,17 @@ export async function getTodaysNutrition(memberId) {
 /**
  * ดึงข้อมูลการออกกำลังกายสำหรับ Motivation Display
  * @param {number} memberId - รหัสสมาชิก
+ * @param {string} targetDate - วันที่ต้องการดู (YYYY-MM-DD) หรือ null สำหรับวันนี้
  * @returns {Promise<Object>} ข้อมูลการออกกำลังกาย
  */
-export async function getWorkoutMotivationData(memberId) {
+export async function getWorkoutMotivationData(memberId, targetDate = null) {
   try {
     if (!memberId) {
       throw new Error("ไม่พบรหัสสมาชิก");
     }
 
-    const today = new Date();
+    const today = targetDate ? new Date(targetDate) : new Date();
+    const todayStr = today.toISOString().split('T')[0];
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
     const startOfWeekStr = startOfWeek.toISOString().split('T')[0];

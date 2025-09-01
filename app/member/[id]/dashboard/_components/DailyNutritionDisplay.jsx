@@ -18,7 +18,7 @@ export default function DailyNutritionDisplay({ nutritionData, memberId }) {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <UtensilsCrossed className="w-5 h-5" />
-            <span>Daily Nutrition</span>
+            <span>โภชนาการรายวัน</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center py-8">
@@ -46,8 +46,8 @@ export default function DailyNutritionDisplay({ nutritionData, memberId }) {
   const macros = [
     {
       name: "Protein",
-      color: "bg-red-500",
-      progressColor: "bg-red-400",
+      color: "bg-orange-600",
+      progressColor: "bg-orange-500",
       consumed: nutrition.consumed_protein_today || 0,
       target: targets?.daily?.protein || Math.round((target * (nutrition.protein_ratio || 30) / 100) / 4),
       unit: "g"
@@ -62,8 +62,8 @@ export default function DailyNutritionDisplay({ nutritionData, memberId }) {
     },
     {
       name: "Carbs",
-      color: "bg-green-500", 
-      progressColor: "bg-green-400",
+      color: "bg-green-600", 
+      progressColor: "bg-green-500",
       consumed: nutrition.consumed_carb_today || 0,
       target: targets?.daily?.carbs || Math.round((target * (nutrition.carb_ratio || 45) / 100) / 4),
       unit: "g"
@@ -77,87 +77,81 @@ export default function DailyNutritionDisplay({ nutritionData, memberId }) {
   });
 
   return (
-    <Card className="h-full flex flex-col overflow-hidden">
-      <CardHeader className="pb-3 flex-shrink-0">
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <UtensilsCrossed className="w-5 h-5" />
-            <span className="text-sm font-medium">วันนี้ควรบริโภค</span>
-          </div>
-        </CardTitle>
-        
-      </CardHeader>
+    <Card className="w-full flex flex-col overflow-hidden bg-white shadow-sm min-h-[260px]">
       
-      <CardContent className="flex-1 flex flex-col space-y-4 overflow-y-auto">
-        {/* Circular Progress Section */}
-        <div className="flex items-center justify-center relative flex-shrink-0">
-          {/* Background Circle */}
-          <div className="relative w-36 h-36 md:w-40 md:h-40">
+      <CardContent className="flex-1 flex flex-col space-y-4 md:space-y-6 overflow-y-auto p-4 md:p-6">
+        {/* Circular Progress Section with Side Stats */}
+        <div className="relative flex items-center justify-between px-2 md:px-4 flex-shrink-0">
+          {/* Left Stats - Consumed */}
+          <div className="text-center flex-shrink-0">
+            <div className="text-lg md:text-xl font-bold text-gray-900">{consumed}</div>
+            <div className="text-xs text-gray-500 font-medium">กินไปแล้ว</div>
+          </div>
+
+          {/* Center Circle */}
+          <div className="relative w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
               {/* Background Circle */}
               <circle
                 cx="50"
                 cy="50" 
-                r="42"
-                stroke="#f3f4f6"
-                strokeWidth="6"
+                r="38"
+                stroke="#e2e8f0"
+                strokeWidth="8"
                 fill="none"
               />
               {/* Progress Circle */}
               <circle
                 cx="50"
                 cy="50"
-                r="42"
+                r="38"
                 stroke="#3b82f6"
-                strokeWidth="6"
+                strokeWidth="8"
                 fill="none"
-                strokeDasharray={`${2 * Math.PI * 42}`}
-                strokeDashoffset={`${2 * Math.PI * 42 * (1 - progressPercentage / 100)}`}
+                strokeDasharray={`${2 * Math.PI * 38}`}
+                strokeDashoffset={`${2 * Math.PI * 38 * (1 - progressPercentage / 100)}`}
                 strokeLinecap="round"
-                className="transition-all duration-500 ease-in-out"
+                className="transition-all duration-700 ease-in-out"
+                style={{
+                  filter: 'drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3))'
+                }}
               />
             </svg>
             
             {/* Center Content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-2xl md:text-3xl font-bold text-gray-900">{remaining}</div>
-              <div className="text-xs text-gray-500">Remaining</div>
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-1">{remaining}</div>
+              <div className="text-xs text-gray-400 font-medium">เหลือ</div>
             </div>
           </div>
-        </div>
 
-        {/* Stats Row */}
-        <div className="flex justify-between items-center text-center flex-shrink-0">
-          <div>
-            <div className="text-lg font-bold text-gray-900">{consumed}</div>
-            <div className="text-xs text-gray-500">Consumed</div>
-          </div>
-          <div>
-            <div className="text-lg font-bold text-gray-900">{target}</div>
-            <div className="text-xs text-gray-500">Target</div>
+          {/* Right Stats - Target */}
+          <div className="text-center flex-shrink-0">
+            <div className="text-lg md:text-xl font-bold text-gray-900">{target}</div>
+            <div className="text-xs text-gray-500 font-medium">เป้าหมาย</div>
           </div>
         </div>
 
-        {/* Macros Section */}
-        <div className="space-y-3 flex-1 min-h-0">
+        {/* Macros Section - 3 Column Layout */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6 px-1 md:px-2 flex-shrink-0">
           {macros.map((macro) => {
             const macroProgress = macro.target > 0 ? Math.min(100, (macro.consumed / macro.target) * 100) : 0;
             return (
-              <div key={macro.name} className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${macro.color}`}></div>
-                    <span className="text-xs font-medium">{macro.name}</span>
-                  </div>
-                  <span className="text-xs text-gray-500">
-                    {macro.consumed} / {macro.target}{macro.unit}
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div key={macro.name} className="text-center space-y-2">
+                {/* Macro Name */}
+                <div className="text-xs sm:text-sm font-semibold text-gray-800">{macro.name}</div>
+                
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3 shadow-inner">
                   <div 
-                    className={`h-1.5 rounded-full transition-all duration-500 ${macro.progressColor}`}
+                    className={`h-2 sm:h-3 rounded-full transition-all duration-700 ease-out ${macro.progressColor} shadow-sm`}
                     style={{ width: `${macroProgress}%` }}
                   />
+                </div>
+                
+                {/* Consumed / Target */}
+                <div className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                  {macro.consumed} / {macro.target}{macro.unit}
                 </div>
               </div>
             );
