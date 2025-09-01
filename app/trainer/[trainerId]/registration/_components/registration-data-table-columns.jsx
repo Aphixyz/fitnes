@@ -64,7 +64,12 @@ export const createRegistrationColumns = (trainerId, onRegistrationUpdated) => [
   columnHelper.accessor("registration_startdate", {
     id: "date_range",
     header: "วันที่",
-    enableSorting: false,
+    enableSorting: true,
+    sortingFn: (rowA, rowB) => {
+      const dateA = new Date(rowA.original.registration_startdate || 0);
+      const dateB = new Date(rowB.original.registration_startdate || 0);
+      return dateA.getTime() - dateB.getTime();
+    },
     cell: (info) => {
       const registration = info.row.original;
       const startDate = registration.registration_startdate;
@@ -150,13 +155,6 @@ export const createRegistrationColumns = (trainerId, onRegistrationUpdated) => [
       return (
         <div className="space-y-1">
           <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
-
-          {/* แสดงข้อมูลวันที่หมดอายุ */}
-          {endDate && (
-            <div className="text-xs text-gray-500">
-              หมดอายุ: {new Date(endDate).toLocaleDateString("th-TH")}
-            </div>
-          )}
         </div>
       );
     },

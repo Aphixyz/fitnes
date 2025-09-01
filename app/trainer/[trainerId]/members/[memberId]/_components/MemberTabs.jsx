@@ -37,10 +37,10 @@ const tabs = [
     key: "health",
   },
   {
-    name: "เป้าหมาย",
-    href: "/goals",
-    icon: Target,
-    key: "goals",
+    name: "ข้อมูลส่วนตัว",
+    href: "/personal-info",
+    icon: Activity,
+    key: "personal",
   },
 ];
 
@@ -57,7 +57,7 @@ export default function MemberTabs({ trainerId, memberId }) {
     if (pathname.includes("/macros-plan")) return "macros";
     if (pathname.includes("/statistics")) return "stats";
     if (pathname.includes("/health-info")) return "health";
-    if (pathname.includes("/goals")) return "goals";
+    if (pathname.includes("/personal-info")) return "personal";
 
     return "dashboard";
   };
@@ -65,7 +65,7 @@ export default function MemberTabs({ trainerId, memberId }) {
   const activeTab = getActiveTab();
 
   return (
-    <div className="border-b border-border">
+    <div className="border-b border-gray-200 bg-white">
       <nav className="-mb-px flex space-x-8">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;

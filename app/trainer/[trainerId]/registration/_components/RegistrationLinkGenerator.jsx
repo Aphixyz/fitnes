@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import {
   Copy,
   Link,
@@ -106,10 +105,11 @@ const RegistrationLinkGenerator = ({
     );
   }
 
+
   return (
     <div className="space-y-6">
       {/* ข้อมูลแพ็คเกจที่เลือก */}
-      <Card className="border-blue-200 bg-blue-50">
+      <Card >
         <CardHeader>
           <CardTitle className="flex items-center space-x-2 text-lg">
             <CheckCircle className="h-5 w-5 text-blue-600" />
@@ -138,7 +138,7 @@ const RegistrationLinkGenerator = ({
         <Button
           onClick={handleGenerateLink}
           disabled={isGenerating}
-          className="w-full bg-green-600 hover:bg-green-700"
+          className="w-full flex items-center  bg-teal-600 hover:bg-teal-700 text-white rounded-md text-sm font-medium ring-1 ring-green-800"
           size="lg"
         >
           {isGenerating ? (
@@ -157,55 +157,46 @@ const RegistrationLinkGenerator = ({
 
       {/* ผลลัพธ์ลิงก์ที่สร้างแล้ว */}
       {generatedLink && (
-        <Card className="border-green-200 bg-green-50">
+        <Card className="">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-green-700">
               <CheckCircle className="h-5 w-5" />
-              <span>ลิงก์สร้างเสร็จสิ้น! 🎉</span>
+              <span>ลิงก์สร้างเสร็จสิ้น! </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* ข้อมูลลิงก์ */}
             <div className="space-y-2">
               <Label>ลิงก์ลงทะเบียน</Label>
-              <div className="flex space-x-1 items-center ">
+              <div className="flex flex-col space-y-2 lg:flex-row lg:space-y-0 lg:space-x-2 items-stretch lg:items-center">
                 <Input
                   value={generatedLink.url}
                   readOnly
-                  className="flex-1 font-mono text-sm bg-white"
+                  className="flex-1 font-mono text-xs bg-white min-w-0 w-full lg:min-w-[400px]"
                 />
-                <Button
-                  onClick={handleCopyLink}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center space-x-1"
-                >
-                  <Copy className="h-4 w-4" />
-                  <span>คัดลอก</span>
-                </Button>
-                <Button
-                  onClick={() => window.open(generatedLink.url, "_blank")}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center space-x-1"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  <span>เปิด</span>
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={handleCopyLink}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center space-x-1"
+                  >
+                    <Copy className="h-4 w-4" />
+                    <span>คัดลอก</span>
+                  </Button>
+                  <Button
+                    onClick={() => window.open(generatedLink.url, "_blank")}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center space-x-1"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    <span>เปิด</span>
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* สร้างลิงก์ใหม่ */}
-            <div className="pt-2 border-t">
-              <Button
-                onClick={() => setGeneratedLink(null)}
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                สร้างลิงก์ใหม่
-              </Button>
-            </div>
           </CardContent>
         </Card>
       )}

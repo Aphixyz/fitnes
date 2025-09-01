@@ -17,8 +17,8 @@ import { useToast } from "@/components/ui/use-toast";
  * Client Component สำหรับแสดงหน้ารายละเอียดโปรแกรม
  */
 export default function ProgramPage({ params, searchParams }) {
-  const { trainerId, memberId, planId, programId } = React.use(params);
-  const { isNewProgram } = React.use(searchParams);
+  const { trainerId, planId, programId } = React.use(params);
+  const { memberId, isNewProgram } = React.use(searchParams);
   const isNew = isNewProgram === "true";
   const router = useRouter();
   const { toast } = useToast();
@@ -51,7 +51,7 @@ export default function ProgramPage({ params, searchParams }) {
         setTimeout(() => {
           // Redirect ไปยังหน้าแผนออกกำลังกาย
           router.push(
-            `/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}`
+            `/trainer/${trainerId}/workout-plan-editor/${planId}?memberId=${memberId}`
           );
         }, 1000);
       } catch (error) {
@@ -158,7 +158,7 @@ export default function ProgramPage({ params, searchParams }) {
         </div>
         <div className="flex items-center space-x-2">
           <Link
-            href={`/trainer/${trainerId}/members/${memberId}/workout-plan/${planId}`}
+            href={`/trainer/${trainerId}/workout-plan-editor/${planId}?memberId=${memberId}`}
           >
             <Button variant="outline" size="sm">
               <ChevronLeft className="mr-2 h-4 w-4" />
@@ -167,9 +167,6 @@ export default function ProgramPage({ params, searchParams }) {
           </Link>
         </div>
       </div>
-
-      {/* Divider */}
-      <div className="h-px bg-border" />
 
       {/* Main Content */}
       <Card className="border-none shadow-none">

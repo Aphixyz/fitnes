@@ -1,5 +1,5 @@
 import { fetchWorkoutDetailById } from "@/lib/db/fetchWorkoutDetailById";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,15 @@ import EditInfoBtn from "./_components/EditInfoBtn";
 import ProgramHeader from "./_components/ProgramHeader";
 import ProgramList from "./_components/ProgramList";
 
-export default async function WorkoutPlanPage({ params }) {
+export default async function WorkoutPlanPage({ params, searchParams }) {
   // Extract params from URL
-  const { trainerId, memberId, planId, programId } = await params;
+  const { trainerId, planId } = await params;
+  const resolvedSearchParams = await searchParams;
+  const memberId = resolvedSearchParams?.memberId;
+
+  if (!memberId) {
+    redirect(`/trainer/${trainerId}/dashboard`);
+  }
 
   // Fetch workout plan details
   const response = await fetchWorkoutDetailById({

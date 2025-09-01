@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 const schema = z.object({
   plan_id: z.coerce.number().positive(),
-  status: z.enum(["active", "completed", "paused", "draft"]),
+  status: z.enum(["active", "completed"]),
 });
 
 export async function changePlanStatus(input) {

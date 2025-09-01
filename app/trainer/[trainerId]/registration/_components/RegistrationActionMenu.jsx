@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MoreHorizontal, Eye, Clock } from "lucide-react";
 import {
   DropdownMenu,
@@ -32,11 +32,48 @@ const RegistrationActionMenu = ({
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [showExtendDialog, setShowExtendDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [extendDuration, setExtendDuration] = useState("1"); // เดือน
+  const [extendDuration, setExtendDuration] = useState("1");
+  const [dropdownOpen, setDropdownOpen] = useState(false); // เพิ่ม state สำหรับ dropdown
 
-  // ดูรายละเอียดลูกค้า
+  // ดูรายละเอียดลูกค้า - ปิด dropdown ก่อน
   const handleViewCustomerDetails = () => {
-    setShowDetailDialog(true);
+    setDropdownOpen(false); // ปิด dropdown ก่อน
+    // ใช้ setTimeout เพื่อให้ dropdown ปิดก่อน
+    setTimeout(() => {
+      setShowDetailDialog(true);
+    }, 100);
+  };
+
+  // ต่ออายุแพ็คเกจ - ปิด dropdown ก่อน
+  const handleExtendPackageClick = () => {
+    setDropdownOpen(false); // ปิด dropdown ก่อน
+    setTimeout(() => {
+      setShowExtendDialog(true);
+    }, 100);
+  };
+
+  // จัดการปิด dialog รายละเอียด - แก้ไขให้รับ boolean
+  const handleDetailDialogChange = (open) => {
+    setShowDetailDialog(open);
+    if (!open) {
+      // Reset focus หลังปิด dialog
+      setTimeout(() => {
+        document.body.focus();
+      }, 100);
+    }
+  };
+
+  // จัดการปิด dialog ต่ออายุ - แก้ไขให้รับ boolean
+  const handleExtendDialogChange = (open) => {
+    setShowExtendDialog(open);
+    if (!open) {
+      setExtendDuration("1"); // รีเซ็ตค่า
+      setIsProcessing(false);
+      // Reset focus หลังปิด dialog
+      setTimeout(() => {
+        document.body.focus();
+      }, 100);
+    }
   };
 
   // ต่ออายุแพ็คเกจ
@@ -52,13 +89,6 @@ const RegistrationActionMenu = ({
 
     setIsProcessing(true);
     try {
-      // TODO: เรียก server action สำหรับต่ออายุแพ็คเกจ
-      // const result = await extendPackageDuration({
-      //   registrationId: registration.registration_id,
-      //   trainerId: trainerId,
-      //   extendMonths: parseInt(extendDuration)
-      // });
-
       // Mock success response for now
       const result = { success: true, message: "ต่ออายุแพ็คเกจเรียบร้อยแล้ว" };
 
@@ -72,6 +102,9 @@ const RegistrationActionMenu = ({
         if (onRegistrationUpdated) {
           onRegistrationUpdated(registration.registration_id, "extended");
         }
+        
+        // ปิด dialog หลังสำเร็จ
+        handleExtendDialogChange(false);
       } else {
         toast({
           title: "เกิดข้อผิดพลาด",
@@ -88,7 +121,6 @@ const RegistrationActionMenu = ({
       });
     } finally {
       setIsProcessing(false);
-      setShowExtendDialog(false);
     }
   };
 
@@ -117,9 +149,41 @@ const RegistrationActionMenu = ({
 
   const packageStatus = getPackageStatus();
 
+  // ทำความสะอาดเมื่อ component unmount
+  useEffect(() => {
+    return () => {
+      // Force cleanup เมื่อ component ถูก unmount
+      setShowDetailDialog(false);
+      setShowExtendDialog(false);
+      setDropdownOpen(false);
+      setIsProcessing(false);
+      
+      // ลบ modal backdrop ที่อาจค้างอยู่
+      const backdrops = document.querySelectorAll('[data-radix-popper-content-wrapper], .fixed.inset-0');
+      backdrops.forEach(backdrop => {
+        if (backdrop.style.pointerEvents === 'none' || 
+            backdrop.classList.contains('bg-black/80') ||
+            backdrop.getAttribute('data-state') === 'closed') {
+          backdrop.remove();
+        }
+      });
+      
+      // Reset body styles
+      document.body.style.overflow = '';
+      document.body.style.pointerEvents = '';
+    };
+  }, []);
+
+  // ป้องกันการเปิด dialog หลายตัวพร้อมกัน
+  useEffect(() => {
+    if (showDetailDialog && showExtendDialog) {
+      setShowExtendDialog(false);
+    }
+  }, [showDetailDialog, showExtendDialog]);
+
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
@@ -138,13 +202,13 @@ const RegistrationActionMenu = ({
             className="cursor-pointer"
           >
             <Eye className="mr-2 h-4 w-4" />
-            ดูรายละเอียดลูกค้า
+            ดูรายละเอียด
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            onClick={() => setShowExtendDialog(true)}
+            onClick={handleExtendPackageClick}
             className="cursor-pointer text-blue-600 focus:text-blue-600"
           >
             <Clock className="mr-2 h-4 w-4" />
@@ -154,7 +218,11 @@ const RegistrationActionMenu = ({
       </DropdownMenu>
 
       {/* Dialog ดูรายละเอียดลูกค้า */}
-      <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
+      <Dialog 
+        open={showDetailDialog} 
+        onOpenChange={handleDetailDialogChange}
+        modal={true}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>รายละเอียดลูกค้า</DialogTitle>
@@ -247,37 +315,11 @@ const RegistrationActionMenu = ({
               </div>
             </div>
 
-            {/* ข้อมูลเพิ่มเติม */}
-            {registration.member_gender && (
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">
-                  ข้อมูลเพิ่มเติม
-                </h4>
-                <div className="space-y-1 text-sm">
-                  <div>
-                    <span className="text-gray-600">เพศ:</span>{" "}
-                    {registration.member_gender === "male"
-                      ? "ชาย"
-                      : registration.member_gender === "female"
-                      ? "หญิง"
-                      : registration.member_gender}
-                  </div>
-                  {registration.member_dob && (
-                    <div>
-                      <span className="text-gray-600">วันเกิด:</span>{" "}
-                      {new Date(registration.member_dob).toLocaleDateString(
-                        "th-TH"
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowDetailDialog(false)}
+              onClick={() => handleDetailDialogChange(false)}
             >
               ปิด
             </Button>
@@ -286,7 +328,11 @@ const RegistrationActionMenu = ({
       </Dialog>
 
       {/* Dialog ต่ออายุแพ็คเกจ */}
-      <Dialog open={showExtendDialog} onOpenChange={setShowExtendDialog}>
+      <Dialog 
+        open={showExtendDialog} 
+        onOpenChange={handleExtendDialogChange}
+        modal={true}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>ต่ออายุแพ็คเกจ</DialogTitle>
@@ -327,6 +373,7 @@ const RegistrationActionMenu = ({
                 value={extendDuration}
                 onChange={(e) => setExtendDuration(e.target.value)}
                 placeholder="ระบุจำนวนเดือน"
+                disabled={isProcessing}
               />
               <p className="text-xs text-gray-500">
                 หลังจากต่ออายุแล้ว แพ็คเกจจะหมดอายุในวันที่:{" "}
@@ -344,7 +391,7 @@ const RegistrationActionMenu = ({
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowExtendDialog(false)}
+              onClick={() => handleExtendDialogChange(false)}
               disabled={isProcessing}
             >
               ยกเลิก
