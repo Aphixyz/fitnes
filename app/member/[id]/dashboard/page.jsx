@@ -154,7 +154,7 @@ export default async function DashboardPage({ params, searchParams }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/*โภชนาการรายวัน*/}
             <div className="pt-2 w-full">
-              <div className="text-xm md:text-xl text-left text-gray-900">
+              <div className="text-lg sm:text-xl font-semibold text-gray-900">
                 โภชนาการรายวัน
               </div>
             </div>
@@ -169,7 +169,7 @@ export default async function DashboardPage({ params, searchParams }) {
 
             {/*โปรแกรมฝึก*/}
             <div className="pt-2 w-full">
-              <div className="text-xm md:text-xl text-left text-gray-900">
+              <div className="text-lg sm:text-xl font-semibold text-gray-900">
                 โปรแกรมฝึก
               </div>
             </div>
@@ -184,7 +184,7 @@ export default async function DashboardPage({ params, searchParams }) {
 
             {/*สถิติของฉัน*/}
             <div className="pt-2 w-full">
-              <div className="text-xm md:text-xl text-left text-gray-900">
+              <div className="text-lg sm:text-xl font-semibold text-gray-900">
                 สถิติของฉัน
               </div>
             </div>
@@ -196,7 +196,7 @@ export default async function DashboardPage({ params, searchParams }) {
 
             {/*ภาพความก้าวหน้า*/}
             <div className="pt-2 w-full">
-              <div className="text-xm md:text-xl text-left text-gray-900">
+              <div className="text-lg sm:text-xl font-semibold text-gray-900">
                 ภาพความก้าวหน้า
               </div>
             </div>
