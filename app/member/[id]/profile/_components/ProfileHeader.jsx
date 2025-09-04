@@ -126,9 +126,9 @@ export default function ProfileHeader({
   };
 
   return (
-    <div className="flex flex-col items-center py-8 bg-white">
+    <div className="flex flex-col items-center py-6">
       {/* Profile Photo Container */}
-      <div className="relative mb-4">
+      <div className="relative mb-2">
         {/* Main Profile Photo */}
         <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center border-4 border-white shadow-lg">
           {isPreview && profilePhoto ? (
@@ -209,11 +209,6 @@ export default function ProfileHeader({
           <h2 className="text-xl font-semibold text-gray-800">
             {memberData.fullName || `${memberData.firstName || ''} ${memberData.lastName || ''}`.trim()}
           </h2>
-          {memberData?.email && (
-            <p className="text-sm text-gray-500 mt-1">
-              {memberData.email}
-            </p>
-          )}
         </div>
       )}
     </div>

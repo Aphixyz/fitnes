@@ -96,10 +96,10 @@ export default async function ProfilePage({ params }) {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-full bg-gray-50">
       {/* Sticky Header */}
       <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm h-20 w-full flex items-center justify-center">
-        <h1 className="text-xl font-semibold text-gray-900">Profile</h1>
+        <h1 className="text-xl font-semibold text-gray-900">โปรไฟล์</h1>
       </div>
 
       {/* Profile Header Section */}
@@ -109,12 +109,9 @@ export default async function ProfilePage({ params }) {
       />
 
       {/* MY PROGRESS Section */}
-      <div className="px-4 mt-6">
-        <h2 className="text-lg font-semibold text-gray-500 mb-4 tracking-wide">
-          MY PROGRESS
-        </h2>
+      <div className="px-4 mt-2">
         
-        <div className="space-y-3">
+        <div className="space-y-2">
           {/* My Profile Card */}
           <ProfileCard
             title="โปรไฟล์ของฉัน"
@@ -128,7 +125,7 @@ export default async function ProfilePage({ params }) {
             title="เป้าหมายของฉัน"
             subtitle={getGoalSubtitle()}
             iconName="Target"
-            href={`/member/${id}/goal`}
+            href={`/member/${id}/profile/goal`}
           />
 
           {/* My Workout Card */}
@@ -155,15 +152,6 @@ export default async function ProfilePage({ params }) {
             href={`/member/${id}/profile/package`}
           />
         </div>
-      </div>
-
-      {/* PROFILE Section */}
-      <div className="px-4 mt-8 mb-6">
-        <h2 className="text-lg font-semibold text-gray-500 mb-4 tracking-wide">
-          PROFILE
-        </h2>
-        
-
       </div>
     </div>
   );

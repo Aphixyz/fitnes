@@ -53,7 +53,7 @@ const ProgramPage = async ({ params }) => {
   // ===== UI: Workout Plan Section =====
   if (!workoutPlanResult.success || !workoutPlanResult.data) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-full bg-gray-50">
         {/* Sticky Header */}
         <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm h-20 w-full flex items-center justify-center">
           <h1 className="text-xl font-semibold text-gray-900">แผนโปรแกรม</h1>
@@ -103,7 +103,7 @@ const ProgramPage = async ({ params }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-fit bg-gray-50">
       {/* Sticky Header */}
       <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm h-20 w-full flex items-center justify-center">
         <h1 className="text-xl font-semibold text-gray-900">แผนโปรแกรม</h1>

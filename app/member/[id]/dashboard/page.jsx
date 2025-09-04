@@ -141,7 +141,7 @@ export default async function DashboardPage({ params, searchParams }) {
 
     // แสดง Dashboard
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-full bg-gray-50">
         {/* Sticky Header with Date Navigation */}
         <DashboardHeaderWrapper
           memberData={dashboardData.data?.member}
