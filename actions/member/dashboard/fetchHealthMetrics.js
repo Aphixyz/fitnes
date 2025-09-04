@@ -1,6 +1,7 @@
 "use server";
 
 import pool from "../../../lib/db.js";
+import { formatDateToLocalString } from "@/utils/dateUtils";
 
 /**
  * ดึงข้อมูลสุขภาพล่าสุดของแต่ละ metric แยกกัน
@@ -83,25 +84,25 @@ export async function fetchLatestHealthMetrics(memberId) {
       success: true,
       data: {
         member_health_weight: weight?.value || null,
-        member_health_weight_date: weight?.date || null,
+        member_health_weight_date: weight?.date ? formatDateToLocalString(weight.date) : null,
         
         member_health_bodyfat: bodyfat?.value || null,
-        member_health_bodyfat_date: bodyfat?.date || null,
+        member_health_bodyfat_date: bodyfat?.date ? formatDateToLocalString(bodyfat.date) : null,
         
         member_health_chest: chest?.value || null,
-        member_health_chest_date: chest?.date || null,
+        member_health_chest_date: chest?.date ? formatDateToLocalString(chest.date) : null,
         
         member_health_waist: waist?.value || null,
-        member_health_waist_date: waist?.date || null,
+        member_health_waist_date: waist?.date ? formatDateToLocalString(waist.date) : null,
         
         member_health_hip: hip?.value || null,
-        member_health_hip_date: hip?.date || null,
+        member_health_hip_date: hip?.date ? formatDateToLocalString(hip.date) : null,
         
         member_health_arm: arm?.value || null,
-        member_health_arm_date: arm?.date || null,
+        member_health_arm_date: arm?.date ? formatDateToLocalString(arm.date) : null,
         
         member_health_thigh: thigh?.value || null,
-        member_health_thigh_date: thigh?.date || null
+        member_health_thigh_date: thigh?.date ? formatDateToLocalString(thigh.date) : null
       }
     };
 
@@ -147,9 +148,15 @@ export async function fetchHealthHistory(memberId, limit = 10) {
     const [rows] = await connection.execute(query, [memberId, limit]);
     connection.release();
 
+    // Fix date format in rows
+    const fixedRows = rows.map(row => ({
+      ...row,
+      member_health_measurementdate: formatDateToLocalString(row.member_health_measurementdate)
+    }));
+
     return {
       success: true,
-      data: rows
+      data: fixedRows
     };
 
   } catch (error) {

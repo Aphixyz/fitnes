@@ -1,6 +1,7 @@
 "use server";
 
 import pool from "../../../lib/db.js";
+import { formatDateToLocalString } from "@/utils/dateUtils";
 
 /**
  * ดึงข้อมูลภาพความก้าวหน้าล่าสุดของสมาชิก
@@ -52,7 +53,7 @@ export async function fetchLatestProgressPhotos(memberId) {
       data: {
         member_health_id: progressData.member_health_id,
         member_id: progressData.member_id,
-        member_health_measurementdate: progressData.member_health_measurementdate,
+        member_health_measurementdate: formatDateToLocalString(progressData.member_health_measurementdate),
         member_health_weight: progressData.member_health_weight,
         photo_front: progressData.photo_front,
         photo_side: progressData.photo_side,
@@ -107,9 +108,10 @@ export async function fetchProgressPhotosHistory(memberId, limit = 10) {
     const [rows] = await connection.execute(query, [memberId, limit]);
     connection.release();
 
-    // Add total photos count for each record
+    // Add total photos count for each record and fix date format
     const historyData = rows.map(row => ({
       ...row,
+      member_health_measurementdate: formatDateToLocalString(row.member_health_measurementdate),
       total_photos: [row.photo_front, row.photo_side, row.photo_back]
         .filter(photo => photo !== null && photo !== '').length
     }));

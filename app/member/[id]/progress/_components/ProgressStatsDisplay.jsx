@@ -8,6 +8,7 @@ import HistoryList from "./HistoryList";
 import { ChevronDown, AlertCircle } from "lucide-react";
 import { fetchAllHealthData } from "@/actions/member/metric/fetchAllHealthData";
 import { useRouter, useSearchParams } from "next/navigation";
+import { formatThaiDateShort } from "@/utils/dateUtils";
 
 const categories = [
   { id: "weight", label: "น้ำหนักตัว", unit: "กก.", color: "#3B82F6" },
@@ -107,23 +108,7 @@ const ProgressStatsDisplay = ({ memberId }) => {
   )?.label;
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const thaiMonths = [
-      "ม.ค.",
-      "ก.พ.",
-      "มี.ค.",
-      "เม.ย.",
-      "พ.ค.",
-      "มิ.ย.",
-      "ก.ค.",
-      "ส.ค.",
-      "ก.ย.",
-      "ต.ค.",
-      "พ.ย.",
-      "ธ.ค.",
-    ];
-
-    return `${date.getDate()} ${thaiMonths[date.getMonth()]}`;
+    return formatThaiDateShort(dateString);
   };
 
   if (loading) {

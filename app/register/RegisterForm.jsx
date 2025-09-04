@@ -30,6 +30,7 @@ import {
 import { DobPicker } from "@/components/ui/dobPicker";
 import { verifyRegistrationToken } from "@/actions/register/verifyRegistrationToken";
 import { createMemberAndRegistration } from "@/actions/register/registerNewMember";
+import { formatDateForDatabase } from "@/utils/dateUtils";
 
 // Modern Registration Form Component
 function RegistrationForm({
@@ -46,16 +47,19 @@ function RegistrationForm({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+      <div className="text-center mb-2">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
           สร้างบัญชีใหม่
         </h1>
+        <p className="text-sm text-gray-600">
+          กรอกข้อมูลเพื่อสร้างบัญชีสมาชิกใหม่
+        </p>
       </div>
 
       {/* Form Fields */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {/* Username */}
         <div className="space-y-2">
           <Label
@@ -77,7 +81,7 @@ function RegistrationForm({
               onChange={(e) =>
                 handleInputChange("member_username", e.target.value)
               }
-              className={`pl-10 h-11 text-sm transition-all duration-200 ${
+              className={`pl-10 h-10 sm:h-11 text-sm transition-all duration-200 ${
                 errors.member_username
                   ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -86,7 +90,7 @@ function RegistrationForm({
             />
           </div>
           {errors.member_username && (
-            <p className="text-red-500 text-sm flex items-center gap-1">
+            <p className="text-red-500 text-xs sm:text-sm flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.member_username}
             </p>
@@ -110,7 +114,7 @@ function RegistrationForm({
               onChange={(e) =>
                 handleInputChange("member_email", e.target.value)
               }
-              className={`pl-10 h-11 text-sm transition-all duration-200 ${
+              className={`pl-10 h-10 sm:h-11 text-sm transition-all duration-200 ${
                 errors.member_email
                   ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -119,7 +123,7 @@ function RegistrationForm({
             />
           </div>
           {errors.member_email && (
-            <p className="text-red-500 text-sm flex items-center gap-1">
+            <p className="text-red-500 text-xs sm:text-sm flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.member_email}
             </p>
@@ -146,7 +150,7 @@ function RegistrationForm({
               onChange={(e) =>
                 handleInputChange("member_password", e.target.value)
               }
-              className={`pl-10 pr-12 h-11 text-sm transition-all duration-200 ${
+              className={`pl-10 pr-12 h-10 sm:h-11 text-sm transition-all duration-200 ${
                 errors.member_password
                   ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -166,7 +170,7 @@ function RegistrationForm({
             </button>
           </div>
           {errors.member_password && (
-            <p className="text-red-500 text-sm flex items-center gap-1">
+            <p className="text-red-500 text-xs sm:text-sm flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.member_password}
             </p>
@@ -193,7 +197,7 @@ function RegistrationForm({
               onChange={(e) =>
                 handleInputChange("member_confirm_password", e.target.value)
               }
-              className={`pl-10 pr-12 h-11 text-sm transition-all duration-200 ${
+              className={`pl-10 pr-12 h-10 sm:h-11 text-sm transition-all duration-200 ${
                 errors.member_confirm_password
                   ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -213,7 +217,7 @@ function RegistrationForm({
             </button>
           </div>
           {errors.member_confirm_password && (
-            <p className="text-red-500 text-sm flex items-center gap-1">
+            <p className="text-red-500 text-xs sm:text-sm flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.member_confirm_password}
             </p>
@@ -238,7 +242,7 @@ function RegistrationForm({
               onChange={(e) =>
                 handleInputChange("member_firstname", e.target.value)
               }
-              className={`h-11 text-sm transition-all duration-200 ${
+              className={`h-10 sm:h-11 text-sm transition-all duration-200 ${
                 errors.member_firstname
                   ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -246,7 +250,7 @@ function RegistrationForm({
               placeholder="ชื่อจริง"
             />
             {errors.member_firstname && (
-              <p className="text-red-500 text-sm flex items-center gap-1">
+              <p className="text-red-500 text-xs sm:text-sm flex items-center gap-1">
                 <AlertCircle className="h-4 w-4" />
                 {errors.member_firstname}
               </p>
@@ -269,7 +273,7 @@ function RegistrationForm({
               onChange={(e) =>
                 handleInputChange("member_lastname", e.target.value)
               }
-              className={`h-11 text-sm transition-all duration-200 ${
+              className={`h-10 sm:h-11 text-sm transition-all duration-200 ${
                 errors.member_lastname
                   ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -277,7 +281,7 @@ function RegistrationForm({
               placeholder="นามสกุล"
             />
             {errors.member_lastname && (
-              <p className="text-red-500 text-sm flex items-center gap-1">
+              <p className="text-red-500 text-xs sm:text-sm flex items-center gap-1">
                 <AlertCircle className="h-4 w-4" />
                 {errors.member_lastname}
               </p>
@@ -302,7 +306,7 @@ function RegistrationForm({
               onChange={(e) =>
                 handleInputChange("member_phone", e.target.value)
               }
-              className={`pl-10 h-11 text-sm transition-all duration-200 ${
+              className={`pl-10 h-10 sm:h-11 text-sm transition-all duration-200 ${
                 errors.member_phone
                   ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                   : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -311,7 +315,7 @@ function RegistrationForm({
             />
           </div>
           {errors.member_phone && (
-            <p className="text-red-500 text-sm flex items-center gap-1">
+            <p className="text-red-500 text-xs sm:text-sm flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.member_phone}
             </p>
@@ -336,7 +340,7 @@ function RegistrationForm({
             >
               <SelectTrigger
                 id="gender"
-                className={`h-11 text-sm ${
+                className={`h-10 sm:h-11 text-sm ${
                   errors.member_gender
                     ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                     : ""
@@ -350,7 +354,7 @@ function RegistrationForm({
               </SelectContent>
             </Select>
             {errors.member_gender && (
-              <p className="text-red-500 text-sm flex items-center gap-1">
+              <p className="text-red-500 text-xs sm:text-sm flex items-center gap-1">
                 <AlertCircle className="h-4 w-4" />
                 {errors.member_gender}
               </p>
@@ -362,7 +366,7 @@ function RegistrationForm({
             value={formData.member_dob ? new Date(formData.member_dob) : null}
             onChange={(date) => {
               const formattedDate = date
-                ? date.toISOString().split("T")[0]
+                ? formatDateForDatabase(date)
                 : null;
               handleInputChange("member_dob", formattedDate);
             }}
@@ -629,7 +633,7 @@ export default function RegisterForm() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 flex items-center justify-center py-4 px-4 sm:px-6 lg:px-8">
         {verifying ? (
           <div className="max-w-lg mx-auto">
             <Skeleton className="h-12 w-3/4 mb-4" />
@@ -668,8 +672,8 @@ export default function RegisterForm() {
         ) : (
           <div className="w-full max-w-lg mx-auto">
             {/* Registration Form */}
-            <Card className="p-6 sm:p-8 shadow-xl border border-gray-200 bg-white">
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <Card className="p-4 sm:p-6 lg:p-8 shadow-lg border border-gray-200 bg-white">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <RegistrationForm
                   formData={formData}
                   onChange={handleFormDataChange}
@@ -698,7 +702,7 @@ export default function RegisterForm() {
                   <Button
                     type="submit"
                     disabled={loading || !isFormValid()}
-                    className={`w-full h-11 text-sm font-medium transition-all duration-200 ${
+                    className={`w-full h-10 sm:h-11 text-sm font-medium transition-all duration-200 ${
                       isFormValid() && !loading
                         ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl"
                         : "bg-gray-400 cursor-not-allowed"
@@ -724,7 +728,7 @@ export default function RegisterForm() {
                     <span className="text-red-500">*</span> =
                     ฟิลด์ที่จำเป็นต้องกรอก
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
                     ข้อมูลส่วนตัวจะถูกใช้สำหรับการวางแผนออกกำลังกายและโภชนาการ
                   </p>
                 </div>

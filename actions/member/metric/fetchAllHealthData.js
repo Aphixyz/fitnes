@@ -1,6 +1,7 @@
 "use server";
 
 import pool from "@/lib/db";
+import { formatDateToLocalString } from "@/utils/dateUtils";
 
 /**
  * ดึงข้อมูลสุขภาพย้อนหลังตามช่วงที่เลือก (1 เดือน, 3 เดือน, 6 เดือน, 1 ปี, ทั้งหมด)
@@ -56,7 +57,7 @@ export async function fetchAllHealthData(memberId, period = "all") {
     measurement_date: rec.member_health_measurementdate
       ? typeof rec.member_health_measurementdate === "string"
         ? rec.member_health_measurementdate
-        : rec.member_health_measurementdate.toISOString().split("T")[0]
+        : formatDateToLocalString(rec.member_health_measurementdate)
       : null,
     weight: rec.member_health_weight,
     metrics: {

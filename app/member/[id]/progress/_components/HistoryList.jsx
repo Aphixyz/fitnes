@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { parseDateFromString } from "@/utils/dateUtils";
 
 const HistoryList = ({ data, unit, formatDate, memberId }) => {
   const router = useRouter();
@@ -20,7 +21,7 @@ const HistoryList = ({ data, unit, formatDate, memberId }) => {
   }
 
   const formatDateExtended = (dateString) => {
-    const date = new Date(dateString);
+    const date = parseDateFromString(dateString);
     const thaiMonths = [
       "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
       "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
@@ -41,7 +42,7 @@ const HistoryList = ({ data, unit, formatDate, memberId }) => {
   };
 
   // Sort data by date (newest first)
-  const sortedData = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sortedData = [...data].sort((a, b) => parseDateFromString(b.date) - parseDateFromString(a.date));
 
   const handleItemClick = (healthId) => {
     if (healthId && memberId) {

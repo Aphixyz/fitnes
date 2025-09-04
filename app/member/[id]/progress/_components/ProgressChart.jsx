@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatThaiDateShort } from "@/utils/dateUtils";
 
 const ProgressChart = ({ data, color = "#3B82F6", unit = "" }) => {
   const [selectedPoint, setSelectedPoint] = useState(null);
@@ -55,13 +56,7 @@ const ProgressChart = ({ data, color = "#3B82F6", unit = "" }) => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const thaiMonths = [
-      "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
-      "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
-    ];
-    
-    return `${date.getDate()} ${thaiMonths[date.getMonth()]}`;
+    return formatThaiDateShort(dateString);
   };
 
   const formatYAxisValue = (value) => {
