@@ -19,6 +19,7 @@ import DashboardHeaderWrapper from "./_components/DashboardHeaderWrapper";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { formatDateToLocalString } from "@/utils/dateUtils";
 import Link from "next/link";
 
 /**
@@ -74,8 +75,8 @@ export default async function DashboardPage({ params, searchParams }) {
       );
     }
 
-    // ดึงข้อมูล dashboard สำหรับวันที่ที่เลือก
-    const dateString = selectedDate.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+    // ดึงข้อมูล dashboard สำหรับวันที่ที่เลือก โดยใช้ local timezone
+    const dateString = formatDateToLocalString(selectedDate);
     const [
       dashboardData,
       statsData,

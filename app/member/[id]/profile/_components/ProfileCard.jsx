@@ -7,7 +7,8 @@ import {
   Dumbbell, 
   Apple, 
   Package, 
-  LogOut 
+  LogOut,
+  Image
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -43,6 +44,7 @@ export default function ProfileCard({
     "Apple": Apple,
     "Package": Package,
     "LogOut": LogOut,
+    "Image": Image,
   };
 
   const IconComponent = iconMap[iconName];

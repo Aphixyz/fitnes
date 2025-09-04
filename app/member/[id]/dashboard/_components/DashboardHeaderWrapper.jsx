@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback } from 'react';
+import { formatDateToLocalString } from '@/utils/dateUtils';
 import DashboardHeader from './DashboardHeader';
 
 /**
@@ -28,8 +29,8 @@ export default function DashboardHeaderWrapper({
     if (isToday) {
       params.delete('date');
     } else {
-      // เพิ่ม date parameter ในรูปแบบ YYYY-MM-DD
-      const dateString = newDate.toISOString().split('T')[0];
+      // เพิ่ม date parameter ในรูปแบบ YYYY-MM-DD โดยใช้ local timezone
+      const dateString = formatDateToLocalString(newDate);
       params.set('date', dateString);
     }
     

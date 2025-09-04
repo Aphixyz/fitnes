@@ -1,10 +1,10 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ChevronRight, Camera, User } from "lucide-react";
+import { ChevronRight, Camera } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { formatThaiDateShort } from "@/utils/dateUtils";
 
 /**
  * ProgressPhotoCard Component - แสดงภาพความก้าวหน้าล่าสุด
@@ -14,16 +14,11 @@ import Image from "next/image";
 export default function ProgressPhotoCard({ photoData, memberId }) {
   if (!photoData?.success || !photoData?.data) {
     return (
-      <Card className="w-full min-h-[200px]">
+      <Card className="w-full min-h-[200px] pt-6">
         <CardContent className="flex items-center justify-center py-8">
           <div className="text-center">
             <div className="text-4xl mb-2">📸</div>
             <p className="text-gray-500 text-sm">ยังไม่มีภาพความก้าวหน้า</p>
-            <Button size="sm" className="mt-4" asChild>
-              <Link href={`/member/${memberId}/health/photo`}>
-                เพิ่มภาพความก้าวหน้า
-              </Link>
-            </Button>
           </div>
         </CardContent>
       </Card>
@@ -32,18 +27,6 @@ export default function ProgressPhotoCard({ photoData, memberId }) {
 
   const progressData = photoData.data;
 
-  const formatThaiDate = (dateString) => {
-    if (!dateString) return '-';
-    
-    const date = new Date(dateString);
-    const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 
-                   'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-    
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = months[date.getMonth()];
-    
-    return `${month} ${day}`;
-  };
 
   // ตรวจสอบว่ามี front photo หรือไม่
   const hasFrontPhoto = progressData.photo_front;
@@ -62,8 +45,9 @@ export default function ProgressPhotoCard({ photoData, memberId }) {
   });
 
   return (
-    <Card className="w-full hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 overflow-hidden">
-      <CardContent className="p-0 relative">
+    <Link href={`/member/${memberId}/profile/progressphoto`}>
+      <Card className="w-full hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 overflow-hidden">
+        <CardContent className="p-0 relative">
         
         {/* Photo Section */}
         <div className="relative h-48 md:h-56 bg-gray-100">
@@ -98,7 +82,7 @@ export default function ProgressPhotoCard({ photoData, memberId }) {
           <div className="absolute bottom-3 left-3 text-white">
             {/* Date */}
             <div className="text-xs font-medium mb-1 drop-shadow-md">
-              {formatThaiDate(measurementDate)}
+              {formatThaiDateShort(measurementDate)}
             </div>
             
             {/* Weight */}
@@ -115,7 +99,8 @@ export default function ProgressPhotoCard({ photoData, memberId }) {
           </div>
         </div>
 
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

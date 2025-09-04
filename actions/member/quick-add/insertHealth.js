@@ -3,6 +3,7 @@
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import pool from "@/lib/db";
+import { formatDateForDatabase } from "@/utils/dateUtils";
 
 /**
  * บันทึกข้อมูลสุขภาพของสมาชิก (รวมน้ำหนัก, metric, รูปภาพ)
@@ -73,7 +74,7 @@ export async function insertHealth(data) {
     }
 
     // กำหนดวันที่ถ้าไม่ระบุ
-    const validDate = measurementDate || new Date().toISOString().split("T")[0];
+    const validDate = measurementDate || formatDateForDatabase();
 
     // ตรวจสอบรูปแบบวันที่
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -82,7 +83,7 @@ export async function insertHealth(data) {
     }
 
     // ตรวจสอบว่าวันที่อยู่ในอนาคตหรือไม่
-    const today = new Date().toISOString().split("T")[0];
+    const today = formatDateForDatabase();
     if (validDate > today) {
       throw new Error("ไม่สามารถบันทึกข้อมูลในอนาคตได้");
     }

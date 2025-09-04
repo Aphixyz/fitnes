@@ -307,3 +307,72 @@ export async function getHealthDataForComparison(
     );
   }
 }
+
+/**
+ * ลบรูปภาพเฉพาะฟิลด์จากข้อมูลสุขภาพของสมาชิก
+ * @param {number} healthId - รหัสข้อมูลสุขภาพ
+ * @param {number} memberId - รหัสสมาชิก (สำหรับความปลอดภัย)
+ * @param {string} photoField - ฟิลด์รูปภาพที่ต้องการลบ ('photo_front', 'photo_side', 'photo_back')
+ * @returns {Promise<Object>} ผลลัพธ์การลบ
+ */
+export async function deleteHealthPhoto(healthId, memberId, photoField) {
+  try {
+    // ตรวจสอบข้อมูลที่จำเป็น
+    if (!healthId || !memberId || !photoField) {
+      throw new Error("กรุณาระบุรหัสข้อมูลสุขภาพ รหัสสมาชิก และฟิลด์รูปภาพ");
+    }
+
+    // ตรวจสอบว่าฟิลด์รูปภาพถูกต้อง
+    const validPhotoFields = ['photo_front', 'photo_side', 'photo_back'];
+    if (!validPhotoFields.includes(photoField)) {
+      throw new Error("ฟิลด์รูปภาพไม่ถูกต้อง");
+    }
+
+    // ตรวจสอบว่าข้อมูลสุขภาพนี้เป็นของสมาชิกที่ระบุ
+    const [checkRows] = await pool.query(
+      `SELECT member_health_id, ${photoField} FROM member_health 
+       WHERE member_health_id = ? AND member_id = ?`,
+      [healthId, memberId]
+    );
+
+    if (checkRows.length === 0) {
+      throw new Error("ไม่พบข้อมูลสุขภาพที่ต้องการ หรือคุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้");
+    }
+
+    // ตรวจสอบว่ามีรูปภาพในฟิลด์นี้หรือไม่
+    const currentPhoto = checkRows[0][photoField];
+    if (!currentPhoto) {
+      return {
+        success: true,
+        message: "ไม่มีรูปภาพในฟิลด์นี้อยู่แล้ว",
+        alreadyEmpty: true
+      };
+    }
+
+    // ลบรูปภาพโดยการตั้งค่าฟิลด์เป็น NULL
+    const [result] = await pool.query(
+      `UPDATE member_health 
+       SET ${photoField} = NULL 
+       WHERE member_health_id = ? AND member_id = ?`,
+      [healthId, memberId]
+    );
+
+    // ตรวจสอบผลลัพธ์
+    if (result.affectedRows === 0) {
+      throw new Error("ไม่สามารถลบรูปภาพได้");
+    }
+
+    return {
+      success: true,
+      affectedRows: result.affectedRows,
+      deletedPhoto: currentPhoto,
+      message: `ลบรูปภาพ${photoField === 'photo_front' ? 'หน้า' : photoField === 'photo_side' ? 'ข้าง' : 'หลัง'}เรียบร้อยแล้ว`,
+    };
+  } catch (error) {
+    console.error("Error deleting health photo:", error);
+    return {
+      success: false,
+      error: error.message || "ไม่สามารถลบรูปภาพได้"
+    };
+  }
+}

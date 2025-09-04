@@ -144,6 +144,14 @@ export default async function ProfilePage({ params }) {
             href={`/member/${id}/profile/nutrition`}
           />
 
+          {/* Progress Photo Card */}
+          <ProfileCard
+            title="รูปภาพความคืบหน้า"
+            subtitle="ดูรูปภาพความคืบหน้าของคุณ"
+            iconName="Image"
+            href={`/member/${id}/profile/progressphoto`}
+          />
+
           {/* My Package & Trainer Card */}
           <ProfileCard
             title="แพ็คเกจ & เทรนเนอร์ของฉัน"

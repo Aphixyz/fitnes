@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { formatThaiDateShort } from "@/utils/dateUtils";
 
 /**
  * HealthMetricsCards Component - แสดงข้อมูลสุขภาพต่างๆ
@@ -61,19 +62,6 @@ export default function HealthMetricsCards({ healthData, memberId }) {
 
   const healthMetrics = healthData.data;
 
-  // ฟังก์ชันจัดรูปแบบวันที่เป็นภาษาไทยแบบย่อ
-  const formatThaiDate = (dateString) => {
-    if (!dateString) return '-';
-    
-    const date = new Date(dateString);
-    const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 
-                   'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-    
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = months[date.getMonth()];
-    
-    return `${month} ${day}`;
-  };
 
   // ข้อมูลการ์ดสุขภาพ - แต่ละ metric มีค่าและวันที่แยกกัน
   const healthCards = [
@@ -197,7 +185,7 @@ export default function HealthMetricsCards({ healthData, memberId }) {
                   {/* Date */}
                   <div className="text-right">
                     <div className="text-sm font-medium text-gray-500">
-                      {card.date ? formatThaiDate(card.date) : '-'}
+                      {card.date ? formatThaiDateShort(card.date) : '-'}
                     </div>
                   </div>
                   
