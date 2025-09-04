@@ -44,7 +44,7 @@ export default function TrainerAddPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 py-8">
+    <div className="min-h-screen bg-white py-8">
       <div className="max-w-4xl mx-auto p-6 ">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
