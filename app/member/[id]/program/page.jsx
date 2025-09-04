@@ -115,7 +115,7 @@ const ProgramPage = async ({ params }) => {
           {/* Workout Plan Section */}
           <div className="space-y-3">
             <div className="px-1">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900">
                 แผนฝึกออกกำลังกาย
               </h2>
             </div>
@@ -129,7 +129,7 @@ const ProgramPage = async ({ params }) => {
           {/* Nutrition Plan Section */}
           <div className="space-y-3">
             <div className="px-1">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-gray-900">
                 แผนโภชนาการรายสัปดาห์
               </h2>
             </div>

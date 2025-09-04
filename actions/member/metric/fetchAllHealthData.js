@@ -3,9 +3,9 @@
 import pool from "@/lib/db";
 
 /**
- * ดึงข้อมูลสุขภาพย้อนหลังตามช่วงที่เลือก (3 เดือน, 6 เดือน, ทั้งหมด)
+ * ดึงข้อมูลสุขภาพย้อนหลังตามช่วงที่เลือก (1 เดือน, 3 เดือน, 6 เดือน, 1 ปี, ทั้งหมด)
  * @param {number} memberId - รหัสสมาชิก
- * @param {string} period - '3m' | '6m' | 'all' (ช่วงเวลา)
+ * @param {string} period - '1m' | '3m' | '6m' | '1y' | 'all' (ช่วงเวลา)
  * @returns {Promise<Array>} array ของข้อมูลวัดผลแต่ละรายการ
  */
 export async function fetchAllHealthData(memberId, period = "all") {
@@ -13,12 +13,18 @@ export async function fetchAllHealthData(memberId, period = "all") {
 
   // กำหนดช่วงเวลา
   let dateCondition = "";
-  if (period === "3m") {
+  if (period === "1m") {
+    dateCondition =
+      "AND member_health_measurementdate >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
+  } else if (period === "3m") {
     dateCondition =
       "AND member_health_measurementdate >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)";
   } else if (period === "6m") {
     dateCondition =
       "AND member_health_measurementdate >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)";
+  } else if (period === "1y") {
+    dateCondition =
+      "AND member_health_measurementdate >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
   } // 'all' ไม่ต้องใส่เงื่อนไข
 
   // Query

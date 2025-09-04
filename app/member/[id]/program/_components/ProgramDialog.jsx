@@ -1,22 +1,40 @@
 "use client";
 
+import { useState } from "react";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
+  DrawerFooter,
 } from "@/components/ui/drawer";
 import ExerciseList from "@/app/member/components/workout/ExerciseList";
 import exercisesData from "@/data/exercises.json";
+import WorkoutLoggingModal from "@/app/member/[id]/quick-add/workout-log/_components/WorkoutLoggingModal";
+import { ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /**
  * ProgramDialog - Client Component
  * แสดงรายละเอียด program และ exercise list ในรูปแบบ drawer สำหรับ mobile
  */
-const ProgramDialog = ({ program, programIndex, isOpen, onClose }) => {
+const ProgramDialog = ({ program, programIndex, isOpen, onClose, workoutPlan }) => {
+  // State สำหรับ WorkoutLoggingModal
+  const [isLoggingModalOpen, setIsLoggingModalOpen] = useState(false);
+
   // ฟังก์ชันหา meta จาก exercises.json
   const getMeta = (exerciseId) => {
     return exercisesData.find((ex) => ex.id === exerciseId) || {};
+  };
+
+  // ฟังก์ชันเปิด Workout Logging Modal
+  const handleOpenLoggingModal = () => {
+    setIsLoggingModalOpen(true);
+  };
+
+  // ฟังก์ชันปิด Workout Logging Modal
+  const handleCloseLoggingModal = () => {
+    setIsLoggingModalOpen(false);
   };
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
@@ -61,7 +79,10 @@ const ProgramDialog = ({ program, programIndex, isOpen, onClose }) => {
                 {program.exercises.map((exercise, index) => {
                   const meta = getMeta(exercise.exercise_id);
                   return (
-                    <div key={exercise.exercise_id || index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                    <div 
+                      key={exercise.exercise_id || index} 
+                      className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                    >
                       <div className="flex items-center gap-3">
                         {/* Exercise Image */}
                         <div className="flex-shrink-0">
@@ -133,6 +154,7 @@ const ProgramDialog = ({ program, programIndex, isOpen, onClose }) => {
                             </div>
                           )}
                         </div>
+
                       </div>
                     </div>
                   );
@@ -141,7 +163,25 @@ const ProgramDialog = ({ program, programIndex, isOpen, onClose }) => {
             </div>
           )}
         </div>
+
+        {/* Footer with Start Workout Button */}
+        <DrawerFooter className="border-t border-gray-200 bg-white p-4">
+          <Button 
+            onClick={handleOpenLoggingModal}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 text-base"
+          >
+            เริ่มออกกำลังกาย
+          </Button>
+        </DrawerFooter>
       </DrawerContent>
+
+      {/* Workout Logging Modal */}
+      <WorkoutLoggingModal
+        isOpen={isLoggingModalOpen}
+        onClose={handleCloseLoggingModal}
+        program={program}
+        workoutPlan={workoutPlan}
+      />
     </Drawer>
   );
 };

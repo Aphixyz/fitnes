@@ -12,6 +12,7 @@ import {
   Dumbbell
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 /**
  * HealthMetricsCards Component - แสดงข้อมูลสุขภาพต่างๆ
@@ -19,6 +20,25 @@ import Link from "next/link";
  * @param {number} memberId - รหัสสมาชิก
  */
 export default function HealthMetricsCards({ healthData, memberId }) {
+  const router = useRouter();
+
+  // Category mapping from HealthMetricsCards to ProgressPage categories
+  const categoryMapping = {
+    'bodyweight': 'weight',
+    'bodyfat': 'bodyfat',
+    'chest': 'chest',
+    'waist': 'waist',
+    'hip': 'hip',
+    'arm': 'arm',
+    'thigh': 'thigh'
+  };
+
+  const handleCardClick = (cardId) => {
+    const progressCategory = categoryMapping[cardId];
+    if (progressCategory) {
+      router.push(`/member/${memberId}/progress?category=${progressCategory}`);
+    }
+  };
   if (!healthData?.success || !healthData?.data) {
     return (
       <div className="space-y-3">
@@ -141,6 +161,7 @@ export default function HealthMetricsCards({ healthData, memberId }) {
           <Card 
             key={card.id}
             className="w-full hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200"
+            onClick={() => handleCardClick(card.id)}
           >
             <CardContent className="p-3">
               <div className="flex items-center justify-between">

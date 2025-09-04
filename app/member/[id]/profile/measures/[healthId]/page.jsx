@@ -1,6 +1,7 @@
 import { fetchHealthId } from "@/actions/member/metric/fetchHealthId";
 import { isActiveSubscription } from "@/actions/member/isActiveSubscription";
 import EditHealthForm from "./_components/EditHealthForm";
+import EditHealthPageClient from "./_components/EditHealthPageClient";
 
 /**
  * Server Component สำหรับหน้าแก้ไขข้อมูลสุขภาพ
@@ -75,14 +76,10 @@ export default async function EditHealthPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-4xl mx-auto">
-        <EditHealthForm
-          memberId={memberId}
-          healthData={healthData}
-          healthRecordId={healthRecordId}
-        />
-      </div>
-    </div>
+    <EditHealthPageClient
+      memberId={memberId}
+      healthData={healthData}
+      healthRecordId={healthRecordId}
+    />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, forwardRef, useImperativeHandle, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Upload, X, Eye, EyeOff } from "lucide-react";
 import { updateHealth } from "@/actions/member/metric/updateHealth";
@@ -46,6 +46,9 @@ function InlineEditableField({
         console.error("Invalid date value:", value);
         setEditValue(""); // ตั้งเป็นค่าว่างถ้าวันที่ไม่ถูกต้อง
       }
+    } else if (type === "number" && value && !isNaN(value)) {
+      // สำหรับตัวเลข ให้ปัดเศษทศนิยมก่อนแก้ไข
+      setEditValue(Math.round(parseFloat(value)).toString());
     } else {
       setEditValue(value ?? "");
     }
@@ -54,14 +57,14 @@ function InlineEditableField({
 
   return (
     <div
-      className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50"
+      className="flex items-center justify-between px-4 py-6 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0"
       onClick={!isEditing ? handleSpanClick : undefined}
     >
-      <span className="text-gray-700 whitespace-nowrap">{label}</span>
+      <span className="text-gray-800 font-medium text-sm whitespace-nowrap">{label}</span>
       {isEditing ? (
         <input
           type={type}
-          className="w-36 text-right bg-transparent border-none focus:outline-none"
+          className="w-30 text-right bg-blue-50 border border-blue-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleSave}
@@ -73,19 +76,40 @@ function InlineEditableField({
           autoFocus
         />
       ) : (
-        <span className="text-gray-900">
-          {format ? format(value) : value ?? "-"}
+        <span className={`text-sm font-semibold ${
+          value === null || value === undefined || value === '' 
+            ? 'text-gray-400' 
+            : 'text-gray-900'
+        }`}>
+          {(() => {
+            if (value === null || value === undefined || value === '') {
+              return '-';
+            }
+            
+            if (format) {
+              return format(value);
+            }
+            
+            // ถ้าเป็นตัวเลข ให้ปัดเศษทศนิยม
+            if (type === 'number' && !isNaN(value)) {
+              return Math.round(parseFloat(value)).toString();
+            }
+            
+            return value;
+          })()}
         </span>
       )}
     </div>
   );
 }
 
-export default function EditHealthForm({
+const EditHealthForm = forwardRef(function EditHealthForm({
   memberId,
   healthData,
   healthRecordId,
-}) {
+  onLoadingChange,
+  hideDefaultButtons = false,
+}, ref) {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -123,6 +147,23 @@ export default function EditHealthForm({
     back: true,
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  // Expose handleSubmit to parent component via ref
+  useImperativeHandle(ref, () => ({
+    handleSubmit: () => {
+      const form = document.getElementById('edit-health-form');
+      if (form) {
+        form.requestSubmit();
+      }
+    }
+  }));
+
+  // Notify parent of loading state changes
+  useEffect(() => {
+    if (onLoadingChange) {
+      onLoadingChange(isLoading);
+    }
+  }, [isLoading, onLoadingChange]);
   const fileRefs = {
     front: useRef(null),
     side: useRef(null),
@@ -164,6 +205,8 @@ export default function EditHealthForm({
         hip: formData.hip ? parseFloat(formData.hip) : undefined,
         arm: formData.arm ? parseFloat(formData.arm) : undefined,
         thigh: formData.thigh ? parseFloat(formData.thigh) : undefined,
+        // ส่งวันที่วัด
+        measurementDate: measurementDate || undefined,
         // ส่ง flag สำหรับลบรูป
         removePhotoFront: removedPhotos.front,
         removePhotoSide: removedPhotos.side,
@@ -177,7 +220,7 @@ export default function EditHealthForm({
           description: result.message,
           variant: "default",
         });
-        router.push(`/member/${memberId}/progress/measures`);
+        router.push(`/member/${memberId}/progress`);
       }
     } catch (error) {
       console.error(error);
@@ -191,44 +234,12 @@ export default function EditHealthForm({
     }
   };
 
-  // renderPhotoSection: แสดงปุ่ม X เฉพาะ original photo ที่ยังไม่ถูกลบ
-  const renderPhotoSection = (type, label) => {
-    const hasOriginal = healthData.photos[type] && !removedPhotos[type];
-    return (
-      <div className="flex-shrink-0 space-y-2">
-        <Label className="font-medium">{label}</Label>
-        {hasOriginal ? (
-          <div className="relative h-48 w-auto">
-            <img
-              src={healthData.photos[type]}
-              alt={label}
-              className="h-full w-auto object-contain rounded-lg border"
-            />
-            <Button
-              type="button"
-              variant="destructive"
-              size="icon"
-              className="absolute top-1 right-1 h-6 w-6 rounded-full"
-              onClick={() => removePhoto(type)}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        ) : (
-          <div className="h-48 w-36 border-2 border-dashed rounded-lg flex items-center justify-center text-gray-400">
-            <span>ไม่มีรูป</span>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id="edit-health-form" onSubmit={handleSubmit} className=" w-full">
         {/* inline fields */}
 
-        <div className="bg-white rounded-lg shadow divide-y divide-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <InlineEditableField
             label="วันที่"
             value={measurementDate}
@@ -239,12 +250,6 @@ export default function EditHealthForm({
           />
           {/* รูปภาพ */}
           <div>
-            <div className="px-4 py-3 font-medium">รูปภาพความคืบหน้า</div>
-            <div className="p-4 flex space-x-4 overflow-x-auto">
-              {renderPhotoSection("front", "รูปด้านหน้า")}
-              {renderPhotoSection("side", "รูปด้านข้าง")}
-              {renderPhotoSection("back", "รูปด้านหลัง")}
-            </div>
 
             <InlineEditableField
               label="น้ำหนัก (กก.)"
@@ -314,26 +319,30 @@ export default function EditHealthForm({
           </div>
         </div>
 
-        {/* ปุ่มบันทึก */}
-        <div className="flex justify-end gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.back()}
-            disabled={isLoading}
-          >
-            ยกเลิก
-          </Button>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="flex items-center gap-2"
-          >
-            <Save className="w-4 h-4" />
-            {isLoading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
-          </Button>
-        </div>
+        {/* ปุ่มบันทึก - แสดงเฉพาะเมื่อไม่ได้ซ่อน */}
+        {!hideDefaultButtons && (
+          <div className="flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              disabled={isLoading}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              {isLoading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+            </Button>
+          </div>
+        )}
       </form>
     </div>
   );
-}
+});
+
+export default EditHealthForm;
