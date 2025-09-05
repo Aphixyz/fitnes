@@ -11,7 +11,7 @@ import { getOnboardingStatus } from "@/actions/member/onboarding/onboarding";
 export default function OnboardingPage() {
   const params = useParams();
   const router = useRouter();
-  const memberId = params.id;
+  const memberId = params.memberId; // เปลี่ยนจาก params.id เป็น params.memberId
   
 
   const [loading, setLoading] = useState(true);
@@ -53,10 +53,10 @@ export default function OnboardingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="flex flex-col items-center space-y-4">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-          <p className="text-gray-600">กำลังตรวจสอบสถานะ...</p>
+          <p className="text-gray-600 text-center">กำลังตรวจสอบสถานะ...</p>
         </div>
       </div>
     );
@@ -64,10 +64,10 @@ export default function OnboardingPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="max-w-md mx-auto p-8">
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <Card className="w-full max-w-md mx-auto p-6">
           <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription className="text-center">{error}</AlertDescription>
           </Alert>
         </Card>
       </div>
@@ -75,16 +75,14 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen ">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-
-          {/* Onboarding Wizard */}
-          <OnboardingWizard
-            memberId={memberId}
-            onboardingStatus={onboardingStatus}
-          />
-        </div>
+    <div className="min-h-screen">
+      {/* Mobile-first design - ไม่ต้องมี container wrapper */}
+      <div className="w-full">
+        {/* Onboarding Wizard - ให้ component จัดการ responsive เอง */}
+        <OnboardingWizard
+          memberId={memberId}
+          onboardingStatus={onboardingStatus}
+        />
       </div>
     </div>
   );

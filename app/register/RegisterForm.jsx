@@ -365,9 +365,7 @@ function RegistrationForm({
           <DobPicker
             value={formData.member_dob ? new Date(formData.member_dob) : null}
             onChange={(date) => {
-              const formattedDate = date
-                ? formatDateForDatabase(date)
-                : null;
+              const formattedDate = date ? formatDateForDatabase(date) : null;
               handleInputChange("member_dob", formattedDate);
             }}
             error={errors.member_dob}
@@ -617,8 +615,8 @@ export default function RegisterForm() {
       const result = await createMemberAndRegistration(formData, token);
 
       if (result.success) {
-        // Success - redirect to package selection
-        router.push(`/member/${result.member_id}/onboarding`);
+        // Success - redirect to onboarding (path ใหม่)
+        router.push(`/member/onboarding/${result.member_id}`);
       } else {
         setFormErrors({ submit: result.message });
       }
@@ -704,7 +702,7 @@ export default function RegisterForm() {
                     disabled={loading || !isFormValid()}
                     className={`w-full h-10 sm:h-11 text-sm font-medium transition-all duration-200 ${
                       isFormValid() && !loading
-                        ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl"
+                        ? "bg-gradient-to-r bg-green-600 text-white shadow-md hover:shadow-xl"
                         : "bg-gray-400 cursor-not-allowed"
                     }`}
                   >

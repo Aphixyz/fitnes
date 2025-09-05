@@ -10,7 +10,7 @@ import { fetchWorkoutProgramsForDashboard } from "@/actions/member/dashboard/fet
 import { fetchLatestHealthMetrics } from "@/actions/member/dashboard/fetchHealthMetrics";
 import { fetchLatestProgressPhotos } from "@/actions/member/dashboard/fetchProgressPhotos";
 import { getOnboardingStatus } from "@/actions/member/onboarding/onboarding";
-import OnboardingWizard from "../onboarding/_components/OnboardingWizard";
+import OnboardingWizard from "@/app/member/onboarding/[memberId]/_components/OnboardingWizard";
 import DailyNutritionDisplay from "./_components/DailyNutritionDisplay";
 import WorkoutProgramCard from "./_components/WorkoutProgramCard";
 import HealthMetricsCards from "./_components/HealthMetricsCards";
@@ -51,29 +51,12 @@ export default async function DashboardPage({ params, searchParams }) {
   try {
     // ตรวจสอบสถานะ onboarding ก่อน
     const onboardingStatus = await getOnboardingStatus(memberId);
+    console.log("🔍 Onboarding Status Debug:", {
+      memberId,
+      onboardingStatus
+    });
 
-    // ถ้ายังไม่ทำ onboarding ให้แสดง OnboardingWizard
-    if (onboardingStatus.success && !onboardingStatus.completed_onboarding) {
-      return (
-        <div className="min-h-screen bg-gray-50 py-8">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                ยินดีต้อนรับสู่ FitTrack! 🎉
-              </h1>
-              <p className="text-gray-600">
-                เริ่มต้นการเดินทางสู่สุขภาพที่ดีกับเรา
-              </p>
-            </div>
 
-            <OnboardingWizard
-              memberId={memberId}
-              onboardingStatus={onboardingStatus}
-            />
-          </div>
-        </div>
-      );
-    }
 
     // ดึงข้อมูล dashboard สำหรับวันที่ที่เลือก โดยใช้ local timezone
     const dateString = formatDateToLocalString(selectedDate);
@@ -119,18 +102,6 @@ export default async function DashboardPage({ params, searchParams }) {
                     <Link href={`/member/${memberId}/onboarding`}>
                       ทำ Onboarding ใหม่
                     </Link>
-                  </Button>
-                </div>
-                <div>
-                  <Button asChild variant="outline">
-                    <Link href={`/member/${memberId}/profile`}>
-                      อัพเดทข้อมูลส่วนตัว
-                    </Link>
-                  </Button>
-                </div>
-                <div>
-                  <Button asChild variant="outline">
-                    <Link href="/contact">ติดต่อเทรนเนอร์</Link>
                   </Button>
                 </div>
               </div>

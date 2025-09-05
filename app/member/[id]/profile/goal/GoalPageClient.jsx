@@ -55,9 +55,10 @@ const EXPERIENCE_LEVELS = [
 ];
 
 const TRAINING_FREQUENCIES = [
-  { value: 0, label: "1-3 วัน/สัปดาห์" },
-  { value: 1, label: "4-6 วัน/สัปดาห์" },
-  { value: 2, label: "7+ วัน/สัปดาห์" },
+  { value: 0, label: "ไม่ค่อยออกกำลังกาย" },
+  { value: 1, label: "1-3 วัน/สัปดาห์" },
+  { value: 2, label: "4-6 วัน/สัปดาห์" },
+  { value: 3, label: "มากกว่า 5 วัน/สัปดาห์" },
 ];
 
 const TRAINING_TIMES = [
