@@ -99,6 +99,7 @@ const PlanActionsMenu = ({
 }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleStatusToggle = async () => {
     setIsProcessing(true);
@@ -120,16 +121,21 @@ const PlanActionsMenu = ({
     }
   };
 
+  const handleEditClick = () => {
+    setIsDropdownOpen(false); // ปิด dropdown ก่อนเปิด sheet
+    onEditClick(plan);
+  };
+
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => onEditClick(plan)}>
+          <DropdownMenuItem onClick={handleEditClick}>
             <Edit className="mr-2 h-4 w-4" />
             แก้ไข
           </DropdownMenuItem>
@@ -189,16 +195,9 @@ const PlanActionsMenu = ({
 const PlanListItem = ({ plan, onEditClick, onDeleteClick, onStatusChange }) => {
   return (
     <div className="flex items-center justify-between py-4 border-b last:border-b-0">
-      {/* Plan Name */}
-      <div className="flex-1 min-w-0">
-        <div className="font-medium text-sm">
-          แผนโภชนาการ #{plan.macro_plan_id}
-        </div>
-      </div>
-      
       {/* Calorie Target */}
       <div className="flex-1 min-w-0">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm font-medium">
           {plan.calorie_target ? `${plan.calorie_target} kcal` : 'ไม่ระบุ'}
         </div>
       </div>
@@ -245,8 +244,7 @@ const PlansList = ({ plans, onEditClick, onDeleteClick, onStatusChange }) => {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between py-3 px-1 border-b text-xs font-medium text-gray-500 uppercase tracking-wider">
-        <div className="flex-1">แผนโภชนาการ</div>
-        <div className="flex-1">เป้าหมายแคลอรี่</div>
+        <div className="flex-1">แผนเป้าหมายแคลอรี่</div>
         <div className="flex-1">ขนาด</div>
         <div className="flex-1">วันที่เริ่ม</div>
         <div className="flex-1">สถานะ</div>

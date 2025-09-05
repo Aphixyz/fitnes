@@ -139,53 +139,27 @@ const ProgressCharts = ({ data }) => {
           </CardContent>
         </Card>
 
-        {/* Duration Progress */}
-        {/* <Card>
+        {/* Weekly Frequency Chart */}
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              Duration Progress (นาที)
-            </CardTitle>
+            <CardTitle className="text-lg">Weekly Workout Frequency</CardTitle>
+            <p className="text-sm text-gray-600">
+              จำนวนครั้งการออกกำลังกายในแต่ละสัปดาห์
+            </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={volumeData}>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={weeklyData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 10 }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={50}
-                />
-                <YAxis tick={{ fontSize: 10 }} />
+                <XAxis dataKey="week" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="duration" fill="#f59e0b" />
+                <Bar dataKey="sessions" fill="#8b5cf6" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
-        </Card> */}
+        </Card>
       </div>
-
-      {/* Weekly Frequency Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Weekly Workout Frequency</CardTitle>
-          <p className="text-sm text-gray-600">
-            จำนวนครั้งการออกกำลังกายในแต่ละสัปดาห์
-          </p>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={weeklyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="week" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="sessions" fill="#8b5cf6" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
 
     </div>
   );
