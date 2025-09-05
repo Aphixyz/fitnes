@@ -21,7 +21,7 @@ export default function TrainerPage() {
   const [error, setError] = useState(null);
   const [isSearchActive, setIsSearchActive] = useState(false);
 
-  // โหลดข้อมูลทั้งหมด (สำหรับ search)
+  // โหลดข้อมูลทั้งหมด สำหรับ search
   useEffect(() => {
     const fetchAllTrainers = async () => {
       try {
@@ -34,7 +34,7 @@ export default function TrainerPage() {
     fetchAllTrainers();
   }, []);
 
-  // โหลดข้อมูลแบบ pagination
+  // โหลดข้อมูลแบบ paginated (ใช้เมื่อ search ไม่ active)
   useEffect(() => {
     if (isSearchActive) return;
 
@@ -59,18 +59,19 @@ export default function TrainerPage() {
   // ฟังก์ชัน search
   const handleSearchTermChange = (term) => {
     setIsSearchActive(term.length > 0);
+
     if (term.length === 0) {
       setFilteredTrainers([]);
       setCurrentPage(1);
       return;
     }
 
-    const lowercasedTerm = term.toLowerCase();
+    const lowerTerm = term.toLowerCase();
     const filtered = allTrainers.filter(trainer =>
       ["trainer_firstname", "trainer_lastname", "trainer_id"].some(field => {
         const value = trainer[field];
         if (!value) return false;
-        return value.toString().toLowerCase().includes(lowercasedTerm);
+        return value.toString().toLowerCase().includes(lowerTerm);
       })
     );
     setFilteredTrainers(filtered);
@@ -92,8 +93,9 @@ export default function TrainerPage() {
 
   return (
     <div className="py-4 px-6">
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-        <div className="w-full md:w-auto flex justify-center md:justify-end">
+        <div className="w-full md:w-auto flex justify-center md:justify-end mb-2 md:mb-0">
           <SearchFilter
             data={allTrainers}
             onFilter={setFilteredTrainers}
@@ -110,6 +112,7 @@ export default function TrainerPage() {
         <ManageUser route="/admin/trainers/manage" />
       </div>
 
+      {/* Filter */}
       <div className="w-full md:w-auto flex justify-center md:justify-end mb-4">
         <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
           <span>กรองตามสถานะ:</span>
@@ -124,6 +127,7 @@ export default function TrainerPage() {
 
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
+      {/* Table */}
       {loading ? (
         <LoadingSpinner message="กำลังโหลดข้อมูลผู้ฝึกสอน" />
       ) : (
@@ -133,8 +137,10 @@ export default function TrainerPage() {
             sortField={sortField}
             sortOrder={sortOrder}
             handleSortChange={handleSortChange}
-            showActions={true} // ปุ่ม delete/แก้ไข
+            showActions={false} // ไม่แสดงปุ่มแก้ไข/ลบ
           />
+
+          {/* Pagination */}
           {!isSearchActive && (
             <Pagination
               currentPage={currentPage}
