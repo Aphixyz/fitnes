@@ -134,7 +134,7 @@ export default function Page() {
             >
               <option value="">แสดงทั้งหมด</option>
               <option value="active">ใช้งาน</option>
-              <option value="inactive">ไม่ได้ใช้งาน</option>
+              <option value="inactive">หมดอายุ</option>
               <option value="pending">กำลังรอดำเนินการ</option>
             </select>
           </label>

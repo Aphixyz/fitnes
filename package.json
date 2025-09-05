@@ -53,6 +53,7 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.54.2",
+    "react-hot-toast": "^2.6.0",
     "react-switch": "^7.1.0",
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.4",

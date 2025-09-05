@@ -45,14 +45,17 @@ export default function PackageListPage() {
         {/* <div className="absolute left-4 top-1/2 -translate-y-1/2">
           <BackButton />
         </div> */}
-        <h1 className="text-xl sm:text-2xl font-bold text-center">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-center tracking-tight text-gray-800 mb-2 drop-shadow-sm">
           รายการแพ็คเกจทั้งหมด
         </h1>
         <div className="flex justify-end mt-4">
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            className="flex items-center gap-3 px-3 py-3 rounded-full bg-blue-600 text-white font-extrabold text-lg shadow-lg hover:bg-blue-700 hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
             onClick={() => router.push("/admin/packages/addPackages")}
           >
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-800/80 border border-blue-200">
+              <svg className="w-6 h-6" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2.5" fill="none"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v8m4-4H8"/></svg>
+            </span>
             เพิ่มแพ็คเกจ
           </button>
         </div>
@@ -67,33 +70,36 @@ export default function PackageListPage() {
       ) : packages.length === 0 ? (
         <p className="text-muted-foreground">ไม่พบข้อมูลแพ็คเกจ</p>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {packages.map((pkg) => (
-            <Card key={pkg.packages_id}>
-              <CardHeader className="flex flex-row justify-between items-center">
-                <CardTitle>{pkg.packages_name}</CardTitle>
+            <Card
+              key={pkg.packages_id}
+              className="border border-blue-100 shadow-lg hover:shadow-xl hover:border-blue-300 transition-all duration-300 rounded-xl bg-white/90 backdrop-blur-sm"
+            >
+              <CardHeader className="flex flex-row justify-between items-center pb-2">
+                <CardTitle className="text-lg font-bold text-blue-700 flex-1 truncate">
+                  {pkg.packages_name}
+                </CardTitle>
                 <button
-                  className="text-red-600 hover:underline hover:bg-red-50 px-2 py-1 rounded text-sm transition"
+                  className="text-red-500 hover:bg-red-100 p-2 rounded-full transition-colors"
                   onClick={() => handleDelete(pkg.packages_id)}
                   title="ลบแพ็คเกจ"
                 >
-                  ลบ
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <p>
-                  <strong>ระยะเวลา: </strong> {pkg.packages_duration_months}{" "}
-                  เดือน
-                </p>
-                <p>
-                  <strong>ราคา: </strong>
-                  <span className="text-green-500">
+              <CardContent className="space-y-3 pt-0">
+                <div className="flex items-center gap-2 text-gray-700">
+                  <span className="inline-block bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs font-medium">
+                    ระยะเวลา {pkg.packages_duration_months} เดือน
+                  </span>
+                  <span className="inline-block bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs font-medium">
                     ฿{Number(pkg.packages_price).toLocaleString()}
                   </span>
-                </p>
-                <p>
-                  <strong>รายละเอียด: </strong> {pkg.packages_description}
-                </p>
+                </div>
+                <div className="text-gray-600 text-sm min-h-[40px]">
+                  {pkg.packages_description}
+                </div>
               </CardContent>
             </Card>
           ))}

@@ -17,6 +17,7 @@ import Edit from "@/components/button/Edit";
 import Delete from "@/components/button/Delete";
 import Pagination from "./common/Paginate";
 import { Skeleton } from "@/components/ui/skeleton";
+import DeleteTrainerButton from "./common/DeleteTrainerButton";
 
 // ฟังก์ชัน debounce แบบกำหนดเอง
 function customDebounce(func, wait) {
@@ -68,6 +69,7 @@ export default function TrainerTable({
   sortField,
   sortOrder,
   handleSortChange,
+  perPage = 10,
 }) {
   const [isPending, startTransition] = useTransition();
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,24 +87,25 @@ export default function TrainerTable({
     fetchData();
   }, [trainers]);
 
-  const handleDelete = (id) => {
-    if (confirm("ยืนยันการลบ?")) {
-      setIsLoading(true);
-      startTransition(async () => {
-        const success = await deleteTrainer(id);
-        if (success) {
-          setLocalTrainers((prevTrainers) =>
-            prevTrainers.filter((trainer) => trainer.trainer_id !== id)
-          );
-          alert("ลบสำเร็จ ✅");
-          router.refresh();
-        } else {
-          alert("เกิดข้อผิดพลาดในการลบ ❌");
-        }
-        setIsLoading(false);
-      });
-    }
-  };
+  // const handleDelete = (id) => {
+  //   if (
+  //     window.confirm(
+  //       "⚠️ คุณต้องการลบผู้ฝึกสอนนี้จริงหรือไม่?\n\nการลบนี้จะไม่สามารถย้อนกลับได้!"
+  //     )
+  //   ) {
+  //     setIsLoading(true);
+  //     startTransition(async () => {
+  //       const success = await deleteTrainer(id);
+  //       if (success) {
+  //         alert("ลบสำเร็จ ✅");
+  //         window.location.href = "/admin/trainers/manage";
+  //       } else {
+  //         alert("เกิดข้อผิดพลาดในการลบ ❌");
+  //       }
+  //       setIsLoading(false);
+  //     });
+  //   }
+  // };
 
   // const sortTrainers = (trainers) => {
   //   return [...trainers].sort((a, b) => {
@@ -273,15 +276,14 @@ export default function TrainerTable({
                   >
                     <Edit />
                   </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(trainer.trainer_id);
-                    }}
-                    className="p-1 text-red-500 hover:text-red-600 transition-colors"
-                  >
-                    <Delete />
-                  </button>
+                  <DeleteTrainerButton
+                    trainerId={trainer.trainer_id}
+                    onDeleted={(id) =>
+                      setLocalTrainers((prev) =>
+                        prev.filter((t) => t.trainer_id !== id)
+                      )
+                    }
+                  />
                 </div>
               )}
             </div>

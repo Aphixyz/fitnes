@@ -25,7 +25,7 @@ export default async function TrainerDashboardPage({ params }) {
   const { id } = params;
 
   try {
-    // ดึงข้อมูลเทรนเนอร์
+    // ดึงข้อมูลผู้ฝึกสอน
     const trainer = await getTrainerById(parseInt(id));
 
     if (!trainer) {
@@ -206,7 +206,7 @@ export default async function TrainerDashboardPage({ params }) {
             <CardHeader>
               <CardTitle>ข้อมูลส่วนตัว</CardTitle>
               <CardDescription>
-                ประวัติและความเชี่ยวชาญของเทรนเนอร์
+                ประวัติและความเชี่ยวชาญของผู้ฝึกสอน
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
