@@ -10,7 +10,7 @@ import NutritionCharts from "./_components/NutritionCharts";
 import PeriodSelector from "./_components/PeriodSelector";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RefreshCw, TrendingUp, Dumbbell, Utensils } from "lucide-react";
+import { RefreshCw, Dumbbell, Utensils } from "lucide-react";
 
 const StatisticsPage = () => {
   const params = useParams();
@@ -93,13 +93,13 @@ const StatisticsPage = () => {
     return (
       <div className="container mx-auto p-6">
         <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <TrendingUp className="h-12 w-12 text-gray-400" />
+          <Dumbbell className="h-12 w-12 text-gray-400" />
           <div className="text-center">
             <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              ไม่พบข้อมูลการออกกำลังกาย
+              ไม่พบข้อมูลสถิติ
             </h3>
             <p className="text-gray-600">
-              สมาชิกยังไม่มีประวัติการบันทึกการออกกำลังกายในช่วงเวลาที่เลือก
+              สมาชิกยังไม่มีประวัติการบันทึกข้อมูลในช่วงเวลาที่เลือก
             </p>
           </div>
           <div className="flex space-x-4">
@@ -122,12 +122,7 @@ const StatisticsPage = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">
-            สถิติและความก้าวหน้า
-          </h1>
-          <p className="text-gray-600">
-            ข้อมูลความก้าวหน้าครบถ้วน: การออกกำลังกาย + การปฏิบัติตามแผนโภชนาการ
-          </p>
+
         </div>
         <div className="flex items-center space-x-4">
           <PeriodSelector
@@ -142,48 +137,17 @@ const StatisticsPage = () => {
       </div>
 
       {/* Content */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            ภาพรวม
-          </TabsTrigger>
+      <Tabs defaultValue="workout" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="workout" className="flex items-center gap-2">
             <Dumbbell className="h-4 w-4" />
-            การออกกำลังกาย
+            การฝึก
           </TabsTrigger>
           <TabsTrigger value="nutrition" className="flex items-center gap-2">
             <Utensils className="h-4 w-4" />
-            โภชนาการ
+            การกิน
           </TabsTrigger>
         </TabsList>
-
-        {/* Overview Tab - แสดงทั้งสองส่วนแบบสรุป */}
-        <TabsContent value="overview" className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Workout Summary */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2">
-                <Dumbbell className="h-5 w-5 text-blue-600" />
-                <h3 className="text-lg font-semibold text-gray-800">
-                  สรุปการออกกำลังกาย
-                </h3>
-              </div>
-              <WorkoutStatsSummary data={progressData} />
-            </div>
-
-            {/* Nutrition Summary */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2">
-                <Utensils className="h-5 w-5 text-orange-600" />
-                <h3 className="text-lg font-semibold text-gray-800">
-                  สรุปการปฏิบัติตามแผนโภชนาการ
-                </h3>
-              </div>
-              <NutritionStatsSummary data={progressData} />
-            </div>
-          </div>
-        </TabsContent>
 
         {/* Workout Tab - แสดงข้อมูล workout แบบเต็ม */}
         <TabsContent value="workout" className="space-y-8">
@@ -193,7 +157,6 @@ const StatisticsPage = () => {
 
         {/* Nutrition Tab - แสดงข้อมูล nutrition แบบเต็ม */}
         <TabsContent value="nutrition" className="space-y-8">
-          <NutritionStatsSummary data={progressData} />
           <NutritionCharts data={progressData} />
         </TabsContent>
       </Tabs>

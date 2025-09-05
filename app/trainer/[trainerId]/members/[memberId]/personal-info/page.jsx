@@ -32,9 +32,7 @@ const PersonalInfoPage = async ({ params }) => {
 
   // ตรวจสอบ params
   if (!trainerId || !memberId) {
-    return (
-      <PersonalInfoError error="ไม่พบรหัสเทรนเนอร์หรือรหัสสมาชิก" />
-    );
+    return <PersonalInfoError error="ไม่พบรหัสเทรนเนอร์หรือรหัสสมาชิก" />;
   }
 
   try {
@@ -45,18 +43,21 @@ const PersonalInfoPage = async ({ params }) => {
       <>
         {/* Content Section */}
         {result.success ? (
-          <MemberPersonalInfoCard personalData={result.data} />
+          <MemberPersonalInfoCard
+            personalData={result.data}
+            memberId={memberId}
+          />
         ) : (
-          <PersonalInfoError error={result.error || "เกิดข้อผิดพลาดในการดึงข้อมูล"} />
+          <PersonalInfoError
+            error={result.error || "เกิดข้อผิดพลาดในการดึงข้อมูล"}
+          />
         )}
       </>
     );
   } catch (error) {
     console.error("Error in PersonalInfoPage:", error);
 
-    return (
-      <PersonalInfoError error="เกิดข้อผิดพลาดในการโหลดหน้า" />
-    );
+    return <PersonalInfoError error="เกิดข้อผิดพลาดในการโหลดหน้า" />;
   }
 };
 

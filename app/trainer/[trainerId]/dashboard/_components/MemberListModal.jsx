@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import MemberAvatar from "@/components/ui/MemberAvatar";
 import { Search, User, Eye, Calendar, Phone, Mail } from "lucide-react";
 import Link from "next/link";
 import { getMembersByActivity } from "@/actions/trainer/dashboard/getMembersByActivity";
@@ -19,12 +19,12 @@ import { getMembersByActivity } from "@/actions/trainer/dashboard/getMembersByAc
 /**
  * Modal แสดงรายชื่อสมาชิกตามประเภทกิจกรรม
  */
-export default function MemberListModal({ 
-  isOpen, 
-  onClose, 
-  trainerId, 
-  activityType, 
-  title 
+export default function MemberListModal({
+  isOpen,
+  onClose,
+  trainerId,
+  activityType,
+  title,
 }) {
   const [members, setMembers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,10 +43,11 @@ export default function MemberListModal({
     if (searchTerm.trim() === "") {
       setFilteredMembers(members);
     } else {
-      const filtered = members.filter(member =>
-        member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.phone?.includes(searchTerm)
+      const filtered = members.filter(
+        (member) =>
+          member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          member.phone?.includes(searchTerm)
       );
       setFilteredMembers(filtered);
     }
@@ -68,22 +69,30 @@ export default function MemberListModal({
   };
 
   const getInitials = (firstName, lastName) => {
-    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+    return `${firstName?.charAt(0) || ""}${
+      lastName?.charAt(0) || ""
+    }`.toUpperCase();
   };
 
   const getStatusBadge = (member) => {
-    if (activityType === 'active_7days') {
+    if (activityType === "active_7days") {
       return (
-        <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+        <Badge
+          variant="secondary"
+          className="bg-green-50 text-green-700 border-green-200"
+        >
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
             Active 7d
           </div>
         </Badge>
       );
-    } else if (activityType === 'inactive_7days') {
+    } else if (activityType === "inactive_7days") {
       return (
-        <Badge variant="secondary" className="bg-orange-50 text-orange-700 border-orange-200">
+        <Badge
+          variant="secondary"
+          className="bg-orange-50 text-orange-700 border-orange-200"
+        >
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
             Inactive 7d
@@ -92,19 +101,23 @@ export default function MemberListModal({
       );
     } else {
       return (
-        <Badge variant={member.registrationStatus === 'active' ? 'default' : 'secondary'}>
-          {member.registrationStatus === 'active' ? 'Active' : 'Expired'}
+        <Badge
+          variant={
+            member.registrationStatus === "active" ? "default" : "secondary"
+          }
+        >
+          {member.registrationStatus === "active" ? "Active" : "Expired"}
         </Badge>
       );
     }
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString("th-TH", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -150,15 +163,12 @@ export default function MemberListModal({
                   {/* Member Info */}
                   <div className="flex items-center space-x-4 flex-1">
                     {/* Avatar */}
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage 
-                        src={member.profileImage || "/default-avatar.png"} 
-                        alt={member.fullName} 
-                      />
-                      <AvatarFallback className="text-sm">
-                        {getInitials(member.firstName, member.lastName)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <MemberAvatar
+                      firstname={member.firstName}
+                      lastname={member.lastName}
+                      profileImage={member.profileImage}
+                      size="lg"
+                    />
 
                     {/* Member Details */}
                     <div className="flex-1 min-w-0">
@@ -168,14 +178,14 @@ export default function MemberListModal({
                         </h3>
                         {getStatusBadge(member)}
                       </div>
-                      
-                      
                     </div>
                   </div>
 
                   {/* Action Button */}
                   <div>
-                    <Link href={`/trainer/${trainerId}/members/${member.memberId}/dashboard`}>
+                    <Link
+                      href={`/trainer/${trainerId}/members/${member.memberId}/dashboard`}
+                    >
                       <Button variant="outline" size="sm">
                         <Eye className="h-4 w-4 mr-2" />
                         ดูโปรไฟล์
@@ -187,7 +197,6 @@ export default function MemberListModal({
             </div>
           )}
         </div>
-
       </DialogContent>
     </Dialog>
   );

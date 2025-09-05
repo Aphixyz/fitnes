@@ -23,12 +23,6 @@ const NutritionCharts = ({ data }) => {
   if (!data?.nutrition || !data.nutrition.summary.hasData) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-2 mb-4">
-          <BarChart3 className="h-6 w-6 text-orange-600" />
-          <h2 className="text-xl font-semibold text-gray-800">
-            แนวโน้มการปฏิบัติตามแผนโภชนาการ
-          </h2>
-        </div>
 
         <Card className="bg-gray-50">
           <CardContent className="flex flex-col items-center justify-center p-8">
@@ -137,13 +131,6 @@ const NutritionCharts = ({ data }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <BarChart3 className="h-6 w-6 text-orange-600" />
-        <h2 className="text-xl font-semibold text-gray-800">
-          แนวโน้มการปฏิบัติตามแผนโภชนาการ
-        </h2>
-      </div>
 
       {/* Adherence Trends Chart */}
       <Card>
@@ -152,9 +139,6 @@ const NutritionCharts = ({ data }) => {
             <CardTitle className="text-lg">แนวโน้มการปฏิบัติตาม (%)</CardTitle>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-blue-600" />
-              <Badge variant="outline" className="text-xs">
-                Adherence Trends
-              </Badge>
             </div>
           </div>
         </CardHeader>
@@ -218,15 +202,6 @@ const NutritionCharts = ({ data }) => {
                   strokeWidth={2}
                   name="ไขมัน"
                   dot={{ fill: "#eab308", strokeWidth: 2, r: 3 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="average"
-                  stroke="#6b7280"
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  name="ค่าเฉลี่ย"
-                  dot={{ fill: "#6b7280", strokeWidth: 2, r: 3 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -312,87 +287,6 @@ const NutritionCharts = ({ data }) => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Weekly Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Best Adherence Day */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-              <CardTitle className="text-lg">
-                วันที่ปฏิบัติตามดีที่สุด
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {adherenceChartData.length > 0 ? (
-              (() => {
-                const bestDay = adherenceChartData.reduce((prev, current) =>
-                  prev.average > current.average ? prev : current
-                );
-                return (
-                  <div className="space-y-3">
-                    <div className="text-2xl font-bold text-green-600">
-                      {bestDay.formattedDate}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      คะแนนเฉลี่ย: {bestDay.average}%
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div>แคลอรี่: {bestDay.calories}%</div>
-                      <div>โปรตีน: {bestDay.protein}%</div>
-                      <div>คาร์โบไฮเดรต: {bestDay.carb}%</div>
-                      <div>ไขมัน: {bestDay.fat}%</div>
-                    </div>
-                  </div>
-                );
-              })()
-            ) : (
-              <p className="text-gray-500">ไม่มีข้อมูล</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent Trend */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-blue-600" />
-              <CardTitle className="text-lg">แนวโน้มล่าสุด</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {adherenceChartData.length >= 3 ? (
-              (() => {
-                const recent = adherenceChartData.slice(-3);
-                const trend = recent[2].average - recent[0].average;
-                const isImproving = trend > 0;
-
-                return (
-                  <div className="space-y-3">
-                    <div
-                      className={`text-2xl font-bold ${
-                        isImproving ? "text-green-600" : "text-red-600"
-                      }`}
-                    >
-                      {isImproving ? "↗" : "↘"} {Math.abs(trend).toFixed(1)}%
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {isImproving ? "ปรับปรุงขึ้น" : "ลดลง"} ใน 3 วันล่าสุด
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      จาก {recent[0].average}% เป็น {recent[2].average}%
-                    </div>
-                  </div>
-                );
-              })()
-            ) : (
-              <p className="text-gray-500">ต้องมีข้อมูลอย่างน้อย 3 วัน</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };

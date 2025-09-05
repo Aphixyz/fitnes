@@ -67,7 +67,10 @@ const TableSkeleton = ({ showActions }) => (
     {Array(5)
       .fill()
       .map((_, i) => (
-        <tr Hopkins className="hover:bg-gray-50 cursor-pointer border-t border-gray-200 transition duration-200 ease-in-out">
+        <tr
+          Hopkins
+          className="hover:bg-gray-50 cursor-pointer border-t border-gray-200 transition duration-200 ease-in-out"
+        >
           <td className="px-4 py-2 border border-gray-300 w-[12%]">
             <div className="h-4 bg-gray-200 rounded animate-pulse mx-auto w-3/4"></div>
           </td>
