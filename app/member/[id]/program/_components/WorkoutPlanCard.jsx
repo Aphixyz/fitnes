@@ -1,6 +1,8 @@
 "use client";
 
 import ProgramCard from "./ProgramCard";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dumbbell, Calendar, Clock } from "lucide-react";
 
 /**
  * WorkoutPlanCard - Client Component
@@ -26,59 +28,59 @@ const WorkoutPlanCard = ({ workoutPlan }) => {
   const daysRemaining = getDaysRemaining();
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Plan Header Card - Modern Design */}
-      <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 md:p-8">
-        <div className="space-y-3 sm:space-y-4">
-          {/* Plan Title */}
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
-            <div className="flex-1 space-y-2 sm:space-y-3">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                {workoutPlan.plan_name}
-              </h1>
-              <div className="flex items-center gap-2 text-gray-600">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <p className="text-sm sm:text-lg font-medium">
-                  {formatDateShort(workoutPlan.plan_startdate)} -{" "}
-                  {formatDateShort(workoutPlan.plan_enddate)}
-                </p>
+    <div className="space-y-3 sm:space-y-4">
+      {/* Plan Header Card - Dashboard Style Design */}
+      <Card className="w-full hover:shadow-md transition-all duration-200 border border-gray-200">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            {/* Left Side - Icon and Content */}
+            <div className="flex items-center space-x-4 flex-1">
+              {/* Plan Icon */}
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Dumbbell className="w-6 h-6 text-blue-700" />
+                </div>
               </div>
-            </div>
-
-            {/* Status Indicator */}
-            <div className="flex items-center gap-2 self-start">
-              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-xs sm:text-sm font-medium text-green-700">
-                {workoutPlan.plan_status}
-              </span>
+              
+              {/* Plan Info */}
+              <div className="flex-1 min-w-0">
+                {/* Plan Name (Title) */}
+                <h3 className="text-base md:text-lg font-bold text-gray-900 break-words leading-tight">
+                  {workoutPlan.plan_name}
+                </h3>
+              </div>
             </div>
           </div>
 
-          {/* Plan Note */}
+          {/* Plan Note - Dashboard Style */}
           {workoutPlan.plan_note && (
-            <div className="bg-blue-50/50 border-l-4 border-blue-400 rounded-r-lg p-3 sm:p-4">
+            <div className="mt-3 bg-blue-50/70 border-l-3 sm:border-l-4 border-blue-400 rounded-r-md sm:rounded-r-lg p-2 sm:p-3">
               <p className="text-gray-700 text-xs sm:text-sm leading-relaxed">
                 {workoutPlan.plan_note}
               </p>
             </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Programs */}
-      <div className="space-y-3 sm:space-y-4">
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
-          ทั้งหมด {workoutPlan.programs.length} โปรแกรม
-        </h3>
-
+      {/* Programs - Dashboard Style Cards */}
+      <div className="space-y-3">
         {workoutPlan.programs.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border p-6 sm:p-8 text-center">
-            <p className="text-gray-500 text-sm sm:text-base">
-              ยังไม่มี workout programs
-            </p>
-          </div>
+          <Card className="w-full min-h-[120px]">
+            <CardContent className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <div className="text-4xl mb-2">📋</div>
+                <p className="text-gray-500 text-sm font-medium mb-1">
+                  ยังไม่มีโปรแกรมฝึก
+                </p>
+                <p className="text-gray-400 text-xs">
+                  กรุณาติดต่อเทรนเนอร์เพื่อเพิ่มโปรแกรม
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-3">
             {workoutPlan.programs.map((program, index) => (
               <ProgramCard
                 key={program.workout_program_id}

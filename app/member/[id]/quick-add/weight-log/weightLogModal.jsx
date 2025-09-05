@@ -16,6 +16,7 @@ import { insertHealth } from "@/actions/member/quick-add/insertHealth";
 import { loadDailyHealthRecord } from "@/actions/member/quick-add/loadDailyHealthRecord";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { formatDateForDatabase } from "@/utils/dateUtils";
 
 // ===== Main Component =====
 const WeightLogModal = ({
@@ -27,7 +28,7 @@ const WeightLogModal = ({
   // ===== State =====
   const [weight, setWeight] = useState("");
   const [date, setDate] = useState(
-    () => new Date().toISOString().split("T")[0]
+    () => formatDateForDatabase()
   );
   const [progressPhotos, setProgressPhotos] = useState({
     front: null,
@@ -49,7 +50,7 @@ const WeightLogModal = ({
   useEffect(() => {
     if (open) {
       // เมื่อเปิด modal ให้ reset กลับมาวันที่ปัจจุบัน
-      const today = new Date().toISOString().split("T")[0];
+      const today = formatDateForDatabase();
       setDate(today);
       setShowDatePicker(false);
     }
@@ -113,7 +114,7 @@ const WeightLogModal = ({
   const handleDateChange = (e) => {
     const val = e.target.value;
     // ห้ามเลือกวันอนาคต
-    const today = new Date().toISOString().split("T")[0];
+    const today = formatDateForDatabase();
     if (val > today) return;
     setDate(val);
     setShowDatePicker(false); // ปิด date picker หลังจากเลือก
@@ -267,7 +268,7 @@ const WeightLogModal = ({
                   type="date"
                   value={date}
                   onChange={handleDateChange}
-                  max={new Date().toISOString().split("T")[0]}
+                  max={formatDateForDatabase()}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   aria-label="เลือกวันที่"
                   autoFocus

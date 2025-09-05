@@ -1,6 +1,7 @@
 "use server";
 
 import pool from "@/lib/db";
+import { getActiveMacroPlan } from "@/actions/shared/getActiveMacroPlan";
 
 /**
  * บันทึกข้อมูล macro intake ประจำวัน (แบบสะสม) ลง intake_logs
@@ -48,10 +49,15 @@ export async function InsertLogNutrition({
       }
     }
 
+    // ดึงข้อมูล active macro plan สำหรับวันนี้
+    const activeMacroPlan = await getActiveMacroPlan(memberId, date);
+    const macroPlanId = activeMacroPlan ? activeMacroPlan.macro_plan_id : null;
+
     // เช็คว่ามี record สำหรับ member และ date นี้อยู่แล้วไหม
     const checkExistingQuery = `
       SELECT 
         intake_id,
+        macro_plan_id,
         calories,
         protein,
         carb,
@@ -76,6 +82,7 @@ export async function InsertLogNutrition({
       const updateQuery = `
         UPDATE intake_logs 
         SET 
+          macro_plan_id = ?,
           calories = ?,
           protein = ?,
           carb = ?,
@@ -84,6 +91,7 @@ export async function InsertLogNutrition({
       `;
 
       await pool.execute(updateQuery, [
+        macroPlanId,
         newCalories,
         newProtein,
         newCarb,
@@ -97,6 +105,7 @@ export async function InsertLogNutrition({
         action: "accumulated",
         intake_id: existing.intake_id,
         member_id: memberId,
+        macro_plan_id: macroPlanId,
         date: date,
         // ค่าที่เพิ่มในครั้งนี้
         added_calories: calories,
@@ -113,12 +122,13 @@ export async function InsertLogNutrition({
     } else {
       // ไม่มี record = INSERT record ใหม่
       const insertQuery = `
-        INSERT INTO intake_logs (member_id, date, calories, protein, carb, fat)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO intake_logs (member_id, macro_plan_id, date, calories, protein, carb, fat)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `;
 
       const [insertResult] = await pool.execute(insertQuery, [
         memberId,
+        macroPlanId,
         date,
         calories,
         protein,
@@ -131,6 +141,7 @@ export async function InsertLogNutrition({
         action: "created",
         intake_id: insertResult.insertId,
         member_id: memberId,
+        macro_plan_id: macroPlanId,
         date: date,
         // ค่าที่เพิ่มในครั้งนี้ (เป็นครั้งแรกของวัน)
         added_calories: calories,

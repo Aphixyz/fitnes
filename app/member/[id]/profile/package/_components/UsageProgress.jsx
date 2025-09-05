@@ -145,48 +145,6 @@ export default function UsageProgress({ usage }) {
           </div>
         </div>
 
-        {/* Status */}
-        <div
-          className={`rounded-lg p-4 ${
-            usage.isActive ? "bg-green-50" : "bg-red-50"
-          }`}
-        >
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg
-                className={`h-5 w-5 ${
-                  usage.isActive ? "text-green-500" : "text-red-500"
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p
-                className={`text-sm font-medium ${
-                  usage.isActive ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                สถานะ
-              </p>
-              <p
-                className={`text-lg font-semibold ${
-                  usage.isActive ? "text-green-900" : "text-red-900"
-                }`}
-              >
-                {usage.isActive ? "ใช้งานได้" : "หมดอายุ"}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Date Range */}

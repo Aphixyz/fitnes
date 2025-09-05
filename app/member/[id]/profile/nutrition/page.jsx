@@ -1,23 +1,21 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import {
-  Calendar,
-  Search,
   Edit,
   Trash2,
-  Plus,
   X,
-  Loader2,
+  ArrowLeft,
   Calendar as CalendarIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +24,6 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerDescription,
   DrawerFooter,
   DrawerClose,
 } from "@/components/ui/drawer";
@@ -43,28 +40,12 @@ import {
 import { editIntakeRecord } from "@/actions/member/my-nutrition-plans/editIntake";
 import { deleteIntakeRecord } from "@/actions/member/my-nutrition-plans/deleteIntake";
 
-// ===== Utility Functions =====
-const useMediaQuery = (query) => {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    if (media.matches !== matches) {
-      setMatches(media.matches);
-    }
-    const listener = () => setMatches(media.matches);
-    media.addEventListener("change", listener);
-    return () => media.removeEventListener("change", listener);
-  }, [matches, query]);
-
-  return matches;
-};
 
 export default function HistoryNutrientPage() {
+  const router = useRouter();
   const params = useParams();
   const memberId = parseInt(params.id);
   const { toast } = useToast();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   // ===== State Management =====
   const [intakeHistory, setIntakeHistory] = useState([]);
@@ -72,12 +53,6 @@ export default function HistoryNutrientPage() {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0], // 30 วันล่าสุด
-    endDate: new Date().toISOString().split("T")[0],
-  });
 
   // Form state สำหรับแก้ไข
   const [editForm, setEditForm] = useState({
@@ -91,16 +66,13 @@ export default function HistoryNutrientPage() {
   // ===== Load ประวัติข้อมูล =====
   useEffect(() => {
     loadIntakeHistory();
-  }, [dateRange]);
+  }, []);
 
   const loadIntakeHistory = async () => {
     try {
       setLoading(true);
-      const data = await fetchIntakeList(
-        memberId,
-        dateRange.startDate,
-        dateRange.endDate
-      );
+      // โหลดข้อมูลทั้งหมดโดยไม่จำกัดช่วงเวลา
+      const data = await fetchIntakeList(memberId);
       setIntakeHistory(data);
     } catch (error) {
       toast({
@@ -289,59 +261,21 @@ export default function HistoryNutrientPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      {/* ===== Header ===== */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          ประวัติการบันทึก
-        </h1>
-        <p className="text-gray-600">
-          ดูและจัดการประวัติการบันทึก macronutrient
-        </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <div className="sticky top-0 z-50 h-20 bg-white border-b border-gray-200 pt-2 items-center justify-center">
+        <div className="flex items-center justify-between p-4 h-16">
+          <button
+            onClick={() => router.back()}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors items-start justify-start"
+          >
+            <ArrowLeft className="h-6 w-6 text-gray-700" />
+          </button>
+          <h1 className="text-lg font-semibold text-gray-900">โปรไฟล์ของฉัน</h1>
+          <div className="w-10"></div> {/* Spacer for centering */}
+        </div>
       </div>
 
-      {/* ===== Date Range Filter ===== */}
-      <Card className="mb-4">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            เลือกช่วงวันที่
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-sm font-medium text-gray-700 mb-1 block">
-                วันที่เริ่มต้น
-              </Label>
-              <Input
-                type="date"
-                value={dateRange.startDate}
-                onChange={(e) =>
-                  setDateRange((prev) => ({
-                    ...prev,
-                    startDate: e.target.value,
-                  }))
-                }
-                className="w-full"
-              />
-            </div>
-            <div>
-              <Label className="text-sm font-medium text-gray-700 mb-1 block">
-                วันที่สิ้นสุด
-              </Label>
-              <Input
-                type="date"
-                value={dateRange.endDate}
-                onChange={(e) =>
-                  setDateRange((prev) => ({ ...prev, endDate: e.target.value }))
-                }
-                className="w-full"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* ===== Intake History List ===== */}
       <div className="space-y-3">
@@ -353,7 +287,7 @@ export default function HistoryNutrientPage() {
         ) : intakeHistory.length === 0 ? (
           <Card>
             <CardContent className="text-center py-8">
-              <p className="text-gray-500">ไม่พบข้อมูลในช่วงวันที่ที่เลือก</p>
+              <p className="text-gray-500">ยังไม่มีข้อมูลการบันทึกโภชนาการ</p>
             </CardContent>
           </Card>
         ) : (

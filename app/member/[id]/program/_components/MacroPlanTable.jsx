@@ -44,8 +44,8 @@ const MacroPlanTable = ({ calories, protein_g, carb_g, fat_g }) => {
   ];
 
   return (
-    <div className="w-full max-w-md md:max-w-2xl mx-auto mt-6">
-      <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8">
+    <div className="w-full">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 min-h-[260px]">
         <h2 className="text-xl md:text-2xl font-bold text-center mb-4">
           แผนโภชนาการ
         </h2>

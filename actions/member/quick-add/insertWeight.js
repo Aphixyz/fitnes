@@ -1,6 +1,7 @@
 "use server";
 
 import pool from "@/lib/db";
+import { formatDateForDatabase } from "@/utils/dateUtils";
 
 /**
  * บันทึกน้ำหนักปัจจุบันของสมาชิก
@@ -26,7 +27,7 @@ export async function insertWeight(memberId, weight, date = null) {
     }
 
     // กำหนดวันที่ถ้าไม่ระบุ
-    const measurementDate = date || new Date().toISOString().split("T")[0];
+    const measurementDate = date || formatDateForDatabase();
 
     // ตรวจสอบรูปแบบวันที่
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -35,7 +36,7 @@ export async function insertWeight(memberId, weight, date = null) {
     }
 
     // ตรวจสอบว่าวันที่อยู่ในอนาคตหรือไม่
-    const today = new Date().toISOString().split("T")[0];
+    const today = formatDateForDatabase();
     if (measurementDate > today) {
       throw new Error("ไม่สามารถบันทึกข้อมูลในอนาคตได้");
     }

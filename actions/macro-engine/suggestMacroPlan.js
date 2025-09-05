@@ -120,12 +120,13 @@ export async function suggestMacroPlan(memberId) {
 
     const [macroPlanResult] = await connection.query(
       `INSERT INTO macro_plan 
-         (trainer_id, member_id, protein_ratio, carb_ratio, fat_ratio, 
+         (trainer_id, member_id, calorie_target, protein_ratio, carb_ratio, fat_ratio, 
           start_date, end_date, plan_status, created_at) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, 'active', NOW())`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW())`,
       [
         trainerId,
         memberId,
+        macroRatios.target_calories,
         macroRatios.protein_ratio,
         macroRatios.carb_ratio,
         macroRatios.fat_ratio,
@@ -141,6 +142,7 @@ export async function suggestMacroPlan(memberId) {
       macro_plan_id: macroPlanResult.insertId,
       calculations: suggestion.calculations,
       suggested: suggestion.suggested,
+      adjusted_calories: macroRatios.target_calories,
       message: "คำนวณและสร้าง Macro Plan สำเร็จ",
     };
   } catch (error) {

@@ -6,6 +6,7 @@ import exercisesData from "@/data/exercises.json";
 import ExerciseSetForm, { ExerciseSetTable } from "./ExerciseSetForm";
 import { insertProgramExerciseSet } from "@/actions/member/my-workout-plans/insertProgramExerciseSet";
 import { formatTimeThai, convertForDatabase } from "@/utils/utils";
+import { useToast } from "@/hooks/use-toast";
 
 // Shadcn Components
 import {
@@ -62,6 +63,7 @@ const useMediaQuery = (query) => {
  */
 const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
   const params = useParams();
+  const { toast } = useToast();
   const [loggedSets, setLoggedSets] = useState({}); // เก็บข้อมูลการ log ของแต่ละเซต
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
@@ -72,6 +74,7 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
   if (!isOpen) return null;
 
   const exercises = program?.exercises || [];
+
 
   const handleCloseModal = () => {
     setLoggedSets({}); // Reset logged data เมื่อปิด modal
@@ -95,14 +98,19 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
         return;
       }
 
-      if (!workoutPlan?.workout_plan_id || !program?.workout_program_id) {
-        setSaveError("ไม่พบข้อมูล Workout Plan หรือ Program");
+      if (!workoutPlan?.workout_plan_id) {
+        setSaveError("ไม่พบข้อมูล Workout Plan ID");
+        return;
+      }
+
+      if (!program?.workout_program_id) {
+        setSaveError("ไม่พบข้อมูล Program ID");
         return;
       }
 
       // วนลูปข้อมูลใน loggedSets ที่ completed = true
       const completedSets = Object.entries(loggedSets).filter(
-        ([key, setData]) => setData.completed
+        ([, setData]) => setData.completed
       );
 
       if (completedSets.length === 0) {
@@ -148,9 +156,6 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
           log_date: todayDate,
         };
 
-        // Debug logging สำหรับแต่ละเซต
-        console.log("Saving set data:", setDataToSave);
-
         // Validate before send
         if (
           !setDataToSave.member_id ||
@@ -171,8 +176,12 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
       // บันทึกสำเร็จ - ปิด modal และแสดงข้อความ
       handleCloseModal();
 
-      // อาจจะเพิ่ม toast notification ในอนาคต
-      alert(`บันทึกข้อมูลการออกกำลังกายสำเร็จ! (${completedSets.length} เซต)`);
+      // แสดง toast notification สำหรับ mobile
+      toast({
+        title: "บันทึกสำเร็จ! 🎉",
+        description: `บันทึกข้อมูลการออกกำลังกายเรียบร้อยแล้ว (${completedSets.length} เซต)`,
+        className: "bg-green-50 border-green-200 text-green-800",
+      });
     } catch (error) {
       console.error("Error saving workout:", error);
       setSaveError(error.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
@@ -228,7 +237,6 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
     return (
       <div className="space-y-6">
         {exercises.map((exercise, exerciseIndex) => {
-          const stats = getExerciseStats(exercise);
 
           // คำนวณ active fields จากทุก sets ในแต่ละ exercise
           const getAllActiveFields = () => {
@@ -382,7 +390,7 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
                   />
                 </svg>
               )}
-              {isSaving ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+              {isSaving ? "กำลังบันทึก..." : "สำเร็จ"}
             </Button>
           </AlertDialogTrigger>
 
@@ -399,7 +407,7 @@ const WorkoutLoggingModal = ({ isOpen, onClose, program, workoutPlan }) => {
               <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleSaveWorkout}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 text-white"
               >
                 บันทึกข้อมูล
               </AlertDialogAction>

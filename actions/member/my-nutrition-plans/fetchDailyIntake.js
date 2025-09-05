@@ -28,6 +28,7 @@ export async function fetchDailyIntake(memberId, date = null) {
       SELECT 
         intake_id,
         member_id,
+        macro_plan_id,
         date,
         calories,
         protein,
@@ -52,13 +53,13 @@ export async function fetchDailyIntake(memberId, date = null) {
     return {
       intake_id: intake.intake_id,
       member_id: intake.member_id,
+      macro_plan_id: intake.macro_plan_id,
       date: intake.date,
       calories: parseFloat(intake.calories) || 0,
       protein: parseFloat(intake.protein) || 0,
       carb: parseFloat(intake.carb) || 0,
       fat: parseFloat(intake.fat) || 0,
-      created_at: intake.created_at,
-      updated_at: intake.updated_at,
+      create_at: intake.create_at,
     };
   } catch (error) {
     console.error("Error fetching daily intake:", error);
