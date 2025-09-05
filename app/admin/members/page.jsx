@@ -160,8 +160,6 @@ export default function MemberPage() {
                 className="p-1 border rounded-md w-auto"
               >
                 <option value="">แสดงทั้งหมด</option>
-                <option value="pending">ยังไม่จ่าย</option>
-                <option value="paid">จ่ายแล้ว</option>
                 <option value="active">ใช้งาน</option>
                 <option value="expired">หมดอายุ</option>
               </select>
