@@ -13,21 +13,29 @@ export async function getMemberProfile(memberId) {
       throw new Error("กรุณาระบุรหัสสมาชิก");
     }
 
-    // ดึงข้อมูล Profile ครบถ้วนจาก member table
+    // ดึงข้อมูล Profile ครบถ้วนจาก member table พร้อมกับข้อมูลส่วนสูงล่าสุด
     const [rows] = await pool.query(
       `SELECT 
-        member_id,
-        member_username,
-        member_firstname,
-        member_lastname,
-        member_email,
-        member_phone,
-        member_gender,
-        member_dob,
-        member_profileimage
-      FROM member
-      WHERE member_id = ?`,
-      [memberId]
+        m.member_id,
+        m.member_username,
+        m.member_firstname,
+        m.member_lastname,
+        m.member_email,
+        m.member_phone,
+        m.member_gender,
+        m.member_dob,
+        m.member_profileimage,
+        mh.member_health_height as latest_height
+      FROM member m
+      LEFT JOIN (
+        SELECT member_id, member_health_height, member_health_measurementdate
+        FROM member_health 
+        WHERE member_id = ? AND member_health_height IS NOT NULL
+        ORDER BY member_health_measurementdate DESC, member_health_id DESC
+        LIMIT 1
+      ) mh ON m.member_id = mh.member_id
+      WHERE m.member_id = ?`,
+      [memberId, memberId]
     );
 
     // ตรวจสอบว่าพบข้อมูลหรือไม่
@@ -69,6 +77,9 @@ export async function getMemberProfile(memberId) {
       dateOfBirth: memberData.member_dob,
       age: age,
       profileImage: memberData.member_profileimage,
+      // ข้อมูลส่วนสูงล่าสุดจาก member_health table
+      latestHeight: memberData.latest_height,
+      height: memberData.latest_height, // Keep compatibility
       // สร้าง URL สำหรับ profile image
       profileImageUrl: memberData.member_profileimage
         ? `/uploads/${memberData.member_profileimage}`
@@ -203,6 +214,93 @@ export async function updateMemberProfile(memberId, updateData) {
       success: false,
       message: "ไม่สามารถอัปเดตข้อมูล Profile ได้",
       error: error.message,
+    };
+  }
+}
+
+/**
+ * อัปเดตข้อมูลสุขภาพของ Member (เฉพาะส่วนสูง)
+ * @param {number} memberId - รหัสสมาชิก
+ * @param {number} height - ส่วนสูง (ซม.)
+ * @returns {Promise<Object>} - ผลลัพธ์การบันทึก
+ */
+export async function updateMemberHealth(memberId, height) {
+  try {
+    if (!memberId) {
+      throw new Error("กรุณาระบุรหัสสมาชิก");
+    }
+
+    if (!height || height <= 0) {
+      throw new Error("กรุณาระบุส่วนสูงที่ถูกต้อง");
+    }
+
+    // บันทึกข้อมูลส่วนสูงใหม่ลง member_health table
+    const [result] = await pool.query(
+      `INSERT INTO member_health (
+        member_id, 
+        member_health_height, 
+        member_health_measurementdate
+      ) VALUES (?, ?, CURDATE())`,
+      [memberId, parseFloat(height)]
+    );
+
+    if (result.affectedRows === 0) {
+      return {
+        success: false,
+        message: "ไม่สามารถบันทึกข้อมูลส่วนสูงได้",
+      };
+    }
+
+    return {
+      success: true,
+      message: "บันทึกข้อมูลส่วนสูงสำเร็จ",
+      healthId: result.insertId,
+    };
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดในการบันทึกข้อมูลสุขภาพ:", error);
+    return {
+      success: false,
+      message: "ไม่สามารถบันทึกข้อมูลสุขภาพได้",
+      error: error.message,
+    };
+  }
+}
+
+/**
+ * ดึงข้อมูลน้ำหนักล่าสุดของ Member
+ * @param {number} memberId - รหัสสมาชิก
+ * @returns {Promise<Object>} - ข้อมูลน้ำหนักล่าสุด
+ */
+export async function getCurrentWeight(memberId) {
+  try {
+    if (!memberId) {
+      throw new Error("กรุณาระบุรหัสสมาชิก");
+    }
+
+    // ดึงข้อมูลน้ำหนักล่าสุดจาก member_health table
+    const [rows] = await pool.query(
+      `SELECT member_health_weight
+       FROM member_health 
+       WHERE member_id = ? AND member_health_weight IS NOT NULL
+       ORDER BY member_health_measurementdate DESC, member_health_id DESC
+       LIMIT 1`,
+      [memberId]
+    );
+
+    const currentWeight = rows.length > 0 ? rows[0].member_health_weight : null;
+
+    return {
+      success: true,
+      message: "ดึงข้อมูลน้ำหนักสำเร็จ",
+      data: currentWeight,
+    };
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดในการดึงข้อมูลน้ำหนัก:", error);
+    return {
+      success: false,
+      message: "ไม่สามารถดึงข้อมูลน้ำหนักได้",
+      error: error.message,
+      data: null,
     };
   }
 }

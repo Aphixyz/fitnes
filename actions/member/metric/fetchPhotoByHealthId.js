@@ -1,6 +1,7 @@
 "use server";
 
 import pool from "@/lib/db";
+import { formatDateToLocalString } from "@/utils/dateUtils";
 
 /**
  * ดึงข้อมูลรูปภาพตาม healthId สำหรับแสดงผลในแต่ละ measurement_date
@@ -37,7 +38,7 @@ export async function fetchPhotoByHealthId(healthId) {
     const measurementDate = record.member_health_measurementdate
       ? typeof record.member_health_measurementdate === "string"
         ? record.member_health_measurementdate
-        : record.member_health_measurementdate.toISOString().split("T")[0]
+        : formatDateToLocalString(record.member_health_measurementdate)
       : null;
 
     // สร้าง path สำหรับรูปภาพแต่ละด้าน (ใช้ path จากฐานข้อมูลโดยตรง)

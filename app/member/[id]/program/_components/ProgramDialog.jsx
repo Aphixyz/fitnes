@@ -1,65 +1,188 @@
 "use client";
 
+import { useState } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "@/components/ui/drawer";
 import ExerciseList from "@/app/member/components/workout/ExerciseList";
+import exercisesData from "@/data/exercises.json";
+import WorkoutLoggingModal from "@/app/member/[id]/quick-add/workout-log/_components/WorkoutLoggingModal";
+import { ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /**
  * ProgramDialog - Client Component
- * แสดงรายละเอียด program และ exercise list ในรูปแบบ dialog modal
+ * แสดงรายละเอียด program และ exercise list ในรูปแบบ drawer สำหรับ mobile
  */
-const ProgramDialog = ({ program, programIndex, isOpen, onClose }) => {
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] sm:max-h-[85vh] md:max-h-[80vh] overflow-y-auto p-4 sm:p-6">
-        <DialogHeader className="space-y-3 sm:space-y-4">
-          <DialogTitle className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <span className="inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-800 text-xs sm:text-sm font-medium">
-                {programIndex}
-              </span>
-              <span className="text-lg sm:text-xl font-semibold">
-                {program.program_name}
-              </span>
-            </div>
-          </DialogTitle>
-        </DialogHeader>
+const ProgramDialog = ({ program, programIndex, isOpen, onClose, workoutPlan }) => {
+  // State สำหรับ WorkoutLoggingModal
+  const [isLoggingModalOpen, setIsLoggingModalOpen] = useState(false);
 
-        <div className="space-y-4 sm:space-y-6">
+  // ฟังก์ชันหา meta จาก exercises.json
+  const getMeta = (exerciseId) => {
+    return exercisesData.find((ex) => ex.id === exerciseId) || {};
+  };
+
+  // ฟังก์ชันเปิด Workout Logging Modal
+  const handleOpenLoggingModal = () => {
+    setIsLoggingModalOpen(true);
+  };
+
+  // ฟังก์ชันปิด Workout Logging Modal
+  const handleCloseLoggingModal = () => {
+    setIsLoggingModalOpen(false);
+  };
+  return (
+    <Drawer open={isOpen} onOpenChange={onClose}>
+      <DrawerContent className="max-h-[90vh] overflow-hidden">
+        <DrawerHeader className="pb-4">
+          <DrawerTitle className="flex items-center gap-3">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 text-sm font-semibold">
+              {programIndex}
+            </span>
+            <span className="text-lg font-semibold text-gray-900">
+              {program.program_name}
+            </span>
+          </DrawerTitle>
+        </DrawerHeader>
+
+        <div className="flex-1 overflow-y-auto px-4 pb-6">
           {/* Program Note */}
           {program.program_note && (
-            <div className="p-3 sm:p-4 bg-gray-50 rounded-lg">
-              <span className="text-gray-600 font-medium text-sm sm:text-base">
-                หมายเหตุโปรแกรม:{" "}
-              </span>
-              <span className="text-gray-900 text-sm sm:text-base leading-relaxed">
+            <div className="mb-4 p-3 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
+              <p className="text-gray-700 text-sm leading-relaxed">
                 {program.program_note}
-              </span>
+              </p>
             </div>
           )}
 
-          {/* Exercises List */}
+          {/* Exercises List as Cards */}
           {program.exercises.length === 0 ? (
-            <div className="text-center py-6 sm:py-8">
-              <p className="text-gray-500 text-sm sm:text-base">
+            <div className="text-center py-8">
+              <div className="text-gray-400 mb-3">
+                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <p className="text-gray-500 text-sm">
                 ยังไม่มี exercises ใน program นี้
               </p>
             </div>
           ) : (
-            <div className="space-y-3 sm:space-y-4">
-              <h4 className="text-base sm:text-lg font-semibold">
-                รายการท่าออกกำลังกาย
-              </h4>
-              <ExerciseList exercises={program.exercises} />
+            <div className="space-y-4">
+              {/* Exercise Cards */}
+              <div className="space-y-3">
+                {program.exercises.map((exercise, index) => {
+                  const meta = getMeta(exercise.exercise_id);
+                  return (
+                    <div 
+                      key={exercise.exercise_id || index} 
+                      className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* Exercise Image */}
+                        <div className="flex-shrink-0">
+                          <img
+                            src={`/exercises/${meta.images?.[0] || "default-exercise.jpg"}`}
+                            alt={meta.name || exercise.exercise_id}
+                            className="w-12 h-12 rounded-lg object-cover bg-gray-100"
+                            onError={(e) => {
+                              e.target.src = "/default-avatar.png"; // fallback image
+                            }}
+                          />
+                        </div>
+                        
+                        {/* Exercise Info */}
+                        <div className="flex-1 min-w-0">
+                          <h5 className="text-sm font-semibold text-gray-900 mb-1">
+                            {meta.name || exercise.exercise_id}
+                          </h5>
+                        
+                          {/* Exercise Details */}
+                          <div className="space-y-1">
+                            {exercise.sets && Array.isArray(exercise.sets) ? (
+                              <div className="mt-2 space-y-1">
+                                {exercise.sets.map((set, idx) => (
+                                  <p key={set.program_exercise_set_id || idx} className="text-xs text-gray-600">
+                                    <span className="font-medium">เซต {set.set_order}:</span>{" "}
+                                    {set.weight && `${set.weight} กก.`}{" "}
+                                    {set.reps && `x ${set.reps} ครั้ง`}{" "}
+                                    {set.time && `${set.time} วินาที`}{" "}
+                                    {set.distance && `${set.distance} เมตร`}
+                                  </p>
+                                ))}
+                              </div>
+                            ) : (
+                              <>
+                                {exercise.sets && (
+                                  <p className="text-xs text-gray-600">
+                                    <span className="font-medium">เซต:</span> {exercise.sets}
+                                  </p>
+                                )}
+                                {exercise.reps && (
+                                  <p className="text-xs text-gray-600">
+                                    <span className="font-medium">รอบ:</span> {exercise.reps}
+                                  </p>
+                                )}
+                                {exercise.weight && (
+                                  <p className="text-xs text-gray-600">
+                                    <span className="font-medium">น้ำหนัก:</span> {exercise.weight} กก.
+                                  </p>
+                                )}
+                                {exercise.duration && (
+                                  <p className="text-xs text-gray-600">
+                                    <span className="font-medium">ระยะเวลา:</span> {exercise.duration}
+                                  </p>
+                                )}
+                                {exercise.rest_time && (
+                                  <p className="text-xs text-gray-600">
+                                    <span className="font-medium">พัก:</span> {exercise.rest_time}
+                                  </p>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          
+                          {/* Exercise Notes */}
+                          {exercise.notes && (
+                            <div className="mt-2 p-2 bg-gray-50 rounded text-xs text-gray-600">
+                              <span className="font-medium">หมายเหตุ:</span> {exercise.notes}
+                            </div>
+                          )}
+                        </div>
+
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* Footer with Start Workout Button */}
+        <DrawerFooter className="border-t border-gray-200 bg-white p-4">
+          <Button 
+            onClick={handleOpenLoggingModal}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 text-base"
+          >
+            เริ่มออกกำลังกาย
+          </Button>
+        </DrawerFooter>
+      </DrawerContent>
+
+      {/* Workout Logging Modal */}
+      <WorkoutLoggingModal
+        isOpen={isLoggingModalOpen}
+        onClose={handleCloseLoggingModal}
+        program={program}
+        workoutPlan={workoutPlan}
+      />
+    </Drawer>
   );
 };
 

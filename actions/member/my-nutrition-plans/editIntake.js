@@ -1,6 +1,7 @@
 "use server";
 
 import pool from "@/lib/db";
+import { getActiveMacroPlan } from "@/actions/shared/getActiveMacroPlan";
 
 /**
  * แก้ไขข้อมูล nutrition intake record
@@ -72,10 +73,15 @@ export async function editIntakeRecord(intakeId, memberId, data) {
       throw new Error("Intake record not found or access denied");
     }
 
+    // ดึงข้อมูล active macro plan สำหรับวันที่ใหม่
+    const activeMacroPlan = await getActiveMacroPlan(memberId, date);
+    const macroPlanId = activeMacroPlan ? activeMacroPlan.macro_plan_id : null;
+
     // อัพเดทข้อมูล
     const updateQuery = `
       UPDATE intake_logs 
       SET 
+        macro_plan_id = ?,
         date = ?,
         calories = ?,
         protein = ?,
@@ -85,6 +91,7 @@ export async function editIntakeRecord(intakeId, memberId, data) {
     `;
 
     await pool.execute(updateQuery, [
+      macroPlanId,
       date,
       calories || 0,
       protein || 0,
@@ -99,6 +106,7 @@ export async function editIntakeRecord(intakeId, memberId, data) {
       SELECT 
         intake_id,
         member_id,
+        macro_plan_id,
         date,
         calories,
         protein,
@@ -121,6 +129,7 @@ export async function editIntakeRecord(intakeId, memberId, data) {
     return {
       intake_id: updatedIntake.intake_id,
       member_id: updatedIntake.member_id,
+      macro_plan_id: updatedIntake.macro_plan_id,
       date: updatedIntake.date,
       calories: parseFloat(updatedIntake.calories) || 0,
       protein: parseFloat(updatedIntake.protein) || 0,

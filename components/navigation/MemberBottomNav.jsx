@@ -165,18 +165,12 @@ const MemberBottomNav = () => {
                       "relative flex items-center justify-center h-16 w-16 rounded-full",
                       "bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600",
                       "text-white shadow-lg shadow-emerald-500/25",
-                      "hover:from-emerald-500 hover:via-emerald-600 hover:to-emerald-700",
-                      "hover:shadow-xl hover:shadow-emerald-500/40",
-                      "hover:scale-110 active:scale-95",
-                      "transition-all duration-300 ease-out",
-                      "focus:outline-none focus:ring-4 focus:ring-emerald-300/50",
-                      "border-2 border-white/20"
+                    
                     )}
                     onClick={() => setIsDrawerOpen(true)}
                     type="button"
                   >
-                    {/* Background glow effect */}
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-300 to-emerald-600 opacity-0 hover:opacity-20 transition-opacity duration-300" />
+
                     
                     {/* Main icon with sparkle effect */}
                     <div className="relative flex items-center justify-center">
@@ -184,10 +178,7 @@ const MemberBottomNav = () => {
                       <Sparkles className="absolute h-3 w-3 -top-1 -right-1 animate-pulse" />
                     </div>
                   </button>
-                  
-                  {/* Pulse ring animation */}
-                  <div className="absolute inset-0 rounded-full border-2 border-emerald-400/30 animate-ping pointer-events-none" />
-                  <div className="absolute inset-1 rounded-full border border-emerald-300/20 animate-pulse pointer-events-none" />
+
                 </div>
               );
             }
@@ -198,10 +189,10 @@ const MemberBottomNav = () => {
                 href={item.href}
                 className={cn(
                   "flex flex-col items-center justify-center h-16 w-16 rounded-lg transition-colors",
-                  "focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2",
+
                   item.active
-                    ? "text-emerald-600 bg-emerald-50"
-                    : "text-gray-600 hover:text-emerald-600 hover:bg-gray-50"
+                    ? "text-emerald-600"
+                    : "text-gray-600 hover:text-emerald-600 "
                 )}
               >
                 <Icon className="h-6 w-6" />

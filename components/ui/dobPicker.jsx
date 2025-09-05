@@ -50,7 +50,7 @@ export function DobPicker({
           <Button
             variant="outline"
             id="dob"
-            className={`w-full justify-between font-normal h-11 text-sm ${
+            className={`w-full justify-between font-normal h-10 sm:h-11 text-sm ${
               error
                 ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"

@@ -272,7 +272,7 @@ export default async function WorkoutDetailPage({ params }) {
         {/* Header with Back Button */}
         <div className="flex items-center space-x-4">
           <Link
-            href={`/member/${memberId}/progress`}
+            href={`/member/${memberId}/profile/workout`}
             className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <ArrowLeftIcon className="w-5 h-5 mr-2" />

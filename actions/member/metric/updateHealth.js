@@ -16,6 +16,7 @@ import pool from "@/lib/db";
  * @param {number} data.hip - รอบสะโพก (optional)
  * @param {number} data.arm - รอบแขน (optional)
  * @param {number} data.thigh - รอบต้นขา (optional)
+ * @param {string} data.measurementDate - วันที่วัด (optional, format: YYYY-MM-DD)
  * @param {File} data.photoFront - รูปด้านหน้า (optional)
  * @param {File} data.photoSide - รูปด้านข้าง (optional)
  * @param {File} data.photoBack - รูปด้านหลัง (optional)
@@ -36,6 +37,7 @@ export async function updateHealth(data) {
       hip,
       arm,
       thigh,
+      measurementDate,
       photoFront,
       photoSide,
       photoBack,
@@ -54,7 +56,8 @@ export async function updateHealth(data) {
     const hasPhotos = photoFront || photoSide || photoBack;
     const hasRemovePhoto =
       removePhotoFront || removePhotoSide || removePhotoBack;
-    if (!hasWeight && !hasMetrics && !hasPhotos && !hasRemovePhoto) {
+    const hasDate = measurementDate !== undefined;
+    if (!hasWeight && !hasMetrics && !hasPhotos && !hasRemovePhoto && !hasDate) {
       throw new Error("กรุณาระบุข้อมูลที่ต้องการอัปเดตอย่างน้อย 1 อย่าง");
     }
 
@@ -66,7 +69,7 @@ export async function updateHealth(data) {
     if (!existingRecord.length) throw new Error("ไม่พบข้อมูลสำหรับอัปเดต");
     const record = existingRecord[0];
     const memberId = record.member_id;
-    const validDate = record.member_health_measurementdate;
+    const validDate = measurementDate || record.member_health_measurementdate;
 
     // ===== Update Logic =====
     const updateFields = [];
@@ -102,6 +105,19 @@ export async function updateHealth(data) {
     if (thigh !== undefined) {
       updateFields.push("member_health_thigh = ?");
       updateValues.push(thigh);
+    }
+    if (measurementDate !== undefined) {
+      // Validate date format
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(measurementDate)) {
+        throw new Error("รูปแบบวันที่ไม่ถูกต้อง กรุณาใช้รูปแบบ YYYY-MM-DD");
+      }
+      const date = new Date(measurementDate);
+      if (isNaN(date.getTime())) {
+        throw new Error("วันที่ไม่ถูกต้อง");
+      }
+      updateFields.push("member_health_measurementdate = ?");
+      updateValues.push(measurementDate);
     }
     if (updateFields.length > 0) {
       updateValues.push(healthId);

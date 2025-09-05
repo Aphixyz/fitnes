@@ -3,6 +3,7 @@
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import pool from "@/lib/db";
+import { formatDateForDatabase } from "@/utils/dateUtils";
 
 // ===== Insert Progress Photo Function =====
 export const insertProgressPhoto = async (formData) => {
@@ -12,7 +13,7 @@ export const insertProgressPhoto = async (formData) => {
     const photoType = formData.get("photoType"); // front, side, back
     const photoFile = formData.get("photoFile");
     const measurementDate =
-      formData.get("measurementDate") || new Date().toISOString().split("T")[0];
+      formData.get("measurementDate") || formatDateForDatabase();
 
     // Validate required fields
     if (!memberId || !photoType || !photoFile) {

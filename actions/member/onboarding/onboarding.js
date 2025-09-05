@@ -206,6 +206,14 @@ export async function saveFitnessGoals(memberId, goalsData) {
       fitness_desired_time,
     } = goalsData;
 
+    console.log("🔍 SaveFitnessGoals Debug:", {
+      memberId,
+      fitness_goal_type,
+      fitness_goal_targetweight,
+      fitness_desired_time,
+      fullGoalsData: goalsData
+    });
+
     // ตรวจสอบข้อมูลที่จำเป็น
     if (!fitness_goal_type || fitness_desired_time === null) {
       throw new Error("กรุณาเลือกประเภทเป้าหมายและกรอบเวลา");
@@ -224,12 +232,12 @@ export async function saveFitnessGoals(memberId, goalsData) {
     await db.query("START TRANSACTION");
 
     try {
-      // อัพเดท fitness_goal ที่มีอยู่
-      await db.query(
+      // อัพเดท fitness_goal ที่มีอยู่ (ทั้งแบบ 'active' และ 'pending')
+      const updateResult = await db.query(
         `UPDATE fitness_goal 
          SET fitness_goal_type = ?, fitness_goal_targetweight = ?, fitness_desired_time = ?,
              fitness_goal_startdate = ?, fitness_goal_enddate = ?
-         WHERE member_id = ? AND fitness_goal_status = 'active'`,
+         WHERE member_id = ? AND (fitness_goal_status = 'active' OR fitness_goal_status = 'pending')`,
         [
           fitness_goal_type,
           fitness_goal_targetweight || null,
@@ -239,6 +247,24 @@ export async function saveFitnessGoals(memberId, goalsData) {
           memberId,
         ]
       );
+
+      // ถ้าไม่มีการอัปเดตให้สร้างใหม่
+      if (updateResult[0].affectedRows === 0) {
+        await db.query(
+          `INSERT INTO fitness_goal 
+           (member_id, fitness_goal_type, fitness_goal_targetweight, fitness_desired_time,
+            fitness_goal_startdate, fitness_goal_enddate, fitness_goal_status) 
+           VALUES (?, ?, ?, ?, ?, ?, 'active')`,
+          [
+            memberId,
+            fitness_goal_type,
+            fitness_goal_targetweight || null,
+            fitness_desired_time,
+            startDate.toISOString().split("T")[0],
+            endDate.toISOString().split("T")[0],
+          ]
+        );
+      }
 
       await db.query("COMMIT");
 
@@ -283,14 +309,16 @@ export async function getOnboardingStatus(memberId) {
       [memberId]
     );
 
-    // ตรวจสอบว่ามี macro plan หรือไม่
+    // ตรวจสอบว่ามี macro plan หรือไม่ (optional สำหรับการแสดงสถานะ)
     const [macroData] = await db.query(
       `SELECT macro_plan_id FROM macro_plan WHERE member_id = ? LIMIT 1`,
       [memberId]
     );
 
+    // Onboarding จะถือว่าเสร็จแล้วเมื่อมีข้อมูลสุขภาพและเป้าหมาย
+    // ไม่จำเป็นต้องมี macro_plan เพราะจะสร้างในขั้นตอนสุดท้ายของ onboarding
     const hasCompletedOnboarding =
-      healthData.length > 0 && goalData.length > 0 && macroData.length > 0;
+      healthData.length > 0 && goalData.length > 0;
 
     return {
       success: true,
