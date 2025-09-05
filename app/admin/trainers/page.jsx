@@ -1,15 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getTrainerPaginated } from "@/actions/admin/getTrainer";
-import { getTrainerData } from "@/actions/admin/getTrainer";
+import { getTrainerPaginated, getTrainerData } from "@/actions/admin/getTrainer";
 import TrainerTable from "@/app/admin/_components/TrainerTable";
 import SearchFilter from "../_components/common/SearchFilter";
 import Pagination from "../_components/common/Paginate";
 import LoadingSpinner from "@/app/admin/_components/common/loadingSpinner";
-import ViewButton from "@/components/button/Look";
 import ManageUser from "@/components/button/ManageUser";
-import { AcademicCapIcon } from "@heroicons/react/24/outline";
 
 export default function TrainerPage() {
   const [trainers, setTrainers] = useState([]);
@@ -22,37 +19,29 @@ export default function TrainerPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
 
-  // โหลดข้อมูลทั้งหมด (ใช้สำหรับค้นหา)
+  // โหลดข้อมูลทั้งหมด (สำหรับ search)
   useEffect(() => {
     const fetchAllTrainers = async () => {
       try {
         const data = await getTrainerData();
         setAllTrainers(data);
       } catch (err) {
-        console.error("โหลดข้อมูลทั้งหมดล้มเหลว");
+        console.error("โหลดข้อมูลทั้งหมดล้มเหลว", err);
       }
     };
-
     fetchAllTrainers();
   }, []);
 
-  // โหลดข้อมูลแบบแบ่งหน้า
+  // โหลดข้อมูลแบบ pagination
   useEffect(() => {
     if (isSearchActive) return;
 
     const fetchPaginatedTrainers = async () => {
       setLoading(true);
       try {
-        const res = await getTrainerPaginated(
-          currentPage,
-          10,
-          statusFilter,
-          sortField,
-          sortOrder
-        );
+        const res = await getTrainerPaginated(currentPage, 10, statusFilter, sortField, sortOrder);
         if (res.success) {
           setTrainers(res.data);
           setTotalPages(res.pagination.totalPages);
@@ -64,43 +53,41 @@ export default function TrainerPage() {
       }
       setLoading(false);
     };
-
     fetchPaginatedTrainers();
   }, [currentPage, statusFilter, sortField, sortOrder, isSearchActive]);
 
-  const handleFilter = (filtered) => {
-    setFilteredTrainers(filtered);
-  };
-
+  // ฟังก์ชัน search
   const handleSearchTermChange = (term) => {
-    setSearchTerm(term);
     setIsSearchActive(term.length > 0);
-    if (term.length > 0 && !isSearchActive) {
+    if (term.length === 0) {
+      setFilteredTrainers([]);
       setCurrentPage(1);
+      return;
     }
+
+    const lowercasedTerm = term.toLowerCase();
+    const filtered = allTrainers.filter(trainer =>
+      ["trainer_firstname", "trainer_lastname", "trainer_id"].some(field => {
+        const value = trainer[field];
+        if (!value) return false;
+        return value.toString().toLowerCase().includes(lowercasedTerm);
+      })
+    );
+    setFilteredTrainers(filtered);
   };
 
   const handleStatusFilter = (e) => {
     setStatusFilter(e.target.value);
     setCurrentPage(1);
-    setSearchTerm("");
     setIsSearchActive(false);
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+  const handlePageChange = (page) => setCurrentPage(page);
 
   const handleSortChange = (field) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortOrder("asc");
-    }
+    if (sortField === field) setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    else setSortField(field);
     setCurrentPage(1);
-    setSearchTerm("");
-    setIsSearchActive(false);
   };
 
   return (
@@ -108,41 +95,32 @@ export default function TrainerPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
         <div className="w-full md:w-auto flex justify-center md:justify-end">
           <SearchFilter
-            data={trainers}
+            data={allTrainers}
             onFilter={setFilteredTrainers}
+            searchFields={["trainer_firstname", "trainer_lastname", "trainer_id"]}
             placeholder="ค้นหาผู้ฝึกสอน"
-            searchFields={[
-              "trainer_firstname",
-              "trainer_lastname",
-              "trainer_id",
-            ]}
+            onSearchTermChange={handleSearchTermChange}
           />
         </div>
 
-        {/* กลาง: หัวข้อ */}
         <div className="w-full md:w-1/3 text-center">
-          <h1 className="text-xl md:text-2xl font-bold">
-            หน้าการจัดการผู้ฝึกสอน
-          </h1>
+          <h1 className="text-xl md:text-2xl font-bold">หน้าการจัดการผู้ฝึกสอน</h1>
         </div>
+
         <ManageUser route="/admin/trainers/manage" />
       </div>
 
-       <div className="w-full md:w-auto flex justify-center md:justify-end">
-          <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-            <span>กรองตามสถานะ:</span>
-            <select
-              value={statusFilter}
-              onChange={handleStatusFilter}
-              className="p-1 border rounded-md"
-            >
-              <option value="">แสดงทั้งหมด</option>
-              <option value="active">ใช้งาน</option>
-              <option value="inactive">หมดอายุ</option>
-              <option value="pending">กำลังรอดำเนินการ</option>
-            </select>
-          </label>
-        </div>
+      <div className="w-full md:w-auto flex justify-center md:justify-end mb-4">
+        <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
+          <span>กรองตามสถานะ:</span>
+          <select value={statusFilter} onChange={handleStatusFilter} className="p-1 border rounded-md">
+            <option value="">แสดงทั้งหมด</option>
+            <option value="active">ใช้งาน</option>
+            <option value="inactive">หมดอายุ</option>
+            <option value="pending">กำลังรอดำเนินการ</option>
+          </select>
+        </label>
+      </div>
 
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
@@ -155,7 +133,7 @@ export default function TrainerPage() {
             sortField={sortField}
             sortOrder={sortOrder}
             handleSortChange={handleSortChange}
-            showActions={false}
+            showActions={true} // ปุ่ม delete/แก้ไข
           />
           {!isSearchActive && (
             <Pagination
@@ -163,7 +141,7 @@ export default function TrainerPage() {
               totalPages={totalPages}
               onPageChange={handlePageChange}
               disableNavigation={false}
-              disableNextOnly={trainers.length === 0}
+              disableNextOnly={(trainers || []).length === 0}
             />
           )}
         </>
