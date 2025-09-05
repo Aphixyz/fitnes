@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -20,6 +21,7 @@ const schema = yup.object().shape({
 });
 
 export default function TrainerAddPage() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -36,8 +38,11 @@ export default function TrainerAddPage() {
     const result = await createTrainer(data);
 
     if (result.success) {
-      setMessage("✅ เพิ่ม Trainer สำเร็จ! 🎉");
+      setMessage("✅ เพิ่มผู้ฝึกสอนสำเร็จ! 🎉");
       reset();
+      setTimeout(() => {
+        router.push("/admin/trainers");
+      }, 1200); // แสดงข้อความสั้น ๆ ก่อน redirect
     } else {
       setMessage("❌ เกิดข้อผิดพลาด: " + result.error);
     }
@@ -48,8 +53,8 @@ export default function TrainerAddPage() {
       <div className="max-w-4xl mx-auto p-6 ">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">เพิ่มเทรนเนอร์</h1>
-          <p className="text-gray-600">กรอกข้อมูลเพื่อเพิ่มเทรนเนอร์ใหม่เข้าสู่ระบบ</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">เพิ่มผู้ฝึกสอน</h1>
+          <p className="text-gray-600">กรอกข้อมูลเพื่อเพิ่มผู้ฝึกสอนใหม่เข้าสู่ระบบ</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -158,7 +163,7 @@ export default function TrainerAddPage() {
               <BackButton />
               <AddButton
                 type="submit"
-                buttonText="เพิ่มเทรนเนอร์"
+                buttonText="เพิ่มผู้ฝึกสอน"
                 showIcon={true}
                 isSubmitting={isSubmitting}
               />

@@ -128,23 +128,21 @@ export default function TrainerPage() {
         <ManageUser route="/admin/trainers/manage" />
       </div>
 
-      <div className="flex justify-end items-center mb-4">
-        <div className="flex items-center space-x-2">
-          <label className="text-sm font-medium text-gray-700">
-            กรองตามสถานะ:
+       <div className="w-full md:w-auto flex justify-center md:justify-end">
+          <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
+            <span>กรองตามสถานะ:</span>
+            <select
+              value={statusFilter}
+              onChange={handleStatusFilter}
+              className="p-1 border rounded-md"
+            >
+              <option value="">แสดงทั้งหมด</option>
+              <option value="active">ใช้งาน</option>
+              <option value="inactive">หมดอายุ</option>
+              <option value="pending">กำลังรอดำเนินการ</option>
+            </select>
           </label>
-          <select
-            value={statusFilter}
-            onChange={handleStatusFilter}
-            className="p-1 border rounded-md"
-          >
-            <option value="">แสดงทั้งหมด</option>
-            <option value="active">ใช้งาน</option>
-            <option value="inactive">ไม่ได้ใช้งาน</option>
-            <option value="expired">หมดอายุ</option>
-          </select>
         </div>
-      </div>
 
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
