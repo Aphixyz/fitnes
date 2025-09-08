@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { User, Activity, Apple, BarChart3, Heart, Target } from "lucide-react";
+import { User, Activity, Apple, BarChart3, Image, Target } from "lucide-react";
 
 const tabs = [
   {
@@ -31,15 +31,15 @@ const tabs = [
     key: "stats",
   },
   {
-    name: "ข้อมูลสุขภาพ",
-    href: "/health-info",
-    icon: Heart,
-    key: "health",
+    name: "รูปภาพความคืบหน้า",
+    href: "/progressphoto",
+    icon: Image,
+    key: "ProgressPhotoPage",
   },
   {
     name: "ข้อมูลส่วนตัว",
     href: "/personal-info",
-    icon: Activity,
+    icon: Target,
     key: "personal",
   },
 ];
@@ -56,7 +56,7 @@ export default function MemberTabs({ trainerId, memberId }) {
     if (pathname.includes("/workout-plan")) return "workout";
     if (pathname.includes("/macros-plan")) return "macros";
     if (pathname.includes("/statistics")) return "stats";
-    if (pathname.includes("/health-info")) return "health";
+    if (pathname.includes("/progressphoto")) return "ProgressPhotoPage";
     if (pathname.includes("/personal-info")) return "personal";
 
     return "dashboard";

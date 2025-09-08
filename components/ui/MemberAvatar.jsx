@@ -8,6 +8,29 @@ const MemberAvatar = ({ firstname, lastname, profileImage, size = "sm" }) => {
     return `${firstInitial}${lastInitial}`;
   };
 
+  // สร้าง URL รูปภาพจาก path ที่เก็บในฐานข้อมูล
+  const getImageUrl = (profileImage) => {
+    if (!profileImage) return null;
+
+    // ถ้าเป็น full URL แล้ว (เริ่มต้นด้วย http/https) ให้ใช้เลย
+    if (profileImage.startsWith("http")) {
+      return profileImage;
+    }
+
+    // ถ้าเป็น path ใน public/uploads/ ให้เพิ่ม /uploads/ prefix
+    if (profileImage.startsWith("profile_") || profileImage.includes(".")) {
+      return `/uploads/${profileImage}`;
+    }
+
+    // ถ้าเป็น path ที่มี /uploads/ อยู่แล้ว ให้ใช้เลย
+    if (profileImage.startsWith("/uploads/")) {
+      return profileImage;
+    }
+
+    // กรณีอื่นๆ ให้เพิ่ม /uploads/ prefix
+    return `/uploads/${profileImage}`;
+  };
+
   // กำหนดขนาด Avatar
   const sizeClasses = {
     sm: "h-8 w-8",
@@ -23,13 +46,15 @@ const MemberAvatar = ({ firstname, lastname, profileImage, size = "sm" }) => {
     xl: "text-lg",
   };
 
+  const imageUrl = getImageUrl(profileImage);
+
   return (
     <Avatar className={sizeClasses[size]}>
-      {profileImage ? (
+      {imageUrl ? (
         <AvatarImage
-          src={profileImage}
-          alt={`${firstname} ${lastname}`}
-          className="object-cover"
+          src={imageUrl}
+          alt={`${firstname || ""} ${lastname || ""}`}
+          className="object-cover object-center"
         />
       ) : null}
       <AvatarFallback
