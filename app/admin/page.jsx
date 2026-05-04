@@ -15,6 +15,7 @@ import { getMemberWithTrainer } from "@/actions/admin/member/getMemberWithTraine
 import { getRevenueByPackage } from "@/actions/admin/getPrice";
 import { getMemberPerMonth } from "@/actions/admin/member/getMemberPerMonth";
 import { getInitials } from "@/utils/utils";
+import Link from "next/link";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState([
@@ -248,23 +249,26 @@ export default function AdminDashboard() {
     const ctx = document.getElementById("acquisitions");
     if (!ctx) return;
 
-    // เรียงลำดับ newMembers จากเก่าไปใหม่ตาม registration_startdate
-    const sortedMembers = [...newMembers].sort(
-      (a, b) =>
-        new Date(a.registration_startdate) - new Date(b.registration_startdate)
-    );
+    // จัดกลุ่มสมาชิกตามวัน
+    const membersPerDay = newMembers.reduce((acc, member) => {
+      const date = new Date(member.registration_startdate).toLocaleDateString(
+        "th-TH",
+        { day: "2-digit", month: "short" }
+      );
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {});
+
+    // แยก label กับ data
+    const labels = Object.keys(membersPerDay);
+    const data = Object.values(membersPerDay);
 
     const chartData = {
-      labels: sortedMembers.map((row) =>
-        new Date(row.registration_startdate).toLocaleDateString("th-TH", {
-          day: "2-digit",
-          month: "short",
-        })
-      ),
+      labels,
       datasets: [
         {
           label: "สมาชิกใหม่",
-          data: sortedMembers.map((row) => row.member_id), // หรือ field อื่นที่แทนจำนวน
+          data,
           backgroundColor: "#4f46e5",
           borderRadius: 10,
         },
@@ -286,19 +290,18 @@ export default function AdminDashboard() {
           y: {
             beginAtZero: true,
             ticks: {
-              display: false, // ปิดการแสดง labels บนแกน Y
+              stepSize: 1,
             },
           },
           x: {
             ticks: {
-              display: true, // คงการตั้งค่าเดิมที่ปิดแกน X
+              display: true,
             },
           },
         },
       },
     };
 
-    // ป้องกันการสร้างซ้ำ
     const existingChart = Chart.getChart("acquisitions");
     if (existingChart) {
       existingChart.destroy();
@@ -327,38 +330,47 @@ export default function AdminDashboard() {
           <div className="bg-red-50 text-red-700 p-4 rounded-md">{error}</div>
         ) : (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-            {stats.map((stat, i) => (
-              <Card key={i} className="flex-1">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between space-x-2">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-2 bg-blue-100 text-blue-700 rounded-full">
-                        {stat.icon}
+            {stats.map((stat, i) => {
+              // กำหนดลิงก์สำหรับแต่ละ Card
+              let href = "";
+              if (stat.title === "ผู้ฝึกสอนทั้งหมด") href = "/admin/trainers";
+              if (stat.title === "สมาชิกทั้งหมด") href = "/admin/members";
+
+              return (
+                <Link key={i} href={href || "#"} className="flex-1">
+                  <Card className="flex-1 cursor-pointer hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between space-x-2">
+                        <div className="flex items-center space-x-4">
+                          <div className="p-2 bg-blue-100 text-blue-700 rounded-full">
+                            {stat.icon}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">
+                              {stat.title}
+                            </p>
+                            <p className="text-2xl font-bold">{stat.value}</p>
+                          </div>
+                        </div>
+                        {stat.change && (
+                          <div
+                            className={`text-sm ${
+                              stat.changeType === "increase"
+                                ? "text-green-500"
+                                : stat.changeType === "decrease"
+                                ? "text-red-500"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            {stat.change}
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          {stat.title}
-                        </p>
-                        <p className="text-2xl font-bold">{stat.value}</p>
-                      </div>
-                    </div>
-                    {stat.change && (
-                      <div
-                        className={`text-sm ${
-                          stat.changeType === "increase"
-                            ? "text-green-500"
-                            : stat.changeType === "decrease"
-                            ? "text-red-500"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {stat.change}
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
