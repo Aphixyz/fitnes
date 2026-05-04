@@ -7,10 +7,10 @@ export const metadata = {
     "ระบบจัดการติดตามการออกกำลังกายและโภชนาการส่วนบุคคล - ส่วนผู้ดูแลระบบ",
 };
 
-export default function AdminLayout({ children }) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
-      <AdminSidebar />
+      <AdminSidebar user={{ name: "ผู้ดูแลระบบ" }} />
       
       <div className="flex flex-col flex-1">
         <main className="">

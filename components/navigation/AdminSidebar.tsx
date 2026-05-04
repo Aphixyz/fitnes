@@ -7,12 +7,26 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/utils";
 import { Menu, X, ChevronRight, ChevronLeft } from "lucide-react";
 
-export const AdminSidebar = ({ user }) => {
+interface User {
+  name?: string;
+}
+
+interface AdminSidebarProps {
+  user?: User;
+}
+
+interface MenuItem {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+}
+
+export const AdminSidebar: React.FC<AdminSidebarProps> = ({ user }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     {
       label: "แดชบอร์ด",
       href: "/admin",

@@ -17,8 +17,29 @@ import { getMemberPerMonth } from "@/actions/admin/member/getMemberPerMonth";
 import { getInitials } from "@/utils/utils";
 import Link from "next/link";
 
+interface StatItem {
+  title: string;
+  value: string;
+  change: string;
+  changeType: "increase" | "decrease" | "neutral";
+  icon: React.ReactNode;
+}
+
+interface NewMember {
+  member_id: number;
+  member_firstname: string;
+  member_lastname: string;
+  member_profileimage?: string;
+  registration_startdate: string;
+}
+
+interface RevenueData {
+  revenue_month: string;
+  total_monthly_revenue: string | number;
+}
+
 export default function AdminDashboard() {
-  const [stats, setStats] = useState([
+  const [stats, setStats] = useState<StatItem[]>([
     {
       title: "ผู้ฝึกสอนทั้งหมด",
       value: "0",
@@ -84,17 +105,17 @@ export default function AdminDashboard() {
     },
   ]);
 
-  const [newMembers, setNewMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [newMembers, setNewMembers] = useState<NewMember[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // เริ่ม loading
+      setLoading(true);
       try {
         const res = await getMemberPerMonth();
-        if (res.success) {
-          setNewMembers(res.data);
+        if (res.success && res.data) {
+          setNewMembers(res.data as NewMember[]);
         } else {
           setError("เกิดข้อผิดพลาดในการโหลดสมาชิกใหม่");
         }
@@ -102,7 +123,7 @@ export default function AdminDashboard() {
         console.error(err);
         setError("ไม่สามารถโหลดข้อมูลสมาชิกใหม่ได้");
       } finally {
-        setLoading(false); // จบ loading
+        setLoading(false);
       }
     };
     fetchData();
@@ -119,20 +140,17 @@ export default function AdminDashboard() {
           getRevenueByPackage(),
         ]);
 
-        const members = membersResponse.success ? membersResponse.data : [];
+        const members = membersResponse.success ? (membersResponse.data as any[]) : [];
+        const revenueData = revenueResponse.success ? (revenueResponse.data as RevenueData[]) : [];
 
         const currentMonth = new Date().toISOString().slice(0, 7); // "2025-06"
-        const filteredRevenue = revenueResponse.success
-          ? revenueResponse.data.filter(
-              (item) => item.revenue_month === currentMonth
-            )
-          : [];
-        const currentMonthRevenue = revenueResponse.success
-          ? filteredRevenue.reduce(
-              (sum, item) => sum + (Number(item.total_monthly_revenue) || 0),
-              0
-            )
-          : 0;
+        const filteredRevenue = revenueData.filter(
+          (item) => item.revenue_month === currentMonth
+        );
+        const currentMonthRevenue = filteredRevenue.reduce(
+          (sum, item) => sum + (Number(item.total_monthly_revenue) || 0),
+          0
+        );
 
         // ดึงข้อมูลก่อนหน้าจาก localStorage
         const previousData = JSON.parse(
@@ -250,7 +268,7 @@ export default function AdminDashboard() {
     if (!ctx) return;
 
     // จัดกลุ่มสมาชิกตามวัน
-    const membersPerDay = newMembers.reduce((acc, member) => {
+    const membersPerDay = newMembers.reduce((acc: Record<string, number>, member) => {
       const date = new Date(member.registration_startdate).toLocaleDateString(
         "th-TH",
         { day: "2-digit", month: "short" }
@@ -414,10 +432,10 @@ export default function AdminDashboard() {
               <div className="space-y-4">
                 {newMembers.slice(0, 5).map((member, i) => (
                   <div key={i} className="flex items-center space-x-3">
-                    {member.member_profile_image ? (
+                    {member.member_profileimage ? (
                       <div className="w-12 h-12 rounded-full overflow-hidden">
                         <img
-                          src={member.member_profile_image}
+                          src={member.member_profileimage}
                           alt={`${member.member_firstname} ${member.member_lastname}`}
                           className="w-full h-full object-cover"
                         />
